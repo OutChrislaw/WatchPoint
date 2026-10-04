@@ -1,0 +1,18 @@
+Tagbilaran City|Poblacion I|Rizal Street
+Tagbilaran City|Poblacion I|CPG Avenue
+Tagbilaran City|Poblacion II|Gallares Street
+Tagbilaran City|Cogon|Bagacay Road
+Panglao|Poblacion|Panglao Coastal Road
+Dauis|Poblacion|Dauis Road
+Cortes|Poblacion|Municipal Road
+Marcela|Poblacion|Marcela Road
+Ubay|Poblacion|Ubay National Road
+Talibon|Poblacion|Talibon Wharf Road
+Tubigon|Poblacion|Tubigon Port Road
+Anda|Poblacion|Anda Beach Road
+Carmen|Poblacion|Carmen Road
+Jagna|Poblacion|Jagna Port Road
+Loon|Poblacion|Loon Road
+Baclayon|Poblacion|Baclayon Heritage Road
+Balilihan|Poblacion|Balilihan Road
+Bilar|Poblacion|Bilar Man-Made Forest Road
