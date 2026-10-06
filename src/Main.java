@@ -8,6 +8,8 @@ import javax.swing.SwingUtilities;
 public class Main {
 
     public static void main(String[] args) {
+        UITheme.applyGlobalDefaults();
+
         FileManager fileManager = new FileManager("data");
         UserManager userManager = new UserManager(fileManager);
         final ReportManager reportManager = new ReportManager(fileManager);

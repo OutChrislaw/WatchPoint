@@ -23,6 +23,9 @@ WatchPoint/
 │   ├── UserManager.java     Registration, login, and user records
 │   ├── ReportManager.java   Submit, search, update, and delete reports
 │   ├── FileManager.java     Reads and writes users.txt and reports.txt
+│   ├── UITheme.java         Shared colours, fonts, and reusable widgets
+│   ├── ReportDetailPanel.java  Form-style view of a single report
+│   ├── UserDetailPanel.java    Form-style view of a single user account
 │   ├── LoginFrame.java      Login window
 │   ├── RegistrationFrame.java  New resident sign-up window
 │   ├── ResidentDashboard.java  Window for residents

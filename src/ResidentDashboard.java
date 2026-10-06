@@ -1,6 +1,10 @@
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -13,16 +17,20 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
  * ResidentDashboard.java
  * The window a Resident sees after logging in. It allows the resident to
- * submit a new hazard report and to manage the reports they own.
+ * submit a new hazard report and to manage the reports they own. Reports are
+ * shown as a list on the left and a form-style detail view on the right.
  */
 public class ResidentDashboard extends JFrame {
 
@@ -37,8 +45,11 @@ public class ResidentDashboard extends JFrame {
     private JTextField specificPlaceField;
     private JTextField specificDetailField;
     private JTextArea descriptionArea;
+
     private JTable reportTable;
     private DefaultTableModel reportTableModel;
+    private ReportDetailPanel detailPanel;
+    private List<Report> currentReports;
 
     public ResidentDashboard(Resident currentUser, ReportManager reportManager, UserManager userManager) {
         this.currentUser = currentUser;
@@ -46,97 +57,30 @@ public class ResidentDashboard extends JFrame {
         this.userManager = userManager;
 
         setTitle("WatchPoint - Resident: " + currentUser.getFullName());
-        setSize(950, 560);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setMinimumSize(new Dimension(920, 600));
+        setSize(1150, 700);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        getContentPane().setBackground(UITheme.BACKGROUND);
 
-        hazardTypeBox = new JComboBox<String>();
-        hazardTypeBox.addItem("Road Hazard");
-        hazardTypeBox.addItem("Flood");
-        hazardTypeBox.addItem("Streetlight");
-        hazardTypeBox.addItem("Other");
-
-        cityMunicipalityField = new JTextField();
-        barangayField = new JTextField();
-        streetField = new JTextField();
-        specificPlaceField = new JTextField();
-        specificDetailField = new JTextField();
-        descriptionArea = new JTextArea(3, 20);
-
-        JPanel formPanel = new JPanel(new GridLayout(7, 2, 8, 8));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        formPanel.add(new JLabel("Hazard Type:"));
-        formPanel.add(hazardTypeBox);
-        formPanel.add(new JLabel("City / Municipality:"));
-        formPanel.add(cityMunicipalityField);
-        formPanel.add(new JLabel("Barangay:"));
-        formPanel.add(barangayField);
-        formPanel.add(new JLabel("Street:"));
-        formPanel.add(streetField);
-        formPanel.add(new JLabel("Specific Place:"));
-        formPanel.add(specificPlaceField);
-        formPanel.add(new JLabel("Specific Detail (hazard type / water level / pole number):"));
-        formPanel.add(specificDetailField);
-        formPanel.add(new JLabel("Description:"));
-        formPanel.add(new JScrollPane(descriptionArea));
-
-        JButton submitButton = new JButton("Submit Report");
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                submitReport();
-            }
-        });
-
-        JPanel submitButtonPanel = new JPanel(new FlowLayout());
-        submitButtonPanel.add(submitButton);
-
-        JPanel submitTab = new JPanel(new BorderLayout());
-        submitTab.add(formPanel, BorderLayout.CENTER);
-        submitTab.add(submitButtonPanel, BorderLayout.SOUTH);
-
-        reportTableModel = new DefaultTableModel();
-        reportTableModel.addColumn("Report ID");
-        reportTableModel.addColumn("Type");
-        reportTableModel.addColumn("Location");
-        reportTableModel.addColumn("Description");
-        reportTableModel.addColumn("Detail");
-        reportTableModel.addColumn("Status");
-        reportTableModel.addColumn("Date Submitted");
-
-        reportTable = new JTable(reportTableModel);
-
-        JButton updateButton = new JButton("Update Selected Report");
-        updateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateSelectedReport();
-            }
-        });
-
-        JButton deleteButton = new JButton("Delete Selected Report");
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteSelectedReport();
-            }
-        });
-
-        JPanel reportButtonPanel = new JPanel(new FlowLayout());
-        reportButtonPanel.add(updateButton);
-        reportButtonPanel.add(deleteButton);
-
-        JPanel reportsTab = new JPanel(new BorderLayout());
-        reportsTab.add(new JScrollPane(reportTable), BorderLayout.CENTER);
-        reportsTab.add(reportButtonPanel, BorderLayout.SOUTH);
+        add(buildHeader(), BorderLayout.NORTH);
 
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Submit Report", submitTab);
-        tabs.addTab("My Reports", reportsTab);
+        tabs.setFont(UITheme.FONT_BOLD);
+        tabs.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+        tabs.addTab("  Submit Report  ", buildSubmitTab());
+        tabs.addTab("  My Reports  ", buildReportsTab());
         add(tabs, BorderLayout.CENTER);
 
-        JButton logoutButton = new JButton("Log Out");
+        showOwnReports();
+    }
+
+    private JPanel buildHeader() {
+        JPanel header = UITheme.headerBar("WatchPoint",
+                "Signed in as " + currentUser.getFullName() + "   -   Resident");
+
+        JButton logoutButton = UITheme.secondaryButton("Log Out");
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -144,28 +88,241 @@ public class ResidentDashboard extends JFrame {
             }
         });
 
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomPanel.add(logoutButton);
-        add(bottomPanel, BorderLayout.SOUTH);
+        JPanel east = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        east.setOpaque(false);
+        east.add(logoutButton);
+        header.add(east, BorderLayout.EAST);
+        return header;
+    }
 
-        showOwnReports();
+    private JPanel buildSubmitTab() {
+        hazardTypeBox = new JComboBox<String>();
+        hazardTypeBox.addItem("Road Hazard");
+        hazardTypeBox.addItem("Flood");
+        hazardTypeBox.addItem("Streetlight");
+        hazardTypeBox.addItem("Other");
+        hazardTypeBox.setFont(UITheme.FONT_BASE);
+
+        cityMunicipalityField = new JTextField(18);
+        barangayField = new JTextField(18);
+        streetField = new JTextField(18);
+        specificPlaceField = new JTextField(18);
+        specificDetailField = new JTextField(18);
+        UITheme.styleField(cityMunicipalityField);
+        UITheme.styleField(barangayField);
+        UITheme.styleField(streetField);
+        UITheme.styleField(specificPlaceField);
+        UITheme.styleField(specificDetailField);
+
+        descriptionArea = new JTextArea(4, 18);
+        descriptionArea.setFont(UITheme.FONT_BASE);
+        descriptionArea.setForeground(UITheme.TEXT);
+        descriptionArea.setBackground(UITheme.CARD);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+
+        JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
+        descriptionScroll.setBorder(BorderFactory.createLineBorder(UITheme.BORDER, 1, true));
+        descriptionScroll.setPreferredSize(new Dimension(200, 96));
+
+        JPanel form = UITheme.card();
+        form.setLayout(new GridBagLayout());
+
+        GridBagConstraints titleConstraints = new GridBagConstraints();
+        titleConstraints.gridx = 0;
+        titleConstraints.gridy = 0;
+        titleConstraints.gridwidth = 2;
+        titleConstraints.anchor = GridBagConstraints.WEST;
+        titleConstraints.insets = new Insets(0, 6, 4, 6);
+        form.add(UITheme.sectionLabel("Submit a Hazard Report"), titleConstraints);
+
+        JLabel hint = new JLabel("Fill in where the hazard is and what you observed.");
+        hint.setFont(UITheme.FONT_SMALL);
+        hint.setForeground(UITheme.MUTED);
+        GridBagConstraints hintConstraints = new GridBagConstraints();
+        hintConstraints.gridx = 0;
+        hintConstraints.gridy = 1;
+        hintConstraints.gridwidth = 2;
+        hintConstraints.anchor = GridBagConstraints.WEST;
+        hintConstraints.insets = new Insets(0, 6, 16, 6);
+        form.add(hint, hintConstraints);
+
+        addFormRow(form, 2, "Hazard Type", hazardTypeBox);
+        addFormRow(form, 3, "City / Municipality", cityMunicipalityField);
+        addFormRow(form, 4, "Barangay", barangayField);
+        addFormRow(form, 5, "Street", streetField);
+        addFormRow(form, 6, "Specific Place", specificPlaceField);
+        addFormRow(form, 7, "Specific Detail", specificDetailField);
+        addFormRow(form, 8, "Description", descriptionScroll);
+
+        JButton submitButton = UITheme.primaryButton("Submit Report");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                submitReport();
+            }
+        });
+
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridx = 1;
+        buttonConstraints.gridy = 9;
+        buttonConstraints.anchor = GridBagConstraints.EAST;
+        buttonConstraints.insets = new Insets(14, 6, 0, 6);
+        form.add(submitButton, buttonConstraints);
+
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(UITheme.BACKGROUND);
+        GridBagConstraints wrapperConstraints = new GridBagConstraints();
+        wrapperConstraints.gridx = 0;
+        wrapperConstraints.gridy = 0;
+        wrapperConstraints.weightx = 1.0;
+        wrapperConstraints.weighty = 1.0;
+        wrapperConstraints.anchor = GridBagConstraints.NORTH;
+        wrapperConstraints.insets = new Insets(18, 18, 18, 18);
+        wrapper.add(form, wrapperConstraints);
+
+        Dimension preferred = form.getPreferredSize();
+        form.setPreferredSize(new Dimension(640, preferred.height));
+        return wrapper;
+    }
+
+    private void addFormRow(JPanel form, int row, String label, Component field) {
+        JLabel caption = new JLabel(label);
+        caption.setFont(UITheme.FONT_BOLD);
+        caption.setForeground(UITheme.TEXT);
+
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = row;
+        labelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        labelConstraints.insets = new Insets(6, 6, 6, 14);
+        form.add(caption, labelConstraints);
+
+        GridBagConstraints fieldConstraints = new GridBagConstraints();
+        fieldConstraints.gridx = 1;
+        fieldConstraints.gridy = row;
+        fieldConstraints.weightx = 1.0;
+        fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+        fieldConstraints.anchor = GridBagConstraints.NORTHWEST;
+        fieldConstraints.insets = new Insets(6, 6, 6, 6);
+        form.add(field, fieldConstraints);
+    }
+
+    private JPanel buildReportsTab() {
+        reportTableModel = new DefaultTableModel();
+        reportTableModel.addColumn("Report ID");
+        reportTableModel.addColumn("Type");
+        reportTableModel.addColumn("Status");
+        reportTableModel.addColumn("Date Submitted");
+
+        reportTable = UITheme.styledTable(reportTableModel);
+        reportTable.getColumnModel().getColumn(0).setPreferredWidth(90);
+        reportTable.getColumnModel().getColumn(1).setPreferredWidth(130);
+        reportTable.getColumnModel().getColumn(2).setPreferredWidth(130);
+        reportTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+        reportTable.getColumnModel().getColumn(2).setCellRenderer(UITheme.statusCellRenderer());
+
+        reportTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    showSelectedReport();
+                }
+            }
+        });
+
+        detailPanel = new ReportDetailPanel();
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                UITheme.scroll(reportTable), detailPanel);
+        split.setBorder(null);
+        split.setOpaque(false);
+        split.setResizeWeight(0.33);
+        split.setDividerLocation(340);
+        split.setDividerSize(8);
+        split.setContinuousLayout(true);
+
+        JPanel tab = new JPanel(new BorderLayout(0, 12));
+        tab.setBackground(UITheme.BACKGROUND);
+        tab.setBorder(BorderFactory.createEmptyBorder(14, 16, 14, 16));
+        tab.add(split, BorderLayout.CENTER);
+        tab.add(buildReportButtonRow(), BorderLayout.SOUTH);
+        return tab;
+    }
+
+    private JPanel buildReportButtonRow() {
+        JButton updateButton = UITheme.secondaryButton("Update Selected Report");
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateSelectedReport();
+            }
+        });
+
+        JButton deleteButton = UITheme.dangerButton("Delete Selected Report");
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteSelectedReport();
+            }
+        });
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttons.setOpaque(false);
+        buttons.add(updateButton);
+        buttons.add(deleteButton);
+
+        JLabel hint = new JLabel("Select one of your reports on the left to view it.");
+        hint.setFont(UITheme.FONT_SMALL);
+        hint.setForeground(UITheme.MUTED);
+
+        JPanel row = new JPanel(new BorderLayout());
+        row.setOpaque(false);
+        row.add(hint, BorderLayout.WEST);
+        row.add(buttons, BorderLayout.EAST);
+        return row;
+    }
+
+    private void showSelectedReport() {
+        Report report = selectedReport();
+        if (report == null) {
+            detailPanel.clear();
+        } else {
+            detailPanel.setReport(report);
+        }
+    }
+
+    private Report selectedReport() {
+        int viewRow = reportTable.getSelectedRow();
+        if (viewRow < 0) {
+            return null;
+        }
+        int modelRow = reportTable.convertRowIndexToModel(viewRow);
+        if (modelRow < 0 || modelRow >= currentReports.size()) {
+            return null;
+        }
+        return currentReports.get(modelRow);
     }
 
     public void showOwnReports() {
         reportTableModel.setRowCount(0);
+        currentReports = reportManager.getReportsByReporter(currentUser.getUserId());
 
-        List<Report> reports = reportManager.getReportsByReporter(currentUser.getUserId());
-        for (int i = 0; i < reports.size(); i++) {
-            Report report = reports.get(i);
-            Object[] row = new Object[7];
+        for (int i = 0; i < currentReports.size(); i++) {
+            Report report = currentReports.get(i);
+            Object[] row = new Object[4];
             row[0] = report.getReportId();
             row[1] = report.getReportType();
-            row[2] = report.getLocation().getFullLocation();
-            row[3] = report.getDescription();
-            row[4] = report.getSpecificDetail();
-            row[5] = report.getStatus().name();
-            row[6] = report.getDateSubmitted();
+            row[2] = report.getStatus().name();
+            row[3] = report.getDateSubmitted();
             reportTableModel.addRow(row);
+        }
+
+        if (currentReports.size() > 0) {
+            reportTable.setRowSelectionInterval(0, 0);
+        } else {
+            reportTable.clearSelection();
+            detailPanel.clear();
         }
     }
 
@@ -206,16 +363,9 @@ public class ResidentDashboard extends JFrame {
     }
 
     public void updateSelectedReport() {
-        int selectedRow = reportTable.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select one of your reports first.");
-            return;
-        }
-
-        String reportId = (String) reportTableModel.getValueAt(selectedRow, 0);
-        Report report = reportManager.getReportById(reportId);
+        Report report = selectedReport();
         if (report == null) {
-            JOptionPane.showMessageDialog(this, "Report not found.");
+            JOptionPane.showMessageDialog(this, "Please select one of your reports first.");
             return;
         }
         if (report.getStatus() != ReportStatus.PENDING) {
@@ -243,20 +393,19 @@ public class ResidentDashboard extends JFrame {
     }
 
     public void deleteSelectedReport() {
-        int selectedRow = reportTable.getSelectedRow();
-        if (selectedRow < 0) {
+        Report report = selectedReport();
+        if (report == null) {
             JOptionPane.showMessageDialog(this, "Please select one of your reports first.");
             return;
         }
 
-        String reportId = (String) reportTableModel.getValueAt(selectedRow, 0);
         int answer = JOptionPane.showConfirmDialog(this,
-                "Delete report " + reportId + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                "Delete report " + report.getReportId() + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
         if (answer != JOptionPane.YES_OPTION) {
             return;
         }
 
-        if (reportManager.deleteResidentReport(reportId, currentUser.getUserId())) {
+        if (reportManager.deleteResidentReport(report.getReportId(), currentUser.getUserId())) {
             JOptionPane.showMessageDialog(this, "Report deleted.");
             showOwnReports();
         } else {
@@ -271,3 +420,6 @@ public class ResidentDashboard extends JFrame {
         this.dispose();
     }
 }
+
+
+
