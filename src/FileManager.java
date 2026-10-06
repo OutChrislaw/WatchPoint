@@ -19,6 +19,7 @@ public class FileManager {
         this.dataFolder = dataFolder;
         ensureFileExists("users.txt");
         ensureFileExists("reports.txt");
+        ensureFileExists("locations.txt");
     }
 
     public List<String> readLines(String fileName) {

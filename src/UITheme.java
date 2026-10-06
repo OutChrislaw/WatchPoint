@@ -43,6 +43,7 @@ public final class UITheme {
     public static final Color ACCENT_DARK = new Color(21, 101, 192);
     public static final Color BACKGROUND = new Color(244, 246, 248);
     public static final Color CARD = Color.WHITE;
+    public static final Color FIELD_BG = new Color(247, 249, 251);
     public static final Color TEXT = new Color(33, 43, 54);
     public static final Color MUTED = new Color(122, 132, 142);
     public static final Color BORDER = new Color(222, 226, 230);
@@ -81,7 +82,7 @@ public final class UITheme {
         } catch (Exception e) {
             // fall back to the default font below
         }
-        String[] candidates = { "Segoe UI", "Tahoma", "Arial", "Verdana" };
+        String[] candidates = { "Arial", "Calibri", "Tahoma", "Verdana" };
         for (int i = 0; i < candidates.length; i++) {
             if (available.contains(candidates[i])) {
                 return candidates[i];
@@ -176,12 +177,55 @@ public final class UITheme {
     }
 
     public static JLabel fieldValue(String text) {
-        String shown = (text == null || text.trim().length() == 0) ? "-" : text;
-        JLabel label = new JLabel(shown);
+        JLabel label = new JLabel(display(text));
         label.setFont(FONT_VALUE);
         label.setForeground(TEXT);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
+    }
+
+    /** Returns "-" when the text is empty, otherwise the original text. */
+    public static String display(String text) {
+        if (text == null || text.trim().length() == 0) {
+            return "-";
+        }
+        return text;
+    }
+
+    /** A bordered container for one piece of information (caption above value). */
+    public static JPanel fieldBox(String caption, String value) {
+        JPanel box = new JPanel(new BorderLayout());
+        box.setBackground(FIELD_BG);
+        box.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER, 1, true),
+                BorderFactory.createEmptyBorder(9, 12, 9, 12)));
+
+        JLabel captionLabel = new JLabel(caption.toUpperCase());
+        captionLabel.setFont(FONT_SMALL_BOLD);
+        captionLabel.setForeground(MUTED);
+
+        JLabel valueLabel = new JLabel(display(value));
+        valueLabel.setFont(FONT_VALUE);
+        valueLabel.setForeground(TEXT);
+
+        box.add(captionLabel, BorderLayout.NORTH);
+        box.add(valueLabel, BorderLayout.CENTER);
+        return box;
+    }
+
+    /** A bordered container holding only a value (for a full-width field). */
+    public static JPanel valueBox(String value) {
+        JPanel box = new JPanel(new BorderLayout());
+        box.setBackground(FIELD_BG);
+        box.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER, 1, true),
+                BorderFactory.createEmptyBorder(11, 12, 11, 12)));
+
+        JLabel valueLabel = new JLabel(display(value));
+        valueLabel.setFont(FONT_VALUE);
+        valueLabel.setForeground(TEXT);
+        box.add(valueLabel, BorderLayout.CENTER);
+        return box;
     }
 
     /** A small rounded "pill" label, typically used for a report status. */

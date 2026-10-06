@@ -37,10 +37,11 @@ public class ResidentDashboard extends JFrame {
     private Resident currentUser;
     private ReportManager reportManager;
     private UserManager userManager;
+    private LocationManager locationManager;
 
     private JComboBox<String> hazardTypeBox;
-    private JTextField cityMunicipalityField;
-    private JTextField barangayField;
+    private JComboBox<String> cityMunicipalityBox;
+    private JComboBox<String> barangayBox;
     private JTextField streetField;
     private JTextField specificPlaceField;
     private JTextField specificDetailField;
@@ -51,10 +52,12 @@ public class ResidentDashboard extends JFrame {
     private ReportDetailPanel detailPanel;
     private List<Report> currentReports;
 
-    public ResidentDashboard(Resident currentUser, ReportManager reportManager, UserManager userManager) {
+    public ResidentDashboard(Resident currentUser, ReportManager reportManager, UserManager userManager,
+                             LocationManager locationManager) {
         this.currentUser = currentUser;
         this.reportManager = reportManager;
         this.userManager = userManager;
+        this.locationManager = locationManager;
 
         setTitle("WatchPoint - Resident: " + currentUser.getFullName());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -103,13 +106,27 @@ public class ResidentDashboard extends JFrame {
         hazardTypeBox.addItem("Other");
         hazardTypeBox.setFont(UITheme.FONT_BASE);
 
-        cityMunicipalityField = new JTextField(18);
-        barangayField = new JTextField(18);
+        cityMunicipalityBox = new JComboBox<String>();
+        List<String> municipalities = locationManager.getMunicipalities();
+        for (int i = 0; i < municipalities.size(); i++) {
+            cityMunicipalityBox.addItem(municipalities.get(i));
+        }
+        cityMunicipalityBox.setFont(UITheme.FONT_BASE);
+
+        barangayBox = new JComboBox<String>();
+        barangayBox.setFont(UITheme.FONT_BASE);
+
+        cityMunicipalityBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateBarangayBox();
+            }
+        });
+        updateBarangayBox();
+
         streetField = new JTextField(18);
         specificPlaceField = new JTextField(18);
         specificDetailField = new JTextField(18);
-        UITheme.styleField(cityMunicipalityField);
-        UITheme.styleField(barangayField);
         UITheme.styleField(streetField);
         UITheme.styleField(specificPlaceField);
         UITheme.styleField(specificDetailField);
@@ -148,8 +165,8 @@ public class ResidentDashboard extends JFrame {
         form.add(hint, hintConstraints);
 
         addFormRow(form, 2, "Hazard Type", hazardTypeBox);
-        addFormRow(form, 3, "City / Municipality", cityMunicipalityField);
-        addFormRow(form, 4, "Barangay", barangayField);
+        addFormRow(form, 3, "City / Municipality", cityMunicipalityBox);
+        addFormRow(form, 4, "Barangay", barangayBox);
         addFormRow(form, 5, "Street", streetField);
         addFormRow(form, 6, "Specific Place", specificPlaceField);
         addFormRow(form, 7, "Specific Detail", specificDetailField);
@@ -206,6 +223,18 @@ public class ResidentDashboard extends JFrame {
         fieldConstraints.anchor = GridBagConstraints.NORTHWEST;
         fieldConstraints.insets = new Insets(6, 6, 6, 6);
         form.add(field, fieldConstraints);
+    }
+
+    private void updateBarangayBox() {
+        barangayBox.removeAllItems();
+        if (cityMunicipalityBox.getSelectedItem() == null) {
+            return;
+        }
+        String municipality = cityMunicipalityBox.getSelectedItem().toString();
+        List<String> barangays = locationManager.getBarangays(municipality);
+        for (int i = 0; i < barangays.size(); i++) {
+            barangayBox.addItem(barangays.get(i));
+        }
     }
 
     private JPanel buildReportsTab() {
@@ -328,16 +357,26 @@ public class ResidentDashboard extends JFrame {
 
     public void submitReport() {
         String hazardType = (String) hazardTypeBox.getSelectedItem();
-        String cityMunicipality = cityMunicipalityField.getText().trim();
-        String barangay = barangayField.getText().trim();
+        String cityMunicipality = "";
+        if (cityMunicipalityBox.getSelectedItem() != null) {
+            cityMunicipality = cityMunicipalityBox.getSelectedItem().toString();
+        }
+        String barangay = "";
+        if (barangayBox.getSelectedItem() != null) {
+            barangay = barangayBox.getSelectedItem().toString();
+        }
         String street = streetField.getText().trim();
         String specificPlace = specificPlaceField.getText().trim();
         String specificDetail = specificDetailField.getText().trim();
         String description = descriptionArea.getText().trim();
 
-        if (cityMunicipality.length() == 0 || barangay.length() == 0 || street.length() == 0) {
+        if (cityMunicipality.length() == 0 || barangay.length() == 0) {
             JOptionPane.showMessageDialog(this,
-                    "Please enter the city or municipality, barangay, and street.");
+                    "Please select a City / Municipality and a Barangay.");
+            return;
+        }
+        if (street.length() == 0) {
+            JOptionPane.showMessageDialog(this, "Please enter the street.");
             return;
         }
         if (description.length() == 0) {
@@ -352,8 +391,9 @@ public class ResidentDashboard extends JFrame {
         JOptionPane.showMessageDialog(this,
                 "Report submitted. Your report ID is " + report.getReportId() + ".");
 
-        cityMunicipalityField.setText("");
-        barangayField.setText("");
+        if (cityMunicipalityBox.getItemCount() > 0) {
+            cityMunicipalityBox.setSelectedIndex(0);
+        }
         streetField.setText("");
         specificPlaceField.setText("");
         specificDetailField.setText("");
@@ -415,7 +455,7 @@ public class ResidentDashboard extends JFrame {
     }
 
     public void logout() {
-        LoginFrame loginFrame = new LoginFrame(userManager, reportManager);
+        LoginFrame loginFrame = new LoginFrame(userManager, reportManager, locationManager);
         loginFrame.setVisible(true);
         this.dispose();
     }

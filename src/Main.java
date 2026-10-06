@@ -13,11 +13,12 @@ public class Main {
         FileManager fileManager = new FileManager("data");
         UserManager userManager = new UserManager(fileManager);
         final ReportManager reportManager = new ReportManager(fileManager);
+        final LocationManager locationManager = new LocationManager(fileManager);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                LoginFrame loginFrame = new LoginFrame(userManager, reportManager);
+                LoginFrame loginFrame = new LoginFrame(userManager, reportManager, locationManager);
                 loginFrame.setVisible(true);
             }
         });

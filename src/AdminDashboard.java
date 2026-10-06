@@ -29,6 +29,7 @@ public class AdminDashboard extends JFrame {
     private Administrator currentUser;
     private ReportManager reportManager;
     private UserManager userManager;
+    private LocationManager locationManager;
 
     private JTable reportTable;
     private DefaultTableModel reportTableModel;
@@ -42,10 +43,12 @@ public class AdminDashboard extends JFrame {
     private UserDetailPanel userDetailPanel;
     private List<User> currentUsers;
 
-    public AdminDashboard(Administrator currentUser, ReportManager reportManager, UserManager userManager) {
+    public AdminDashboard(Administrator currentUser, ReportManager reportManager, UserManager userManager,
+                          LocationManager locationManager) {
         this.currentUser = currentUser;
         this.reportManager = reportManager;
         this.userManager = userManager;
+        this.locationManager = locationManager;
 
         setTitle("WatchPoint - Administrator: " + currentUser.getFullName());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -522,7 +525,7 @@ public class AdminDashboard extends JFrame {
     }
 
     public void logout() {
-        LoginFrame loginFrame = new LoginFrame(userManager, reportManager);
+        LoginFrame loginFrame = new LoginFrame(userManager, reportManager, locationManager);
         loginFrame.setVisible(true);
         this.dispose();
     }

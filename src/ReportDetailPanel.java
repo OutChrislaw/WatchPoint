@@ -1,8 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -11,12 +11,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.Scrollable;
 import javax.swing.ScrollPaneConstants;
 
 /**
  * ReportDetailPanel.java
- * Shows a single hazard report in a form-style layout (captions and values)
- * instead of as a row inside a table. Used by both dashboards.
+ * Shows a single hazard report in a form-style layout. Every piece of
+ * information sits inside its own bordered box so the fields line up and
+ * the spacing between them is even. Used by both dashboards.
  */
 public class ReportDetailPanel extends JPanel {
 
@@ -32,7 +34,7 @@ public class ReportDetailPanel extends JPanel {
         setBackground(UITheme.CARD);
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UITheme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 22, 20, 22)));
+                BorderFactory.createEmptyBorder(22, 28, 22, 28)));
 
         headerLabel = new JLabel("No report selected");
         headerLabel.setFont(UITheme.FONT_TITLE);
@@ -53,9 +55,8 @@ public class ReportDetailPanel extends JPanel {
         header.add(statusHolder);
         add(header, BorderLayout.NORTH);
 
-        body = new JPanel();
-        body.setOpaque(false);
-        body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
+        body = new BodyPanel();
+        body.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 
         bodyScroll = new JScrollPane(body);
         bodyScroll.setBorder(null);
@@ -103,33 +104,35 @@ public class ReportDetailPanel extends JPanel {
         body.removeAll();
 
         body.add(UITheme.sectionLabel("Report Information"));
-        body.add(Box.createVerticalStrut(12));
-        JPanel infoGrid = new GridBagLayoutPanel();
-        addField(infoGrid, 0, "Report ID", report.getReportId());
-        addField(infoGrid, 1, "Report Type", report.getReportType());
-        addField(infoGrid, 2, "Reporter ID", report.getReporterId());
-        addField(infoGrid, 3, "Date Submitted", report.getDateSubmitted());
+        body.add(Box.createVerticalStrut(10));
+        JPanel infoGrid = fieldGrid();
+        infoGrid.add(UITheme.fieldBox("Report ID", report.getReportId()));
+        infoGrid.add(UITheme.fieldBox("Report Type", report.getReportType()));
+        infoGrid.add(UITheme.fieldBox("Reporter ID", report.getReporterId()));
+        infoGrid.add(UITheme.fieldBox("Date Submitted", report.getDateSubmitted()));
         body.add(infoGrid);
-        body.add(Box.createVerticalStrut(22));
+        body.add(Box.createVerticalStrut(20));
 
         Location location = report.getLocation();
         body.add(UITheme.sectionLabel("Location"));
-        body.add(Box.createVerticalStrut(12));
-        JPanel locationGrid = new GridBagLayoutPanel();
-        addField(locationGrid, 0, "City / Municipality", location.getCityMunicipality());
-        addField(locationGrid, 1, "Barangay", location.getBarangay());
-        addField(locationGrid, 2, "Street", location.getStreet());
-        addField(locationGrid, 3, "Specific Place", location.getSpecificPlace());
+        body.add(Box.createVerticalStrut(10));
+        JPanel locationGrid = fieldGrid();
+        locationGrid.add(UITheme.fieldBox("City / Municipality", location.getCityMunicipality()));
+        locationGrid.add(UITheme.fieldBox("Barangay", location.getBarangay()));
+        locationGrid.add(UITheme.fieldBox("Street", location.getStreet()));
+        locationGrid.add(UITheme.fieldBox("Specific Place", location.getSpecificPlace()));
         body.add(locationGrid);
-        body.add(Box.createVerticalStrut(22));
+        body.add(Box.createVerticalStrut(20));
 
         body.add(UITheme.sectionLabel(detailCaption(report.getReportType())));
-        body.add(Box.createVerticalStrut(12));
-        body.add(UITheme.fieldValue(report.getSpecificDetail()));
-        body.add(Box.createVerticalStrut(22));
+        body.add(Box.createVerticalStrut(10));
+        JPanel detailBox = UITheme.valueBox(report.getSpecificDetail());
+        detailBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        body.add(detailBox);
+        body.add(Box.createVerticalStrut(20));
 
         body.add(UITheme.sectionLabel("Description"));
-        body.add(Box.createVerticalStrut(12));
+        body.add(Box.createVerticalStrut(10));
         JPanel descriptionWrapper = new JPanel(new BorderLayout());
         descriptionWrapper.setOpaque(false);
         descriptionWrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -141,6 +144,13 @@ public class ReportDetailPanel extends JPanel {
         bodyScroll.getVerticalScrollBar().setValue(0);
     }
 
+    private JPanel fieldGrid() {
+        JPanel grid = new JPanel(new GridLayout(0, 2, 14, 14));
+        grid.setOpaque(false);
+        grid.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return grid;
+    }
+
     private JTextArea buildDescriptionArea(String description) {
         JTextArea area = new JTextArea();
         area.setText(description == null || description.trim().length() == 0
@@ -150,7 +160,7 @@ public class ReportDetailPanel extends JPanel {
         area.setWrapStyleWord(true);
         area.setFont(UITheme.FONT_VALUE);
         area.setForeground(UITheme.TEXT);
-        area.setBackground(UITheme.BACKGROUND);
+        area.setBackground(UITheme.FIELD_BG);
         area.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UITheme.BORDER, 1, true),
                 BorderFactory.createEmptyBorder(10, 12, 10, 12)));
@@ -167,27 +177,6 @@ public class ReportDetailPanel extends JPanel {
         return area;
     }
 
-    private void addField(JPanel grid, int index, String caption, String value) {
-        int column = index % 2;
-        int row = index / 2;
-
-        JPanel block = new JPanel();
-        block.setOpaque(false);
-        block.setLayout(new BoxLayout(block, BoxLayout.Y_AXIS));
-        block.add(UITheme.fieldCaption(caption));
-        block.add(Box.createVerticalStrut(2));
-        block.add(UITheme.fieldValue(value));
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.gridx = column;
-        constraints.gridy = row;
-        constraints.weightx = 1.0;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        constraints.insets = new Insets(0, 0, 16, 24);
-        grid.add(block, constraints);
-    }
-
     private String detailCaption(String reportType) {
         if (reportType.equals("Road Hazard")) {
             return "Road Hazard Type";
@@ -201,14 +190,38 @@ public class ReportDetailPanel extends JPanel {
         return "Hazard Category";
     }
 
-    /** A JPanel that already uses a GridBagLayout and left alignment. */
-    private static final class GridBagLayoutPanel extends JPanel {
+    /** A vertical body that always stretches to the width of the scroll pane. */
+    private static final class BodyPanel extends JPanel implements Scrollable {
         private static final long serialVersionUID = 1L;
 
-        GridBagLayoutPanel() {
-            super(new GridBagLayout());
+        BodyPanel() {
             setOpaque(false);
-            setAlignmentX(Component.LEFT_ALIGNMENT);
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        }
+
+        @Override
+        public Dimension getPreferredScrollableViewportSize() {
+            return getPreferredSize();
+        }
+
+        @Override
+        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 16;
+        }
+
+        @Override
+        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 16;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportWidth() {
+            return true;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportHeight() {
+            return false;
         }
     }
 }

@@ -22,7 +22,8 @@ WatchPoint/
 │   ├── OtherHazardReport.java
 │   ├── UserManager.java     Registration, login, and user records
 │   ├── ReportManager.java   Submit, search, update, and delete reports
-│   ├── FileManager.java     Reads and writes users.txt and reports.txt
+│   ├── LocationManager.java Bohol cities/municipalities and their barangays
+│   ├── FileManager.java     Reads and writes the data files
 │   ├── UITheme.java         Shared colours, fonts, and reusable widgets
 │   ├── ReportDetailPanel.java  Form-style view of a single report
 │   ├── UserDetailPanel.java    Form-style view of a single user account
@@ -32,7 +33,8 @@ WatchPoint/
 │   └── AdminDashboard.java     Window for administrators
 ├── data/                    Plain text storage
 │   ├── users.txt            One user per line
-│   └── reports.txt          One report per line
+│   ├── reports.txt          One report per line
+│   └── locations.txt        Bohol cities/municipalities and barangays
 └── bin/                     Compiled .class files
 ```
 
@@ -48,6 +50,12 @@ type|userId|username|password|fullName[|address|contactNumber]
 type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|description|specificDetail|status|dateSubmitted
 ```
 
+`locations.txt` line format (one line per city/municipality):
+
+```
+cityMunicipality|barangay1|barangay2|...
+```
+
 ## Build and run
 
 From the project root:
@@ -58,5 +66,6 @@ java -cp bin Main
 ```
 
 Run the app from the project root so the `data` folder is found. The `data` folder
-and both text files are created automatically when they are missing.
+and the text files are created automatically when they are missing. `locations.txt`
+ships with the full list of Bohol cities/municipalities and their barangays.
 

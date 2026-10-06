@@ -24,10 +24,12 @@ public class LoginFrame extends JFrame {
     private JPasswordField passwordField;
     private UserManager userManager;
     private ReportManager reportManager;
+    private LocationManager locationManager;
 
-    public LoginFrame(UserManager userManager, ReportManager reportManager) {
+    public LoginFrame(UserManager userManager, ReportManager reportManager, LocationManager locationManager) {
         this.userManager = userManager;
         this.reportManager = reportManager;
+        this.locationManager = locationManager;
 
         setTitle("WatchPoint - Log In");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -125,10 +127,12 @@ public class LoginFrame extends JFrame {
         }
 
         if (user.getUserType().equals("Administrator")) {
-            AdminDashboard dashboard = new AdminDashboard((Administrator) user, reportManager, userManager);
+            AdminDashboard dashboard = new AdminDashboard((Administrator) user, reportManager, userManager,
+                    locationManager);
             dashboard.setVisible(true);
         } else {
-            ResidentDashboard dashboard = new ResidentDashboard((Resident) user, reportManager, userManager);
+            ResidentDashboard dashboard = new ResidentDashboard((Resident) user, reportManager, userManager,
+                    locationManager);
             dashboard.setVisible(true);
         }
 

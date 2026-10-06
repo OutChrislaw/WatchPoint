@@ -1,9 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -11,12 +11,14 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.Scrollable;
 import javax.swing.ScrollPaneConstants;
 
 /**
  * UserDetailPanel.java
- * Shows a single user account in a form-style layout (captions and values)
- * instead of as a row inside a table. Used by the administrator dashboard.
+ * Shows a single user account in a form-style layout. Every piece of
+ * information sits inside its own bordered box so the fields line up and
+ * the spacing between them is even. Used by the administrator dashboard.
  */
 public class UserDetailPanel extends JPanel {
 
@@ -32,7 +34,7 @@ public class UserDetailPanel extends JPanel {
         setBackground(UITheme.CARD);
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UITheme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 22, 20, 22)));
+                BorderFactory.createEmptyBorder(22, 28, 22, 28)));
 
         headerLabel = new JLabel("No user selected");
         headerLabel.setFont(UITheme.FONT_TITLE);
@@ -53,9 +55,8 @@ public class UserDetailPanel extends JPanel {
         header.add(badgeHolder);
         add(header, BorderLayout.NORTH);
 
-        body = new JPanel();
-        body.setOpaque(false);
-        body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
+        body = new BodyPanel();
+        body.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 
         bodyScroll = new JScrollPane(body);
         bodyScroll.setBorder(null);
@@ -103,22 +104,22 @@ public class UserDetailPanel extends JPanel {
         body.removeAll();
 
         body.add(UITheme.sectionLabel("Account Information"));
-        body.add(Box.createVerticalStrut(12));
-        JPanel infoGrid = new GridBagLayoutPanel();
-        addField(infoGrid, 0, "User ID", user.getUserId());
-        addField(infoGrid, 1, "Account Type", user.getUserType());
-        addField(infoGrid, 2, "Username", user.getUsername());
-        addField(infoGrid, 3, "Full Name", user.getFullName());
+        body.add(Box.createVerticalStrut(10));
+        JPanel infoGrid = fieldGrid();
+        infoGrid.add(UITheme.fieldBox("User ID", user.getUserId()));
+        infoGrid.add(UITheme.fieldBox("Account Type", user.getUserType()));
+        infoGrid.add(UITheme.fieldBox("Username", user.getUsername()));
+        infoGrid.add(UITheme.fieldBox("Full Name", user.getFullName()));
         body.add(infoGrid);
 
         if (user instanceof Resident) {
             Resident resident = (Resident) user;
-            body.add(Box.createVerticalStrut(22));
+            body.add(Box.createVerticalStrut(20));
             body.add(UITheme.sectionLabel("Resident Details"));
-            body.add(Box.createVerticalStrut(12));
-            JPanel residentGrid = new GridBagLayoutPanel();
-            addField(residentGrid, 0, "Address", resident.getAddress());
-            addField(residentGrid, 1, "Contact Number", resident.getContactNumber());
+            body.add(Box.createVerticalStrut(10));
+            JPanel residentGrid = fieldGrid();
+            residentGrid.add(UITheme.fieldBox("Address", resident.getAddress()));
+            residentGrid.add(UITheme.fieldBox("Contact Number", resident.getContactNumber()));
             body.add(residentGrid);
         }
 
@@ -127,35 +128,45 @@ public class UserDetailPanel extends JPanel {
         bodyScroll.getVerticalScrollBar().setValue(0);
     }
 
-    private void addField(JPanel grid, int index, String caption, String value) {
-        int column = index % 2;
-        int row = index / 2;
-
-        JPanel block = new JPanel();
-        block.setOpaque(false);
-        block.setLayout(new BoxLayout(block, BoxLayout.Y_AXIS));
-        block.add(UITheme.fieldCaption(caption));
-        block.add(Box.createVerticalStrut(2));
-        block.add(UITheme.fieldValue(value));
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.gridx = column;
-        constraints.gridy = row;
-        constraints.weightx = 1.0;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        constraints.insets = new Insets(0, 0, 16, 24);
-        grid.add(block, constraints);
+    private JPanel fieldGrid() {
+        JPanel grid = new JPanel(new GridLayout(0, 2, 14, 14));
+        grid.setOpaque(false);
+        grid.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return grid;
     }
 
-    /** A JPanel that already uses a GridBagLayout and left alignment. */
-    private static final class GridBagLayoutPanel extends JPanel {
+    /** A vertical body that always stretches to the width of the scroll pane. */
+    private static final class BodyPanel extends JPanel implements Scrollable {
         private static final long serialVersionUID = 1L;
 
-        GridBagLayoutPanel() {
-            super(new GridBagLayout());
+        BodyPanel() {
             setOpaque(false);
-            setAlignmentX(Component.LEFT_ALIGNMENT);
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        }
+
+        @Override
+        public Dimension getPreferredScrollableViewportSize() {
+            return getPreferredSize();
+        }
+
+        @Override
+        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 16;
+        }
+
+        @Override
+        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 16;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportWidth() {
+            return true;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportHeight() {
+            return false;
         }
     }
 }
