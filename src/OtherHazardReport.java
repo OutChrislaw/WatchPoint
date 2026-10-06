@@ -1,19 +1,16 @@
-// OtherHazardReport.java
-// Inherits from Report. Represents any other unsafe condition.
-
+/**
+ * OtherHazardReport.java
+ * A report for any hazard that does not fit the other three types.
+ */
 public class OtherHazardReport extends Report {
 
-    private String hazardCategory; // category for other unsafe conditions
+    private String hazardCategory;
 
-    public OtherHazardReport(String reportId, String reporterId, String location,
+    public OtherHazardReport(String reportId, String reporterId, Location location,
                              String description, ReportStatus status, String dateSubmitted,
                              String hazardCategory) {
         super(reportId, reporterId, location, description, status, dateSubmitted);
         this.hazardCategory = hazardCategory;
-    }
-
-    public String getHazardCategory() {
-        return hazardCategory;
     }
 
     @Override

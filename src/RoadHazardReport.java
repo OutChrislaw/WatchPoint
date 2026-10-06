@@ -1,28 +1,23 @@
-// RoadHazardReport.java
-// Inherits from Report. Represents potholes, cracks or debris on the road.
-
+/**
+ * RoadHazardReport.java
+ * A report about a road problem such as a pothole or a broken sidewalk.
+ */
 public class RoadHazardReport extends Report {
 
-    private String roadHazardType; // for example: pothole, crack, debris
+    private String roadHazardType;
 
-    public RoadHazardReport(String reportId, String reporterId, String location,
+    public RoadHazardReport(String reportId, String reporterId, Location location,
                             String description, ReportStatus status, String dateSubmitted,
                             String roadHazardType) {
         super(reportId, reporterId, location, description, status, dateSubmitted);
         this.roadHazardType = roadHazardType;
     }
 
-    public String getRoadHazardType() {
-        return roadHazardType;
-    }
-
-    // Overriding the abstract method from Report.
     @Override
     public String getReportType() {
         return "Road Hazard";
     }
 
-    // Overriding the abstract method from Report.
     @Override
     public String getSpecificDetail() {
         return roadHazardType;

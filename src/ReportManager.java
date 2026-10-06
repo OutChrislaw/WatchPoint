@@ -1,15 +1,15 @@
-// ReportManager.java
-// Handles hazard reports: submit, view, update status, delete.
-// It reads and writes reports.txt through FileManager.
-
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * ReportManager.java
+ * Handles submitting, searching, updating, and deleting hazard reports.
+ * Reports are stored in reports.txt through the FileManager.
+ */
 public class ReportManager {
 
-    private static final String FILE_NAME = "reports.txt";
-
-    private ArrayList<Report> reports;
+    private List<Report> reports;
     private FileManager fileManager;
 
     public ReportManager(FileManager fileManager) {
@@ -18,28 +18,24 @@ public class ReportManager {
         loadReports();
     }
 
-    // Builds the right Report subclass from the hazard type, sets PENDING and
-    // today's date, saves it, and returns the new report.
-    // The "hazardType" text decides which subclass to create (Abstraction +
-    // Inheritance working together).
-    public Report submitReport(String reporterId, String hazardType, String location,
-                              String description, String specificDetail) {
+    public Report submitReport(String reporterId, String hazardType, Location location,
+                               String description, String specificDetail) {
         String reportId = generateReportId();
-        String today = LocalDate.now().toString();
-        Report report = null;
+        String dateSubmitted = LocalDate.now().toString();
+        Report report;
 
-        if (hazardType.equalsIgnoreCase("Road Hazard")) {
+        if (hazardType.equals("Road Hazard")) {
             report = new RoadHazardReport(reportId, reporterId, location, description,
-                    ReportStatus.PENDING, today, specificDetail);
-        } else if (hazardType.equalsIgnoreCase("Streetlight")) {
-            report = new StreetlightReport(reportId, reporterId, location, description,
-                    ReportStatus.PENDING, today, specificDetail);
-        } else if (hazardType.equalsIgnoreCase("Flood")) {
+                    ReportStatus.PENDING, dateSubmitted, specificDetail);
+        } else if (hazardType.equals("Flood")) {
             report = new FloodReport(reportId, reporterId, location, description,
-                    ReportStatus.PENDING, today, specificDetail);
+                    ReportStatus.PENDING, dateSubmitted, specificDetail);
+        } else if (hazardType.equals("Streetlight")) {
+            report = new StreetlightReport(reportId, reporterId, location, description,
+                    ReportStatus.PENDING, dateSubmitted, specificDetail);
         } else {
             report = new OtherHazardReport(reportId, reporterId, location, description,
-                    ReportStatus.PENDING, today, specificDetail);
+                    ReportStatus.PENDING, dateSubmitted, specificDetail);
         }
 
         reports.add(report);
@@ -47,104 +43,7 @@ public class ReportManager {
         return report;
     }
 
-    // Returns all reports (the Administrator view).
-    public ArrayList<Report> getAllReports() {
-        return new ArrayList<Report>(reports);
-    }
-
-    // Returns only one resident's reports (the Resident view).
-    public ArrayList<Report> getReportsByReporter(String reporterId) {
-        ArrayList<Report> result = new ArrayList<Report>();
-        for (int i = 0; i < reports.size(); i++) {
-            if (reports.get(i).getReporterId().equals(reporterId)) {
-                result.add(reports.get(i));
-            }
-        }
-        return result;
-    }
-
-    // Changes the status of a report (also used to verify a report), then saves.
-    // Returns false if no report has that ID.
-    public boolean updateReportStatus(String reportId, ReportStatus status) {
-        Report report = findReport(reportId);
-        if (report == null) {
-            return false;
-        }
-        report.setStatus(status);
-        saveReports();
-        return true;
-    }
-
-    // Removes an invalid report, then saves. Returns false if not found.
-    public boolean deleteReport(String reportId) {
-        Report report = findReport(reportId);
-        if (report == null) {
-            return false;
-        }
-        reports.remove(report);
-        saveReports();
-        return true;
-    }
-
-    // Reads reports.txt into the reports list.
-    private void loadReports() {
-        reports.clear();
-        ArrayList<String> lines = fileManager.readLines(FILE_NAME);
-        for (int i = 0; i < lines.size(); i++) {
-            Report report = parseReport(lines.get(i));
-            if (report != null) {
-                reports.add(report);
-            }
-        }
-    }
-
-    // Writes the reports list back to reports.txt.
-    private void saveReports() {
-        ArrayList<String> lines = new ArrayList<String>();
-        for (int i = 0; i < reports.size(); i++) {
-            lines.add(reports.get(i).toFileString());
-        }
-        fileManager.writeLines(FILE_NAME, lines);
-    }
-
-    // Turns one line into the right Report subclass.
-    private Report parseReport(String line) {
-        String[] parts = line.split("\\|");
-        // Format: type|id|reporterId|location|description|status|date|specificDetail
-        if (parts.length < 8) {
-            return null;
-        }
-
-        String type = parts[0];
-        String reportId = parts[1];
-        String reporterId = parts[2];
-        String location = parts[3];
-        String description = parts[4];
-        ReportStatus status = ReportStatus.fromString(parts[5]);
-        String dateSubmitted = parts[6];
-        String specificDetail = parts[7];
-
-        if (status == null) {
-            status = ReportStatus.PENDING;
-        }
-
-        if (type.equalsIgnoreCase("Road Hazard")) {
-            return new RoadHazardReport(reportId, reporterId, location, description,
-                    status, dateSubmitted, specificDetail);
-        } else if (type.equalsIgnoreCase("Streetlight")) {
-            return new StreetlightReport(reportId, reporterId, location, description,
-                    status, dateSubmitted, specificDetail);
-        } else if (type.equalsIgnoreCase("Flood")) {
-            return new FloodReport(reportId, reporterId, location, description,
-                    status, dateSubmitted, specificDetail);
-        } else {
-            return new OtherHazardReport(reportId, reporterId, location, description,
-                    status, dateSubmitted, specificDetail);
-        }
-    }
-
-    // Looks up a report by ID.
-    private Report findReport(String reportId) {
+    public Report getReportById(String reportId) {
         for (int i = 0; i < reports.size(); i++) {
             if (reports.get(i).getReportId().equals(reportId)) {
                 return reports.get(i);
@@ -153,27 +52,154 @@ public class ReportManager {
         return null;
     }
 
-    // Creates the next unique report ID, such as R001, R002, and so on.
+    public List<Report> getReportsByReporter(String reporterId) {
+        List<Report> result = new ArrayList<Report>();
+        for (int i = 0; i < reports.size(); i++) {
+            if (reports.get(i).getReporterId().equals(reporterId)) {
+                result.add(reports.get(i));
+            }
+        }
+        return result;
+    }
+
+    public List<Report> getAllReports() {
+        return new ArrayList<Report>(reports);
+    }
+
+    public boolean updateResidentReport(Report report, String residentId) {
+        if (report == null) {
+            return false;
+        }
+        if (!report.getReporterId().equals(residentId)) {
+            return false;
+        }
+        if (report.getStatus() != ReportStatus.PENDING) {
+            return false;
+        }
+
+        saveReports();
+        return true;
+    }
+
+    public boolean deleteResidentReport(String reportId, String residentId) {
+        Report report = getReportById(reportId);
+        if (report == null) {
+            return false;
+        }
+        if (!report.getReporterId().equals(residentId)) {
+            return false;
+        }
+        if (report.getStatus() != ReportStatus.PENDING) {
+            return false;
+        }
+
+        reports.remove(report);
+        saveReports();
+        return true;
+    }
+
+    public boolean updateReportStatus(String reportId, ReportStatus status) {
+        Report report = getReportById(reportId);
+        if (report == null) {
+            return false;
+        }
+
+        report.setStatus(status);
+        saveReports();
+        return true;
+    }
+
+    public boolean deleteInvalidReport(String reportId) {
+        Report report = getReportById(reportId);
+        if (report == null) {
+            return false;
+        }
+
+        reports.remove(report);
+        saveReports();
+        return true;
+    }
+
+    private void loadReports() {
+        List<String> lines = fileManager.readLines("reports.txt");
+        for (int i = 0; i < lines.size(); i++) {
+            Report report = parseReport(lines.get(i));
+            if (report != null) {
+                reports.add(report);
+            }
+        }
+    }
+
+    private void saveReports() {
+        List<String> lines = new ArrayList<String>();
+        for (int i = 0; i < reports.size(); i++) {
+            lines.add(reports.get(i).toFileString());
+        }
+        fileManager.writeLines("reports.txt", lines);
+    }
+
+    private Report parseReport(String line) {
+        String[] parts = line.split("\\|");
+        if (parts.length < 11) {
+            return null;
+        }
+
+        String type = parts[0];
+        String reportId = parts[1];
+        String reporterId = parts[2];
+        Location location = new Location(parts[3], parts[4], parts[5], parts[6]);
+        String description = parts[7];
+        String specificDetail = parts[8];
+
+        ReportStatus status;
+        if (parts[9].equals("VERIFIED")) {
+            status = ReportStatus.VERIFIED;
+        } else if (parts[9].equals("IN_PROGRESS")) {
+            status = ReportStatus.IN_PROGRESS;
+        } else if (parts[9].equals("RESOLVED")) {
+            status = ReportStatus.RESOLVED;
+        } else {
+            status = ReportStatus.PENDING;
+        }
+
+        String dateSubmitted = parts[10];
+
+        if (type.equals("Road Hazard")) {
+            return new RoadHazardReport(reportId, reporterId, location, description,
+                    status, dateSubmitted, specificDetail);
+        }
+        if (type.equals("Flood")) {
+            return new FloodReport(reportId, reporterId, location, description,
+                    status, dateSubmitted, specificDetail);
+        }
+        if (type.equals("Streetlight")) {
+            return new StreetlightReport(reportId, reporterId, location, description,
+                    status, dateSubmitted, specificDetail);
+        }
+        return new OtherHazardReport(reportId, reporterId, location, description,
+                status, dateSubmitted, specificDetail);
+    }
+
     private String generateReportId() {
         int highest = 0;
         for (int i = 0; i < reports.size(); i++) {
-            String id = reports.get(i).getReportId(); // looks like "R001"
-            if (id != null && id.length() > 1) {
+            String reportId = reports.get(i).getReportId();
+            if (reportId != null && reportId.length() > 1) {
                 try {
-                    int number = Integer.parseInt(id.substring(1));
+                    int number = Integer.parseInt(reportId.substring(1));
                     if (number > highest) {
                         highest = number;
                     }
                 } catch (Exception e) {
-                    // ignore bad IDs
+                    // ids that are not in the R<number> format are ignored
                 }
             }
         }
-        int next = highest + 1;
-        String text = "" + next;
-        while (text.length() < 3) {
-            text = "0" + text;
+
+        String number = "" + (highest + 1);
+        while (number.length() < 3) {
+            number = "0" + number;
         }
-        return "R" + text;
+        return "R" + number;
     }
 }
