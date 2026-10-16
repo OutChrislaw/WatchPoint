@@ -34,6 +34,8 @@ public class AdminDashboard extends JFrame {
     private JTable reportTable;
     private DefaultTableModel reportTableModel;
     private ReportDetailPanel reportDetailPanel;
+    private ReportFilterBar reportFilterBar;
+    private List<Report> allReports;
     private List<Report> currentReports;
 
     private JComboBox<String> statusBox;
@@ -96,7 +98,7 @@ public class AdminDashboard extends JFrame {
         reportTableModel.addColumn("Type");
         reportTableModel.addColumn("Reporter ID");
         reportTableModel.addColumn("Status");
-        reportTableModel.addColumn("Date Submitted");
+        reportTableModel.addColumn("Date & Time");
 
         reportTable = UITheme.styledTable(reportTableModel);
         reportTable.getColumnModel().getColumn(0).setPreferredWidth(90);
@@ -115,7 +117,7 @@ public class AdminDashboard extends JFrame {
             }
         });
 
-        reportDetailPanel = new ReportDetailPanel();
+        reportDetailPanel = new ReportDetailPanel(userManager, true);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 UITheme.scroll(reportTable), reportDetailPanel);
@@ -126,9 +128,21 @@ public class AdminDashboard extends JFrame {
         split.setDividerSize(8);
         split.setContinuousLayout(true);
 
+        reportFilterBar = new ReportFilterBar(locationManager, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshReports();
+            }
+        });
+
+        JPanel filterRow = new JPanel(new BorderLayout());
+        filterRow.setOpaque(false);
+        filterRow.add(reportFilterBar, BorderLayout.WEST);
+
         JPanel tab = new JPanel(new BorderLayout(0, 12));
         tab.setBackground(UITheme.BACKGROUND);
         tab.setBorder(BorderFactory.createEmptyBorder(14, 16, 14, 16));
+        tab.add(filterRow, BorderLayout.NORTH);
         tab.add(split, BorderLayout.CENTER);
         tab.add(buildReportControls(), BorderLayout.SOUTH);
         return tab;
@@ -306,8 +320,20 @@ public class AdminDashboard extends JFrame {
     }
 
     public void showAllReports() {
+        allReports = reportManager.getAllReports();
+        refreshReports();
+    }
+
+    private void refreshReports() {
+        if (reportTableModel == null || allReports == null) {
+            return;
+        }
         reportTableModel.setRowCount(0);
-        currentReports = reportManager.getAllReports();
+        if (reportFilterBar != null) {
+            currentReports = reportFilterBar.apply(allReports);
+        } else {
+            currentReports = allReports;
+        }
 
         for (int i = 0; i < currentReports.size(); i++) {
             Report report = currentReports.get(i);

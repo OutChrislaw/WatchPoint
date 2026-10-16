@@ -140,7 +140,7 @@ public class LoginFrame extends JFrame {
     }
 
     public void openRegistration() {
-        RegistrationFrame registrationFrame = new RegistrationFrame(userManager);
+        RegistrationFrame registrationFrame = new RegistrationFrame(userManager, locationManager);
         registrationFrame.setVisible(true);
     }
 

@@ -195,7 +195,7 @@ public final class UITheme {
     /** A bordered container for one piece of information (caption above value). */
     public static JPanel fieldBox(String caption, String value) {
         JPanel box = new JPanel(new BorderLayout());
-        box.setBackground(FIELD_BG);
+        box.setBackground(CARD);
         box.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER, 1, true),
                 BorderFactory.createEmptyBorder(9, 12, 9, 12)));
@@ -216,7 +216,7 @@ public final class UITheme {
     /** A bordered container holding only a value (for a full-width field). */
     public static JPanel valueBox(String value) {
         JPanel box = new JPanel(new BorderLayout());
-        box.setBackground(FIELD_BG);
+        box.setBackground(CARD);
         box.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER, 1, true),
                 BorderFactory.createEmptyBorder(11, 12, 11, 12)));

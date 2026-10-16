@@ -13,6 +13,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.Scrollable;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 
 /**
  * ReportDetailPanel.java
@@ -24,17 +26,21 @@ public class ReportDetailPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
+    private UserManager userManager;
+    private boolean administrator;
+
     private JLabel headerLabel;
     private JPanel statusHolder;
     private JPanel body;
     private JScrollPane bodyScroll;
 
-    public ReportDetailPanel() {
+    public ReportDetailPanel(UserManager userManager, boolean administrator) {
+        this.userManager = userManager;
+        this.administrator = administrator;
+
         setLayout(new BorderLayout());
-        setBackground(UITheme.CARD);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UITheme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(22, 28, 22, 28)));
+        setBackground(UITheme.BACKGROUND);
+        setBorder(BorderFactory.createEmptyBorder(22, 28, 22, 28));
 
         headerLabel = new JLabel("No report selected");
         headerLabel.setFont(UITheme.FONT_TITLE);
@@ -59,11 +65,15 @@ public class ReportDetailPanel extends JPanel {
         body.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 
         bodyScroll = new JScrollPane(body);
-        bodyScroll.setBorder(null);
+        bodyScroll.setBorder(BorderFactory.createEmptyBorder());
+        bodyScroll.setViewportBorder(BorderFactory.createEmptyBorder());
         bodyScroll.setOpaque(false);
         bodyScroll.getViewport().setOpaque(false);
         bodyScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         bodyScroll.getVerticalScrollBar().setUnitIncrement(16);
+        bodyScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI());
+        bodyScroll.getVerticalScrollBar().setBackground(UITheme.BACKGROUND);
+        bodyScroll.getVerticalScrollBar().setBorder(BorderFactory.createEmptyBorder());
         add(bodyScroll, BorderLayout.CENTER);
 
         clear();
@@ -103,12 +113,25 @@ public class ReportDetailPanel extends JPanel {
 
         body.removeAll();
 
+        User reporter = null;
+        if (userManager != null) {
+            reporter = userManager.getUserById(report.getReporterId());
+        }
+        String reporterUsername = (reporter == null) ? "-" : reporter.getUsername();
+        String reporterFullName = (reporter == null) ? "-" : reporter.getFullName();
+
         body.add(UITheme.sectionLabel("Report Information"));
         body.add(Box.createVerticalStrut(10));
         JPanel infoGrid = fieldGrid();
         infoGrid.add(UITheme.fieldBox("Report ID", report.getReportId()));
         infoGrid.add(UITheme.fieldBox("Report Type", report.getReportType()));
-        infoGrid.add(UITheme.fieldBox("Reporter ID", report.getReporterId()));
+        if (administrator) {
+            infoGrid.add(UITheme.fieldBox("Reporter ID", report.getReporterId()));
+            infoGrid.add(UITheme.fieldBox("Username", reporterUsername));
+            infoGrid.add(UITheme.fieldBox("Full Name", reporterFullName));
+        } else {
+            infoGrid.add(UITheme.fieldBox("Reporter", reporterUsername));
+        }
         infoGrid.add(UITheme.fieldBox("Date Submitted", report.getDateSubmitted()));
         body.add(infoGrid);
         body.add(Box.createVerticalStrut(20));
@@ -142,6 +165,12 @@ public class ReportDetailPanel extends JPanel {
         body.revalidate();
         body.repaint();
         bodyScroll.getVerticalScrollBar().setValue(0);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                bodyScroll.getVerticalScrollBar().setValue(0);
+            }
+        });
     }
 
     private JPanel fieldGrid() {
@@ -160,7 +189,7 @@ public class ReportDetailPanel extends JPanel {
         area.setWrapStyleWord(true);
         area.setFont(UITheme.FONT_VALUE);
         area.setForeground(UITheme.TEXT);
-        area.setBackground(UITheme.FIELD_BG);
+        area.setBackground(UITheme.CARD);
         area.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UITheme.BORDER, 1, true),
                 BorderFactory.createEmptyBorder(10, 12, 10, 12)));

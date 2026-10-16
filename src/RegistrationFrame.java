@@ -5,8 +5,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,12 +25,15 @@ public class RegistrationFrame extends JFrame {
     private JTextField fullNameField;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JTextField addressField;
+    private JComboBox<String> cityMunicipalityBox;
+    private JComboBox<String> barangayBox;
     private JTextField contactNumberField;
     private UserManager userManager;
+    private LocationManager locationManager;
 
-    public RegistrationFrame(UserManager userManager) {
+    public RegistrationFrame(UserManager userManager, LocationManager locationManager) {
         this.userManager = userManager;
+        this.locationManager = locationManager;
 
         setTitle("WatchPoint - Resident Registration");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -69,19 +74,36 @@ public class RegistrationFrame extends JFrame {
         fullNameField = new JTextField(20);
         usernameField = new JTextField(20);
         passwordField = new JPasswordField(20);
-        addressField = new JTextField(20);
         contactNumberField = new JTextField(20);
         UITheme.styleField(fullNameField);
         UITheme.styleField(usernameField);
         UITheme.styleField(passwordField);
-        UITheme.styleField(addressField);
         UITheme.styleField(contactNumberField);
+
+        cityMunicipalityBox = new JComboBox<String>();
+        cityMunicipalityBox.setFont(UITheme.FONT_BASE);
+        List<String> municipalities = locationManager.getMunicipalities();
+        for (int i = 0; i < municipalities.size(); i++) {
+            cityMunicipalityBox.addItem(municipalities.get(i));
+        }
+
+        barangayBox = new JComboBox<String>();
+        barangayBox.setFont(UITheme.FONT_BASE);
+
+        cityMunicipalityBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateBarangayBox();
+            }
+        });
+        updateBarangayBox();
 
         int row = 2;
         row = addField(card, row, "Full Name", fullNameField);
         row = addField(card, row, "Username", usernameField);
         row = addField(card, row, "Password", passwordField);
-        row = addField(card, row, "Address", addressField);
+        row = addField(card, row, "City / Municipality", cityMunicipalityBox);
+        row = addField(card, row, "Barangay", barangayBox);
         row = addField(card, row, "Contact Number", contactNumberField);
 
         JButton registerButton = UITheme.primaryButton("Register");
@@ -122,12 +144,40 @@ public class RegistrationFrame extends JFrame {
         return row + 2;
     }
 
+    private void updateBarangayBox() {
+        barangayBox.removeAllItems();
+        if (cityMunicipalityBox.getSelectedItem() == null) {
+            return;
+        }
+        String municipality = cityMunicipalityBox.getSelectedItem().toString();
+        List<String> barangays = locationManager.getBarangays(municipality);
+        for (int i = 0; i < barangays.size(); i++) {
+            barangayBox.addItem(barangays.get(i));
+        }
+    }
+
     public void register() {
         String fullName = fullNameField.getText().trim();
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
-        String address = addressField.getText().trim();
         String contactNumber = contactNumberField.getText().trim();
+
+        String cityMunicipality = "";
+        if (cityMunicipalityBox.getSelectedItem() != null) {
+            cityMunicipality = cityMunicipalityBox.getSelectedItem().toString();
+        }
+        String barangay = "";
+        if (barangayBox.getSelectedItem() != null) {
+            barangay = barangayBox.getSelectedItem().toString();
+        }
+
+        if (cityMunicipality.length() == 0 || barangay.length() == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a City / Municipality and a Barangay.");
+            return;
+        }
+
+        String address = barangay + ", " + cityMunicipality;
 
         if (userManager.registerResident(fullName, username, password, address, contactNumber)) {
             JOptionPane.showMessageDialog(this, "Account created. You may now log in.");
@@ -142,7 +192,9 @@ public class RegistrationFrame extends JFrame {
         fullNameField.setText("");
         usernameField.setText("");
         passwordField.setText("");
-        addressField.setText("");
+        if (cityMunicipalityBox.getItemCount() > 0) {
+            cityMunicipalityBox.setSelectedIndex(0);
+        }
         contactNumberField.setText("");
     }
 }

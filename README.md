@@ -27,6 +27,7 @@ WatchPoint/
 │   ├── UITheme.java         Shared colours, fonts, and reusable widgets
 │   ├── ReportDetailPanel.java  Form-style view of a single report
 │   ├── UserDetailPanel.java    Form-style view of a single user account
+│   ├── ReportFilterBar.java    City/barangay filter and sort drop-downs
 │   ├── LoginFrame.java      Login window
 │   ├── RegistrationFrame.java  New resident sign-up window
 │   ├── ResidentDashboard.java  Window for residents
@@ -49,6 +50,8 @@ type|userId|username|password|fullName[|address|contactNumber]
 ```
 type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|description|specificDetail|status|dateSubmitted
 ```
+
+`dateSubmitted` is stored as `yyyy-MM-dd HH:mm` (date and time).
 
 `locations.txt` line format (one line per city/municipality):
 

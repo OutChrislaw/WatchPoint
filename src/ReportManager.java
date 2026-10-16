@@ -1,4 +1,4 @@
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class ReportManager {
     public Report submitReport(String reporterId, String hazardType, Location location,
                                String description, String specificDetail) {
         String reportId = generateReportId();
-        String dateSubmitted = LocalDate.now().toString();
+        String dateSubmitted = currentTimestamp();
         Report report;
 
         if (hazardType.equals("Road Hazard")) {
@@ -178,6 +178,14 @@ public class ReportManager {
         }
         return new OtherHazardReport(reportId, reporterId, location, description,
                 status, dateSubmitted, specificDetail);
+    }
+
+    private String currentTimestamp() {
+        String now = LocalDateTime.now().toString().replace('T', ' ');
+        if (now.length() > 16) {
+            now = now.substring(0, 16);
+        }
+        return now;
     }
 
     private String generateReportId() {

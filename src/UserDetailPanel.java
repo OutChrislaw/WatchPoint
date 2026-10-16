@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 
 /**
  * UserDetailPanel.java
@@ -31,10 +32,8 @@ public class UserDetailPanel extends JPanel {
 
     public UserDetailPanel() {
         setLayout(new BorderLayout());
-        setBackground(UITheme.CARD);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UITheme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(22, 28, 22, 28)));
+        setBackground(UITheme.BACKGROUND);
+        setBorder(BorderFactory.createEmptyBorder(22, 28, 22, 28));
 
         headerLabel = new JLabel("No user selected");
         headerLabel.setFont(UITheme.FONT_TITLE);
@@ -59,11 +58,15 @@ public class UserDetailPanel extends JPanel {
         body.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 
         bodyScroll = new JScrollPane(body);
-        bodyScroll.setBorder(null);
+        bodyScroll.setBorder(BorderFactory.createEmptyBorder());
+        bodyScroll.setViewportBorder(BorderFactory.createEmptyBorder());
         bodyScroll.setOpaque(false);
         bodyScroll.getViewport().setOpaque(false);
         bodyScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         bodyScroll.getVerticalScrollBar().setUnitIncrement(16);
+        bodyScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI());
+        bodyScroll.getVerticalScrollBar().setBackground(UITheme.BACKGROUND);
+        bodyScroll.getVerticalScrollBar().setBorder(BorderFactory.createEmptyBorder());
         add(bodyScroll, BorderLayout.CENTER);
 
         clear();

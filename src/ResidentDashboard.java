@@ -47,6 +47,12 @@ public class ResidentDashboard extends JFrame {
     private JTextField specificDetailField;
     private JTextArea descriptionArea;
 
+    private JTable publicReportTable;
+    private DefaultTableModel publicReportTableModel;
+    private ReportDetailPanel publicDetailPanel;
+    private ReportFilterBar publicFilterBar;
+    private List<Report> publicReports;
+
     private JTable reportTable;
     private DefaultTableModel reportTableModel;
     private ReportDetailPanel detailPanel;
@@ -72,10 +78,12 @@ public class ResidentDashboard extends JFrame {
         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(UITheme.FONT_BOLD);
         tabs.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+        tabs.addTab("  Reports  ", buildAllReportsTab());
         tabs.addTab("  Submit Report  ", buildSubmitTab());
         tabs.addTab("  My Reports  ", buildReportsTab());
         add(tabs, BorderLayout.CENTER);
 
+        showAllReports();
         showOwnReports();
     }
 
@@ -96,6 +104,120 @@ public class ResidentDashboard extends JFrame {
         east.add(logoutButton);
         header.add(east, BorderLayout.EAST);
         return header;
+    }
+
+    private JPanel buildAllReportsTab() {
+        publicReportTableModel = new DefaultTableModel();
+        publicReportTableModel.addColumn("Report ID");
+        publicReportTableModel.addColumn("Type");
+        publicReportTableModel.addColumn("Reporter ID");
+        publicReportTableModel.addColumn("Status");
+        publicReportTableModel.addColumn("Date & Time");
+
+        publicReportTable = UITheme.styledTable(publicReportTableModel);
+        publicReportTable.getColumnModel().getColumn(0).setPreferredWidth(90);
+        publicReportTable.getColumnModel().getColumn(1).setPreferredWidth(120);
+        publicReportTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        publicReportTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+        publicReportTable.getColumnModel().getColumn(4).setPreferredWidth(150);
+        publicReportTable.getColumnModel().getColumn(3).setCellRenderer(UITheme.statusCellRenderer());
+
+        publicReportTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    showSelectedPublicReport();
+                }
+            }
+        });
+
+        publicDetailPanel = new ReportDetailPanel(userManager, false);
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                UITheme.scroll(publicReportTable), publicDetailPanel);
+        split.setBorder(null);
+        split.setOpaque(false);
+        split.setResizeWeight(0.4);
+        split.setDividerLocation(430);
+        split.setDividerSize(8);
+        split.setContinuousLayout(true);
+
+        publicFilterBar = new ReportFilterBar(locationManager, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshAllReports();
+            }
+        });
+
+        JPanel filterRow = new JPanel(new BorderLayout());
+        filterRow.setOpaque(false);
+        filterRow.add(publicFilterBar, BorderLayout.WEST);
+
+        JLabel hint = new JLabel("Reports submitted by residents. Select one on the left to view its details.");
+        hint.setFont(UITheme.FONT_SMALL);
+        hint.setForeground(UITheme.MUTED);
+
+        JPanel tab = new JPanel(new BorderLayout(0, 12));
+        tab.setBackground(UITheme.BACKGROUND);
+        tab.setBorder(BorderFactory.createEmptyBorder(14, 16, 14, 16));
+        tab.add(filterRow, BorderLayout.NORTH);
+        tab.add(split, BorderLayout.CENTER);
+        tab.add(hint, BorderLayout.SOUTH);
+        return tab;
+    }
+
+    public void showAllReports() {
+        refreshAllReports();
+    }
+
+    private void refreshAllReports() {
+        if (publicReportTableModel == null || publicFilterBar == null) {
+            return;
+        }
+        publicReportTableModel.setRowCount(0);
+        publicReports = publicFilterBar.apply(reportManager.getAllReports());
+
+        for (int i = 0; i < publicReports.size(); i++) {
+            Report report = publicReports.get(i);
+            Object[] row = new Object[5];
+            row[0] = report.getReportId();
+            row[1] = report.getReportType();
+            row[2] = report.getReporterId();
+            row[3] = report.getStatus().name();
+            row[4] = report.getDateSubmitted();
+            publicReportTableModel.addRow(row);
+        }
+
+        if (publicReports.size() > 0) {
+            publicReportTable.setRowSelectionInterval(0, 0);
+        } else {
+            publicReportTable.clearSelection();
+            publicDetailPanel.clear();
+        }
+    }
+
+    private void showSelectedPublicReport() {
+        Report report = selectedPublicReport();
+        if (report == null) {
+            publicDetailPanel.clear();
+        } else {
+            publicDetailPanel.setReport(report);
+        }
+    }
+
+    private Report selectedPublicReport() {
+        if (publicReportTable == null || publicReports == null) {
+            return null;
+        }
+        int viewRow = publicReportTable.getSelectedRow();
+        if (viewRow < 0) {
+            return null;
+        }
+        int modelRow = publicReportTable.convertRowIndexToModel(viewRow);
+        if (modelRow < 0 || modelRow >= publicReports.size()) {
+            return null;
+        }
+        return publicReports.get(modelRow);
     }
 
     private JPanel buildSubmitTab() {
@@ -242,7 +364,7 @@ public class ResidentDashboard extends JFrame {
         reportTableModel.addColumn("Report ID");
         reportTableModel.addColumn("Type");
         reportTableModel.addColumn("Status");
-        reportTableModel.addColumn("Date Submitted");
+        reportTableModel.addColumn("Date & Time");
 
         reportTable = UITheme.styledTable(reportTableModel);
         reportTable.getColumnModel().getColumn(0).setPreferredWidth(90);
@@ -260,7 +382,7 @@ public class ResidentDashboard extends JFrame {
             }
         });
 
-        detailPanel = new ReportDetailPanel();
+        detailPanel = new ReportDetailPanel(userManager, false);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 UITheme.scroll(reportTable), detailPanel);
@@ -399,6 +521,7 @@ public class ResidentDashboard extends JFrame {
         specificDetailField.setText("");
         descriptionArea.setText("");
 
+        showAllReports();
         showOwnReports();
     }
 
@@ -426,6 +549,7 @@ public class ResidentDashboard extends JFrame {
 
         if (reportManager.updateResidentReport(report, currentUser.getUserId())) {
             JOptionPane.showMessageDialog(this, "Report updated.");
+            showAllReports();
             showOwnReports();
         } else {
             JOptionPane.showMessageDialog(this, "The report could not be updated.");
@@ -447,6 +571,7 @@ public class ResidentDashboard extends JFrame {
 
         if (reportManager.deleteResidentReport(report.getReportId(), currentUser.getUserId())) {
             JOptionPane.showMessageDialog(this, "Report deleted.");
+            showAllReports();
             showOwnReports();
         } else {
             JOptionPane.showMessageDialog(this,
