@@ -1,0 +1,13 @@
+Administrator|U999|admin|admin123|System Admin
+Resident|U1001|test|test123|test only|Tiptip, Tagbilaran City|09097720758
+Resident|U1002|dummy|dummy123|Dummy Account|Quezon, Batuan|09127785030
+Resident|U1003|maria|maria123|Maria Santos|Cogon, Tagbilaran City|09171234567
+Resident|U1004|jose|jose123|Jose Rizal|Poblacion, Baclayon|09281234567
+Resident|U1005|ana|ana123|Ana Reyes|Poblacion, Corella|09391234567
+Resident|U1006|pedro|pedro123|Pedro Penduko|Tawala, Panglao|09451234567
+Resident|U1007|liza|liza123|Liza Mercado|Poblacion, Maribojoc|09561234567
+Resident|U1008|mark|mark123|Mark Villanueva|Poblacion, Cortes|09671234567
+Resident|U1009|grace|grace123|Grace Lim|Poblacion, Ubay|09781234567
+Resident|U1010|john|john123|John Paul Bacalso|Poblacion Norte, Carmen|09891234567
+Resident|U1011|kim|kim123|Kim Bautista|Centro, Tubigon|09991234567
+
