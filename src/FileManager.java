@@ -6,11 +6,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * FileManager.java
- * Handles all text file reading and writing for WatchPoint.
- * Only users.txt and reports.txt are used by the system.
- */
 public class FileManager {
 
     private String dataFolder;

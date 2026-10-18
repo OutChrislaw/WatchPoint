@@ -1,7 +1,3 @@
-/**
- * FloodReport.java
- * A report about flooding in a street or barangay.
- */
 public class FloodReport extends Report {
 
     private String waterLevel;
@@ -21,5 +17,10 @@ public class FloodReport extends Report {
     @Override
     public String getSpecificDetail() {
         return waterLevel;
+    }
+
+    @Override
+    public void setSpecificDetail(String specificDetail) {
+        this.waterLevel = specificDetail;
     }
 }

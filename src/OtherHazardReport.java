@@ -1,7 +1,3 @@
-/**
- * OtherHazardReport.java
- * A report for any hazard that does not fit the other three types.
- */
 public class OtherHazardReport extends Report {
 
     private String hazardCategory;
@@ -21,5 +17,10 @@ public class OtherHazardReport extends Report {
     @Override
     public String getSpecificDetail() {
         return hazardCategory;
+    }
+
+    @Override
+    public void setSpecificDetail(String specificDetail) {
+        this.hazardCategory = specificDetail;
     }
 }

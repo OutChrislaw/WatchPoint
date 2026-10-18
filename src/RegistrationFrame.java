@@ -1,156 +1,47 @@
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
-/**
- * RegistrationFrame.java
- * The window where a new resident creates a WatchPoint account.
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-public class RegistrationFrame extends JFrame {
+/**
+ *
+ * @author CHAN
+ */
+public class RegistrationFrame extends javax.swing.JFrame {
+    /**
+     * Creates new form RegistrationFrame
+     */
+    public RegistrationFrame() {
+        initComponents();
+    }
 
-    private JTextField fullNameField;
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JComboBox<String> cityMunicipalityBox;
-    private JComboBox<String> barangayBox;
-    private JTextField contactNumberField;
     private UserManager userManager;
     private LocationManager locationManager;
 
     public RegistrationFrame(UserManager userManager, LocationManager locationManager) {
         this.userManager = userManager;
         this.locationManager = locationManager;
+        initComponents();
 
-        setTitle("WatchPoint - Resident Registration");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setMinimumSize(new Dimension(720, 560));
-        setSize(880, 680);
-        setLocationRelativeTo(null);
-
-        JPanel root = new JPanel(new GridBagLayout());
-        root.setBackground(UITheme.BACKGROUND);
-        setContentPane(root);
-        root.add(buildCard());
-    }
-
-    private JPanel buildCard() {
-        JPanel card = UITheme.card();
-        card.setLayout(new GridBagLayout());
-
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.weightx = 1.0;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-
-        JLabel title = new JLabel("Create your account");
-        title.setFont(UITheme.FONT_TITLE);
-        title.setForeground(UITheme.PRIMARY);
-        c.gridy = 0;
-        c.insets = new Insets(0, 0, 4, 0);
-        card.add(title, c);
-
-        JLabel subtitle = new JLabel("Register as a resident of WatchPoint");
-        subtitle.setFont(UITheme.FONT_SUBTITLE);
-        subtitle.setForeground(UITheme.MUTED);
-        c.gridy = 1;
-        c.insets = new Insets(0, 0, 20, 0);
-        card.add(subtitle, c);
-
-        fullNameField = new JTextField(20);
-        usernameField = new JTextField(20);
-        passwordField = new JPasswordField(20);
-        contactNumberField = new JTextField(20);
-        UITheme.styleField(fullNameField);
-        UITheme.styleField(usernameField);
-        UITheme.styleField(passwordField);
-        UITheme.styleField(contactNumberField);
-
-        cityMunicipalityBox = new JComboBox<String>();
-        cityMunicipalityBox.setFont(UITheme.FONT_BASE);
-        List<String> municipalities = locationManager.getMunicipalities();
+        cityMunicipalityBox.removeAllItems();
+        java.util.List<String> municipalities = locationManager.getMunicipalities();
         for (int i = 0; i < municipalities.size(); i++) {
             cityMunicipalityBox.addItem(municipalities.get(i));
         }
-
-        barangayBox = new JComboBox<String>();
-        barangayBox.setFont(UITheme.FONT_BASE);
-
-        cityMunicipalityBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateBarangayBox();
-            }
-        });
         updateBarangayBox();
 
-        int row = 2;
-        row = addField(card, row, "Full Name", fullNameField);
-        row = addField(card, row, "Username", usernameField);
-        row = addField(card, row, "Password", passwordField);
-        row = addField(card, row, "City / Municipality", cityMunicipalityBox);
-        row = addField(card, row, "Barangay", barangayBox);
-        row = addField(card, row, "Contact Number", contactNumberField);
-
-        JButton registerButton = UITheme.primaryButton("Register");
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                register();
-            }
-        });
-        c.gridy = row;
-        c.insets = new Insets(10, 0, 0, 0);
-        card.add(registerButton, c);
-
-        Dimension preferred = card.getPreferredSize();
-        card.setPreferredSize(new Dimension(420, preferred.height));
-        return card;
-    }
-
-    private int addField(JPanel card, int row, String caption, Component field) {
-        GridBagConstraints captionConstraints = new GridBagConstraints();
-        captionConstraints.gridx = 0;
-        captionConstraints.gridy = row;
-        captionConstraints.weightx = 1.0;
-        captionConstraints.fill = GridBagConstraints.HORIZONTAL;
-        captionConstraints.anchor = GridBagConstraints.WEST;
-        captionConstraints.insets = new Insets(0, 0, 4, 0);
-        card.add(UITheme.fieldCaption(caption), captionConstraints);
-
-        GridBagConstraints fieldConstraints = new GridBagConstraints();
-        fieldConstraints.gridx = 0;
-        fieldConstraints.gridy = row + 1;
-        fieldConstraints.weightx = 1.0;
-        fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
-        fieldConstraints.anchor = GridBagConstraints.WEST;
-        fieldConstraints.insets = new Insets(0, 0, 14, 0);
-        card.add(field, fieldConstraints);
-
-        return row + 2;
+        passwordField.setEchoChar('\u2022');
+        cityMunicipalityBox.addActionListener(e -> updateBarangayBox());
+        registerButton.addActionListener(e -> register());
     }
 
     private void updateBarangayBox() {
         barangayBox.removeAllItems();
-        if (cityMunicipalityBox.getSelectedItem() == null) {
+        if (locationManager == null || cityMunicipalityBox.getSelectedItem() == null) {
             return;
         }
+
         String municipality = cityMunicipalityBox.getSelectedItem().toString();
-        List<String> barangays = locationManager.getBarangays(municipality);
+        java.util.List<String> barangays = locationManager.getBarangays(municipality);
         for (int i = 0; i < barangays.size(); i++) {
             barangayBox.addItem(barangays.get(i));
         }
@@ -166,24 +57,29 @@ public class RegistrationFrame extends JFrame {
         if (cityMunicipalityBox.getSelectedItem() != null) {
             cityMunicipality = cityMunicipalityBox.getSelectedItem().toString();
         }
+
         String barangay = "";
         if (barangayBox.getSelectedItem() != null) {
             barangay = barangayBox.getSelectedItem().toString();
         }
 
         if (cityMunicipality.length() == 0 || barangay.length() == 0) {
-            JOptionPane.showMessageDialog(this,
+            javax.swing.JOptionPane.showMessageDialog(this,
                     "Please select a City / Municipality and a Barangay.");
             return;
+        }
+
+        if (contactNumber.equals("09XXXXXXXXX")) {
+            contactNumber = "";
         }
 
         String address = barangay + ", " + cityMunicipality;
 
         if (userManager.registerResident(fullName, username, password, address, contactNumber)) {
-            JOptionPane.showMessageDialog(this, "Account created. You may now log in.");
+            javax.swing.JOptionPane.showMessageDialog(this, "Account created. You may now log in.");
             clearFields();
         } else {
-            JOptionPane.showMessageDialog(this,
+            javax.swing.JOptionPane.showMessageDialog(this,
                     "Registration failed. Please fill in the required fields or use another username.");
         }
     }
@@ -192,10 +88,230 @@ public class RegistrationFrame extends JFrame {
         fullNameField.setText("");
         usernameField.setText("");
         passwordField.setText("");
+        contactNumberField.setText("09XXXXXXXXX");
+
         if (cityMunicipalityBox.getItemCount() > 0) {
             cityMunicipalityBox.setSelectedIndex(0);
         }
-        contactNumberField.setText("");
     }
-}
 
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLayeredPane2 = new javax.swing.JLayeredPane();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        fullNameField = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        usernameField = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        passwordField = new javax.swing.JPasswordField();
+        jLabel6 = new javax.swing.JLabel();
+        cityMunicipalityBox = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        barangayBox = new javax.swing.JComboBox<>();
+        jLabel8 = new javax.swing.JLabel();
+        contactNumberField = new javax.swing.JTextField();
+        registerButton = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
+        jLayeredPane2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel1.setText("Create your account");
+
+        jLabel2.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel2.setText("Register an account for WatchPoint as a resident of Bohol");
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel3.setText("Full Name");
+
+        fullNameField.addActionListener(this::fullNameFieldActionPerformed);
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel4.setText("Username");
+
+        usernameField.addActionListener(this::usernameFieldActionPerformed);
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel5.setText("Password");
+
+        passwordField.addActionListener(this::passwordFieldActionPerformed);
+
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel6.setText("City / Municipal");
+
+        cityMunicipalityBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel7.setText("Baranggay");
+
+        barangayBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel8.setText("Contact Number");
+
+        contactNumberField.setForeground(new java.awt.Color(153, 153, 153));
+        contactNumberField.setText("09XXXXXXXXX");
+        contactNumberField.addActionListener(this::contactNumberFieldActionPerformed);
+
+        registerButton.setBackground(new java.awt.Color(0, 153, 255));
+        registerButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        registerButton.setForeground(new java.awt.Color(255, 255, 255));
+        registerButton.setText("Register as Resident");
+
+        jLayeredPane2.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(fullNameField, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(usernameField, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(passwordField, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel6, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(cityMunicipalityBox, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel7, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(barangayBox, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel8, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(contactNumberField, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(registerButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        javax.swing.GroupLayout jLayeredPane2Layout = new javax.swing.GroupLayout(jLayeredPane2);
+        jLayeredPane2.setLayout(jLayeredPane2Layout);
+        jLayeredPane2Layout.setHorizontalGroup(
+            jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane2Layout.createSequentialGroup()
+                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jLayeredPane2Layout.createSequentialGroup()
+                        .addGap(39, 39, 39)
+                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel5)
+                            .addComponent(usernameField, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel1)
+                            .addComponent(fullNameField)
+                            .addComponent(passwordField)
+                            .addComponent(cityMunicipalityBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(barangayBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(contactNumberField)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jLayeredPane2Layout.createSequentialGroup()
+                        .addGap(187, 187, 187)
+                        .addComponent(registerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(52, Short.MAX_VALUE))
+        );
+        jLayeredPane2Layout.setVerticalGroup(
+            jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane2Layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(fullNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cityMunicipalityBox, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(barangayBox, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel8)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(contactNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(registerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(41, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(285, Short.MAX_VALUE)
+                .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(279, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(74, Short.MAX_VALUE)
+                .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(74, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void fullNameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fullNameFieldActionPerformed
+        usernameField.requestFocusInWindow();
+    }//GEN-LAST:event_fullNameFieldActionPerformed
+
+    private void usernameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameFieldActionPerformed
+        passwordField.requestFocusInWindow();
+    }//GEN-LAST:event_usernameFieldActionPerformed
+
+    private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
+        cityMunicipalityBox.requestFocusInWindow();
+    }//GEN-LAST:event_passwordFieldActionPerformed
+
+    private void contactNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contactNumberFieldActionPerformed
+        register();
+    }//GEN-LAST:event_contactNumberFieldActionPerformed
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> barangayBox;
+    private javax.swing.JComboBox<String> cityMunicipalityBox;
+    private javax.swing.JTextField contactNumberField;
+    private javax.swing.JTextField fullNameField;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLayeredPane jLayeredPane2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPasswordField passwordField;
+    private javax.swing.JButton registerButton;
+    private javax.swing.JTextField usernameField;
+    // End of variables declaration//GEN-END:variables
+}

@@ -1,7 +1,3 @@
-/**
- * RoadHazardReport.java
- * A report about a road problem such as a pothole or a broken sidewalk.
- */
 public class RoadHazardReport extends Report {
 
     private String roadHazardType;
@@ -21,5 +17,10 @@ public class RoadHazardReport extends Report {
     @Override
     public String getSpecificDetail() {
         return roadHazardType;
+    }
+
+    @Override
+    public void setSpecificDetail(String specificDetail) {
+        this.roadHazardType = specificDetail;
     }
 }

@@ -1,119 +1,28 @@
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
-/**
- * LoginFrame.java
- * The first window of WatchPoint. It checks the username and password
- * of a user and opens the correct dashboard.
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-public class LoginFrame extends JFrame {
+/**
+ *
+ * @author CHAN
+ */
+public class LoginFrame extends javax.swing.JFrame {
 
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+    public LoginFrame() {
+        initComponents();
+    }
+
     private UserManager userManager;
     private ReportManager reportManager;
     private LocationManager locationManager;
 
-    public LoginFrame(UserManager userManager, ReportManager reportManager, LocationManager locationManager) {
+    public LoginFrame(UserManager userManager, ReportManager reportManager,
+                       LocationManager locationManager) {
         this.userManager = userManager;
         this.reportManager = reportManager;
         this.locationManager = locationManager;
-
-        setTitle("WatchPoint - Log In");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(720, 520));
-        setSize(880, 600);
-        setLocationRelativeTo(null);
-
-        JPanel root = new JPanel(new GridBagLayout());
-        root.setBackground(UITheme.BACKGROUND);
-        setContentPane(root);
-        root.add(buildCard());
-    }
-
-    private JPanel buildCard() {
-        JPanel card = UITheme.card();
-        card.setLayout(new GridBagLayout());
-
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.weightx = 1.0;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-
-        JLabel title = new JLabel("WatchPoint");
-        title.setFont(UITheme.FONT_TITLE);
-        title.setForeground(UITheme.PRIMARY);
-        c.gridy = 0;
-        c.insets = new Insets(0, 0, 4, 0);
-        card.add(title, c);
-
-        JLabel subtitle = new JLabel("Community Safety Reporting System");
-        subtitle.setFont(UITheme.FONT_SUBTITLE);
-        subtitle.setForeground(UITheme.MUTED);
-        c.gridy = 1;
-        c.insets = new Insets(0, 0, 24, 0);
-        card.add(subtitle, c);
-
-        JLabel usernameCaption = UITheme.fieldCaption("Username");
-        c.gridy = 2;
-        c.insets = new Insets(0, 0, 4, 0);
-        card.add(usernameCaption, c);
-
-        usernameField = new JTextField(20);
-        UITheme.styleField(usernameField);
-        c.gridy = 3;
-        c.insets = new Insets(0, 0, 16, 0);
-        card.add(usernameField, c);
-
-        JLabel passwordCaption = UITheme.fieldCaption("Password");
-        c.gridy = 4;
-        c.insets = new Insets(0, 0, 4, 0);
-        card.add(passwordCaption, c);
-
-        passwordField = new JPasswordField(20);
-        UITheme.styleField(passwordField);
-        c.gridy = 5;
-        c.insets = new Insets(0, 0, 24, 0);
-        card.add(passwordField, c);
-
-        JButton loginButton = UITheme.primaryButton("Log In");
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleLogin();
-            }
-        });
-        c.gridy = 6;
-        c.insets = new Insets(0, 0, 10, 0);
-        card.add(loginButton, c);
-
-        JButton registerButton = UITheme.secondaryButton("Register as Resident");
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openRegistration();
-            }
-        });
-        c.gridy = 7;
-        c.insets = new Insets(0, 0, 0, 0);
-        card.add(registerButton, c);
-
-        Dimension preferred = card.getPreferredSize();
-        card.setPreferredSize(new Dimension(400, preferred.height));
-        return card;
+        initComponents();
+        registerButton.addActionListener(e -> openRegistration());
     }
 
     public void handleLogin() {
@@ -145,7 +54,161 @@ public class LoginFrame extends JFrame {
     }
 
     public void showMessage(String message) {
-        JOptionPane.showMessageDialog(this, message);
+        javax.swing.JOptionPane.showMessageDialog(this, message);
     }
-}
 
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLayeredPane1 = new javax.swing.JLayeredPane();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        usernameField = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        passwordField = new javax.swing.JPasswordField();
+        loginButton = new javax.swing.JButton();
+        registerButton = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLayeredPane1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel1.setText("WatchPoint");
+
+        jLabel2.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel2.setText("Bohol's Safety Reporting System");
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel3.setText("Username");
+
+        usernameField.addActionListener(this::usernameFieldActionPerformed);
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel4.setText("Password");
+
+        passwordField.addActionListener(this::passwordFieldActionPerformed);
+
+        passwordField.setText("Password");
+
+        loginButton.setBackground(new java.awt.Color(0, 153, 255));
+        loginButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        loginButton.setForeground(new java.awt.Color(255, 255, 255));
+        loginButton.setText("Log In");
+        loginButton.addActionListener(this::loginButtonActionPerformed);
+
+        registerButton.setBackground(new java.awt.Color(204, 204, 204));
+        registerButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        registerButton.setText("Register as Resident");
+
+        jLayeredPane1.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(usernameField, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(jLabel4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(passwordField, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(loginButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(registerButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
+        jLayeredPane1.setLayout(jLayeredPane1Layout);
+        jLayeredPane1Layout.setHorizontalGroup(
+            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane1Layout.createSequentialGroup()
+                .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jLayeredPane1Layout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(usernameField)
+                            .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)))
+                    .addGroup(jLayeredPane1Layout.createSequentialGroup()
+                        .addGap(148, 148, 148)
+                        .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(loginButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(registerButton, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE))))
+                .addContainerGap(40, Short.MAX_VALUE))
+        );
+        jLayeredPane1Layout.setVerticalGroup(
+            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane1Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addGap(26, 26, 26)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(loginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(registerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(197, Short.MAX_VALUE)
+                .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(197, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(168, Short.MAX_VALUE)
+                .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(169, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
+        handleLogin();
+    }//GEN-LAST:event_loginButtonActionPerformed
+
+    private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
+        handleLogin();
+    }//GEN-LAST:event_passwordFieldActionPerformed
+
+    private void usernameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameFieldActionPerformed
+        passwordField.requestFocusInWindow();
+    }//GEN-LAST:event_usernameFieldActionPerformed
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLayeredPane jLayeredPane1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton loginButton;
+    private javax.swing.JPasswordField passwordField;
+    private javax.swing.JButton registerButton;
+    private javax.swing.JTextField usernameField;
+    // End of variables declaration//GEN-END:variables
+}

@@ -1,11 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * UserManager.java
- * Handles registration, login, and user records of WatchPoint.
- * Users are stored in users.txt through the FileManager.
- */
 public class UserManager {
 
     private List<User> users;

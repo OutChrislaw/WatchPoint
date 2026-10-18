@@ -2,11 +2,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ReportManager.java
- * Handles submitting, searching, updating, and deleting hazard reports.
- * Reports are stored in reports.txt through the FileManager.
- */
 public class ReportManager {
 
     private List<Report> reports;

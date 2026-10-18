@@ -1,11 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * LocationManager.java
- * Provides the list of Bohol cities/municipalities and their barangays.
- * The data is read from locations.txt through the FileManager.
- */
 public class LocationManager {
 
     private List<String> lines;

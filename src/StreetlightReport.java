@@ -22,4 +22,9 @@ public class StreetlightReport extends Report {
     public String getSpecificDetail() {
         return poleNumber;
     }
+
+    @Override
+    public void setSpecificDetail(String specificDetail) {
+        this.poleNumber = specificDetail;
+    }
 }

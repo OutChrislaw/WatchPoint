@@ -1,8 +1,3 @@
-/**
- * User.java
- * Abstract parent class of Resident and Administrator.
- * Holds the account details that every user of WatchPoint shares.
- */
 public abstract class User {
 
     private String userId;

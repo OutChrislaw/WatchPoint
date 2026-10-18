@@ -1,7 +1,3 @@
-/**
- * Report.java
- * Abstract parent class of all hazard reports in WatchPoint.
- */
 public abstract class Report {
 
     private String reportId;
@@ -60,6 +56,8 @@ public abstract class Report {
     public abstract String getReportType();
 
     public abstract String getSpecificDetail();
+
+    public abstract void setSpecificDetail(String specificDetail);
 
     public String toFileString() {
         return getReportType() + "|" + reportId + "|" + reporterId + "|"

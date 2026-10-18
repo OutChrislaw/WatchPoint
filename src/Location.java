@@ -1,7 +1,3 @@
-/**
- * Location.java
- * Stores where a hazard was seen. Used by every Report.
- */
 public class Location {
 
     private String cityMunicipality;

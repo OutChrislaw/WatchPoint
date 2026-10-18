@@ -1,7 +1,3 @@
-/**
- * Resident.java
- * A community member who reports hazards in WatchPoint.
- */
 public class Resident extends User {
 
     private String address;
