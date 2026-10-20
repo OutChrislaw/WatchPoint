@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
@@ -265,6 +266,17 @@ public final class UITheme {
         fieldConstraints.insets = new Insets(0, 0, 8, 0);
         form.add(field, fieldConstraints);
     }
+    public static JPanel actionRow(javax.swing.JComponent... items) {
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        row.setBackground(Color.WHITE);
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        for (int i = 0; i < items.length; i++) {
+            row.add(items[i]);
+        }
+        return row;
+    }
+
     public static String display(String text) {
         if (text == null || text.trim().length() == 0) {
             return "-";

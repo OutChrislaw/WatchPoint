@@ -68,6 +68,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
     private DefaultTableModel reportTableModel;
     private JScrollPane detailScroll;
     private List<Report> currentReports;
+    private JPanel reportActions;
 
     public ResidentDashboard() {
         initComponents();
@@ -299,28 +300,20 @@ public class ResidentDashboard extends javax.swing.JFrame {
         body.add(detailScroll);
         tab.add(body, BorderLayout.CENTER);
 
-        JPanel south = new JPanel(new BorderLayout(16, 0));
-        south.setBackground(UITheme.PAGE);
-        south.add(buildReportButtonRow(), BorderLayout.WEST);
-        south.add(UITheme.hint("Only reports that are still PENDING can be changed."), BorderLayout.CENTER);
-        tab.add(south, BorderLayout.SOUTH);
+        reportActions = buildReportButtonRow();
+        tab.add(UITheme.hint("Only reports that are still PENDING can be changed."), BorderLayout.SOUTH);
 
         return tab;
     }
 
     private JPanel buildReportButtonRow() {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        row.setBackground(UITheme.PAGE);
-
         JButton updateButton = UITheme.button("Update Selected Report", UITheme.BORDER, UITheme.TEXT);
         updateButton.addActionListener(e -> updateSelectedReport());
-        row.add(updateButton);
 
         JButton deleteButton = UITheme.button("Delete Selected Report", UITheme.DANGER, Color.WHITE);
         deleteButton.addActionListener(e -> deleteSelectedReport());
-        row.add(deleteButton);
 
-        return row;
+        return UITheme.actionRow(updateButton, deleteButton);
     }
 
     private void showSelectedReport() {
@@ -454,6 +447,9 @@ public class ResidentDashboard extends javax.swing.JFrame {
 
     private JPanel reportForm(Report report) {
         JPanel body = UITheme.cardBody();
+
+        body.add(reportActions);
+        body.add(Box.createVerticalStrut(12));
 
         body.add(UITheme.label("Report " + report.getReportId() + "   -   " + report.getReportType(),
                 UITheme.FONT_HEADING, UITheme.PRIMARY));

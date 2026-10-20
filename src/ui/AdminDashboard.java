@@ -60,6 +60,8 @@ public class AdminDashboard extends javax.swing.JFrame {
     private DefaultTableModel userTableModel;
     private JScrollPane userDetailScroll;
     private List<User> currentUsers;
+    private JPanel reportActions;
+    private JPanel userActions;
 
     public AdminDashboard() {
         initComponents();
@@ -105,7 +107,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         body.add(reportDetailScroll);
         tab.add(body, BorderLayout.CENTER);
 
-        tab.add(buildReportControls(), BorderLayout.SOUTH);
+        reportActions = buildReportActions();
+        tab.add(UITheme.hint("Select a report on the left to review it."), BorderLayout.SOUTH);
         return tab;
     }
 
@@ -149,24 +152,17 @@ public class AdminDashboard extends javax.swing.JFrame {
         }
     }
 
-    private JPanel buildReportControls() {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        row.setBackground(UITheme.PAGE);
-
-        row.add(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT));
+    private JPanel buildReportActions() {
         statusBox = UITheme.options(new String[] { "PENDING", "VERIFIED", "IN_PROGRESS", "RESOLVED" });
-        row.add(statusBox);
 
         JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, Color.WHITE);
         updateStatusButton.addActionListener(e -> updateReportStatus());
-        row.add(updateStatusButton);
 
         JButton deleteButton = UITheme.button("Delete Invalid Report", UITheme.DANGER, Color.WHITE);
         deleteButton.addActionListener(e -> deleteInvalidReport());
-        row.add(deleteButton);
 
-        row.add(UITheme.hint("Select a report on the left to review it."));
-        return row;
+        return UITheme.actionRow(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT),
+                statusBox, updateStatusButton, deleteButton);
     }
 
     private JPanel buildUsersTab() {
@@ -184,6 +180,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         body.add(userDetailScroll);
         tab.add(body, BorderLayout.CENTER);
 
+        userActions = buildUserActions();
         tab.add(buildUserControls(), BorderLayout.SOUTH);
         return tab;
     }
@@ -196,16 +193,18 @@ public class AdminDashboard extends javax.swing.JFrame {
         createUserButton.addActionListener(e -> createUser());
         row.add(createUserButton);
 
+        row.add(UITheme.hint("Only an administrator can create area officer and administrator accounts."));
+        return row;
+    }
+
+    private JPanel buildUserActions() {
         JButton updateUserButton = UITheme.button("Update User", UITheme.BORDER, UITheme.TEXT);
         updateUserButton.addActionListener(e -> updateUser());
-        row.add(updateUserButton);
 
         JButton deleteUserButton = UITheme.button("Delete User", UITheme.DANGER, Color.WHITE);
         deleteUserButton.addActionListener(e -> deleteUser());
-        row.add(deleteUserButton);
 
-        row.add(UITheme.hint("Select a user on the left to view the account."));
-        return row;
+        return UITheme.actionRow(updateUserButton, deleteUserButton);
     }
     public void showAllReports() {
         refreshReports();
@@ -487,6 +486,9 @@ public class AdminDashboard extends javax.swing.JFrame {
     private JPanel reportForm(Report report) {
         JPanel body = UITheme.cardBody();
 
+        body.add(reportActions);
+        body.add(Box.createVerticalStrut(12));
+
         body.add(UITheme.label("Report " + report.getReportId() + "   -   " + report.getReportType(),
                 UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));
@@ -521,8 +523,11 @@ public class AdminDashboard extends javax.swing.JFrame {
         return body;
     }
 
-    private static JPanel userForm(User user) {
+    private JPanel userForm(User user) {
         JPanel body = UITheme.cardBody();
+
+        body.add(userActions);
+        body.add(Box.createVerticalStrut(12));
 
         body.add(UITheme.label(user.getFullName(), UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));

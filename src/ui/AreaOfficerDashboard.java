@@ -64,6 +64,9 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     private JScrollPane requestDetailScroll;
     private List<RegistrationRequest> currentRequests;
 
+    private JPanel reportActions;
+    private JPanel requestActions;
+
     public AreaOfficerDashboard() {
         initComponents();
     }
@@ -141,7 +144,9 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         body.add(reportDetailScroll);
         tab.add(body, BorderLayout.CENTER);
 
-        tab.add(buildReportControls(), BorderLayout.SOUTH);
+        reportActions = buildReportActions();
+        tab.add(UITheme.hint("You only see the reports filed in " + currentOfficer.getArea() + "."),
+                BorderLayout.SOUTH);
         return tab;
     }
 
@@ -166,20 +171,14 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         return row;
     }
 
-    private JPanel buildReportControls() {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        row.setBackground(UITheme.PAGE);
-
-        row.add(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT));
+    private JPanel buildReportActions() {
         statusBox = UITheme.options(new String[] { "PENDING", "VERIFIED", "IN_PROGRESS", "RESOLVED" });
-        row.add(statusBox);
 
         JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, Color.WHITE);
         updateStatusButton.addActionListener(e -> updateReportStatus());
-        row.add(updateStatusButton);
 
-        row.add(UITheme.hint("You only see the reports filed in " + currentOfficer.getArea() + "."));
-        return row;
+        return UITheme.actionRow(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT),
+                statusBox, updateStatusButton);
     }
 
     public void showAreaReports() {
@@ -260,6 +259,9 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     private JPanel reportForm(Report report) {
         JPanel body = UITheme.cardBody();
 
+        body.add(reportActions);
+        body.add(Box.createVerticalStrut(12));
+
         body.add(UITheme.label("Report " + report.getReportId() + "   -   " + report.getReportType(),
                 UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));
@@ -308,22 +310,21 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         body.add(requestDetailScroll);
         tab.add(body, BorderLayout.CENTER);
 
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        row.setBackground(UITheme.PAGE);
+        requestActions = buildRequestActions();
+        tab.add(UITheme.hint("Only residents who registered in " + currentOfficer.getArea()
+                + " appear here. Accepted residents can log in right away."), BorderLayout.SOUTH);
 
+        return tab;
+    }
+
+    private JPanel buildRequestActions() {
         JButton acceptButton = UITheme.button("Accept Registration", UITheme.ACCENT, Color.WHITE);
         acceptButton.addActionListener(e -> acceptRegistration());
-        row.add(acceptButton);
 
         JButton rejectButton = UITheme.button("Reject Registration", UITheme.DANGER, Color.WHITE);
         rejectButton.addActionListener(e -> rejectRegistration());
-        row.add(rejectButton);
 
-        row.add(UITheme.hint("Only residents who registered in " + currentOfficer.getArea()
-                + " appear here. Accepted residents can log in right away."));
-        tab.add(row, BorderLayout.SOUTH);
-
-        return tab;
+        return UITheme.actionRow(acceptButton, rejectButton);
     }
 
     private void showSelectedRequest() {
@@ -409,6 +410,9 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
 
     private JPanel requestForm(RegistrationRequest request) {
         JPanel body = UITheme.cardBody();
+
+        body.add(requestActions);
+        body.add(Box.createVerticalStrut(12));
 
         body.add(UITheme.label(request.getFullName(), UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));
