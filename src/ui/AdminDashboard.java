@@ -62,6 +62,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private DefaultTableModel userTableModel;
     private JScrollPane userDetailScroll;
     private List<User> currentUsers;
+    private JTextField userSearchField;
     private JPanel reportActions;
     private JPanel userActions;
 
@@ -168,8 +169,37 @@ public class AdminDashboard extends javax.swing.JFrame {
                 statusBox, updateStatusButton, deleteButton);
     }
 
+    private JPanel buildUserFilterRow() {
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        row.setBackground(UITheme.PAGE);
+
+        row.add(UITheme.label("Search:", UITheme.FONT_BASE, UITheme.TEXT));
+        userSearchField = UITheme.hintField("ID, username or full name", 26);
+        userSearchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent event) {
+                manageUsers();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent event) {
+                manageUsers();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent event) {
+                manageUsers();
+            }
+        });
+        row.add(userSearchField);
+
+        row.add(UITheme.hint("Shows the accounts whose id, username or full name contains the text."));
+        return row;
+    }
+
     private JPanel buildUsersTab() {
         JPanel tab = UITheme.page();
+        tab.add(buildUserFilterRow(), BorderLayout.NORTH);
 
         userTable = UITheme.dataTable(new Object[] { "User ID", "Type", "Username", "Full Name" });
         userTableModel = (DefaultTableModel) userTable.getModel();
@@ -330,7 +360,11 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     public void manageUsers() {
-        currentUsers = userManager.getAllUsers();
+        String keyword = "";
+        if (userSearchField != null) {
+            keyword = userSearchField.getText();
+        }
+        currentUsers = userManager.searchUsers(keyword);
 
         userTableModel.setRowCount(0);
         for (int i = 0; i < currentUsers.size(); i++) {
@@ -341,6 +375,8 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         if (userTableModel.getRowCount() > 0) {
             userTable.setRowSelectionInterval(0, 0);
+        } else if (keyword.trim().length() > 0) {
+            userDetailScroll.setViewportView(UITheme.emptyDetail("No accounts match your search."));
         } else {
             userDetailScroll.setViewportView(UITheme.emptyDetail("There are no accounts to show."));
         }

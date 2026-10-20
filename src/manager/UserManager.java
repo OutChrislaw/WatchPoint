@@ -292,6 +292,30 @@ public class UserManager {
         }
         return address.substring(0, comma).trim();
     }
+    public List<User> searchUsers(String keyword) {
+        if (keyword == null || keyword.trim().length() == 0) {
+            return getAllUsers();
+        }
+
+        String text = keyword.trim().toLowerCase();
+        List<User> result = new ArrayList<User>();
+        for (int i = 0; i < users.size(); i++) {
+            User user = users.get(i);
+
+            boolean matches = user.getUserId().toLowerCase().contains(text)
+                    || user.getFullName().toLowerCase().contains(text);
+
+            if (user instanceof Resident) {
+                matches = matches || ((Resident) user).getUsername().toLowerCase().contains(text);
+            }
+
+            if (matches) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+
     private boolean isUsernameTaken(String username) {
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);

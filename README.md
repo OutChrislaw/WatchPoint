@@ -60,7 +60,7 @@ app  ──►  ui  ──►  manager  ──►  model
 |---|---|---|---|
 | Resident | self-registers and can log in right away | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own details, username and password from the Settings button |
 | Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, change own password from the Settings button |
-| Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, change own password from the Settings button |
+| Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, search accounts by id, username or full name, change own password from the Settings button |
 
 **Creating accounts.** Residents sign up from the login window and can log in straight away.
 Only an administrator creates the other accounts, from the **Create User** form in the Users tab:
