@@ -74,9 +74,6 @@ public class RegistrationFrame extends javax.swing.JFrame {
             return;
         }
 
-        if (contactNumber.equals("09XXXXXXXXX")) {
-            contactNumber = "";
-        }
 
         String address = barangay + ", " + cityMunicipality;
 
@@ -93,7 +90,7 @@ public class RegistrationFrame extends javax.swing.JFrame {
         fullNameField.setText("");
         usernameField.setText("");
         passwordField.setText("");
-        contactNumberField.setText("09XXXXXXXXX");
+        contactNumberField.setText("");
 
         if (cityMunicipalityBox.getItemCount() > 0) {
             cityMunicipalityBox.setSelectedIndex(0);
@@ -174,7 +171,6 @@ public class RegistrationFrame extends javax.swing.JFrame {
         jLabel8.setText("Contact Number");
 
         contactNumberField.setForeground(new java.awt.Color(153, 153, 153));
-        contactNumberField.setText("09XXXXXXXXX");
         contactNumberField.addActionListener(this::contactNumberFieldActionPerformed);
 
         registerButton.setBackground(new java.awt.Color(0, 153, 255));

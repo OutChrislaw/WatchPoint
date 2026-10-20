@@ -115,7 +115,6 @@ public class LoginFrame extends javax.swing.JFrame {
 
         passwordField.addActionListener(this::passwordFieldActionPerformed);
 
-        passwordField.setText("Password");
 
         loginButton.setBackground(new java.awt.Color(0, 153, 255));
         loginButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
