@@ -165,11 +165,13 @@ public class ProfileDialog {
         UITheme.addFormRow(form, row, "Full Name", fullNameField);
         row = row + 2;
 
-        JTextField idField = UITheme.hintField("", 30);
-        idField.setText(user.getUserId());
-        idField.setEnabled(false);
-        UITheme.addFormRow(form, row, "User ID (used to log in)", idField);
-        row = row + 2;
+        if (!(user instanceof Resident)) {
+            JTextField idField = UITheme.hintField("", 30);
+            idField.setText(user.getUserId());
+            idField.setEnabled(false);
+            UITheme.addFormRow(form, row, "User ID (used to log in)", idField);
+            row = row + 2;
+        }
 
         if (user instanceof Resident) {
             Resident residentUser = (Resident) user;

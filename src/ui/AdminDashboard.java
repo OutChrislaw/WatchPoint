@@ -347,69 +347,11 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     public void createUser() {
-        String[] types = { "Area Officer", "Administrator" };
-        String type = (String) JOptionPane.showInputDialog(this, "User type:", "Create User",
-                JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
-        if (type == null) {
-            return;
-        }
-
-        String fullName = JOptionPane.showInputDialog(this, "Full name:");
-        if (fullName == null || fullName.trim().length() == 0) {
-            return;
-        }
-
-        String password = JOptionPane.showInputDialog(this, "Password:");
-        if (password == null || password.trim().length() == 0) {
-            return;
-        }
-
-        if (type.equals("Area Officer")) {
-            String area = pickArea(null);
-            if (area == null) {
-                return;
-            }
-
-            AreaOfficer officer = userManager.addAreaOfficer(fullName, password, area);
-            if (officer == null) {
-                showMessage("The account could not be created.");
-                return;
-            }
-            showMessage("Area Officer created. " + officer.getFullName()
-                    + " logs in with the ID " + officer.getUserId() + ".");
+        UserCreateDialog dialog = new UserCreateDialog(this, userManager, locationManager);
+        if (dialog.showDialog()) {
             manageUsers();
-            return;
         }
-
-        Administrator administrator = userManager.addAdministrator(fullName, password);
-        if (administrator == null) {
-            showMessage("The account could not be created.");
-            return;
-        }
-        showMessage("Administrator created. " + administrator.getFullName()
-                + " logs in with the ID " + administrator.getUserId() + ".");
-        manageUsers();
     }
-
-    private String pickArea(String current) {
-        java.util.List<String> municipalities = locationManager.getMunicipalities();
-        if (municipalities.isEmpty()) {
-            return current;
-        }
-
-        String[] choices = new String[municipalities.size()];
-        for (int i = 0; i < choices.length; i++) {
-            choices[i] = municipalities.get(i);
-        }
-
-        Object start = choices[0];
-        if (current != null && current.length() > 0) {
-            start = current;
-        }
-        return (String) JOptionPane.showInputDialog(this, "Area (city / municipality):",
-                "Area Officer", JOptionPane.QUESTION_MESSAGE, null, choices, start);
-    }
-
     public void updateUser() {
         User existing = selectedUser();
         if (existing == null) {

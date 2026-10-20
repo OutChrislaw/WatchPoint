@@ -62,6 +62,11 @@ app  ──►  ui  ──►  manager  ──►  model
 | Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, change own password from the Settings button |
 | Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, change own password from the Settings button |
 
+**Creating accounts.** Residents sign up from the login window and can log in straight away.
+Only an administrator creates the other accounts, from the **Create User** form in the Users tab:
+pick the user type, type the full name and password, and choose the area for an area officer. The
+new id is shown after saving, because administrators and area officers log in with it.
+
 `users.txt` line format (one line per account type):
 
 ```
@@ -99,7 +104,7 @@ cityMunicipality|barangay1|barangay2|...
 
 | Item | What it does |
 |---|---|
-| Account Details | Full name, user id, username (residents only), contact and address. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be used by another resident). |
+| Account Details | Full name, username (residents only), contact and address. Administrators and area officers also see the user id they log in with. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be used by another resident). |
 | Change Password | Current password, new password (at least 6 characters) and confirmation. |
 | Logout | Signs out and returns to the login window. |
 ## Build and run
