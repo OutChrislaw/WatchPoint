@@ -15,6 +15,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Box;
@@ -168,9 +169,16 @@ public class ResidentDashboard extends javax.swing.JFrame {
     }
 
     private void refreshAllReports() {
-        publicReports = reportManager.getReports(filterValue(publicFilterCityBox, ALL_MUNICIPALITIES),
+        List<Report> found = reportManager.getReports(filterValue(publicFilterCityBox, ALL_MUNICIPALITIES),
                 filterValue(publicFilterBarangayBox, ALL_BARANGAYS),
                 UITheme.text(publicFilterSortBox));
+
+        publicReports = new ArrayList<Report>();
+        for (int i = 0; i < found.size(); i++) {
+            if (found.get(i).getStatus() != ReportStatus.REJECTED) {
+                publicReports.add(found.get(i));
+            }
+        }
 
         publicReportTableModel.setRowCount(0);
         for (int i = 0; i < publicReports.size(); i++) {
@@ -480,6 +488,13 @@ public class ResidentDashboard extends javax.swing.JFrame {
             { "STREET", report.getLocation().getStreet() },
             { "SPECIFIC PLACE", report.getLocation().getSpecificPlace() }
         });
+
+        if (report.getRemark().length() > 0) {
+            body.add(UITheme.label("Rejection reason", UITheme.FONT_SECTION, UITheme.PRIMARY));
+            body.add(Box.createVerticalStrut(8));
+            body.add(UITheme.descriptionBox(report.getRemark()));
+            body.add(Box.createVerticalStrut(18));
+        }
 
         body.add(UITheme.label(UITheme.detailCaption(report.getReportType()),
                 UITheme.FONT_SECTION, UITheme.PRIMARY));

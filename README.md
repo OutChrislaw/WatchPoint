@@ -58,9 +58,9 @@ app  ──►  ui  ──►  manager  ──►  model
 
 | Role | Created by | Sees | Can do |
 |---|---|---|---|
-| Resident | self-registers and can log in right away | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own details, username and password from the Settings button |
-| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, change own password from the Settings button |
-| Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, filter accounts by type and search by id, username or full name, change own password from the Settings button |
+| Resident | self-registers and can log in right away | own reports and the public reports list | Submit a report, view reports, update or delete own PENDING reports, see why a report was rejected, edit own details, username and password from the Settings button |
+| Area Officer | an Administrator | only its own city/municipality | **Area overview** (counts per status, hazard type and barangay, oldest pending report), change report status inside its area, reject a report with a reason, see the reporter's contact number, change own password from the Settings button |
+| Administrator | an Administrator | the whole province | **Province-wide overview**, all reports, change status, reject with a reason, delete invalid reports, see the reporter's contact number, edit any account in a form, filter accounts by type and search by id, username or full name, change own password from the Settings button |
 
 **Creating accounts.** Residents sign up from the login window and can log in straight away.
 Only an administrator creates the other accounts, from the **Create User** form in the Users tab:
@@ -95,10 +95,14 @@ AreaOfficer|AO000001|officer123|Tagbilaran City Officer|2026-10-20 09:17|Tagbila
 `reports.txt` line format:
 
 ```
-type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|description|specificDetail|status|dateSubmitted
+type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|description|specificDetail|status|dateSubmitted|remark
 ```
 
 `dateSubmitted` is stored as `yyyy-MM-dd HH:mm` (date and time).
+
+`status` is one of **PENDING**, **VERIFIED**, **IN_PROGRESS**, **RESOLVED** or **REJECTED**.
+`remark` holds the reason written when a report is rejected and is empty for every other status, so
+lines written before this field existed still load (the missing field is read as empty).
 
 `locations.txt` line format (one line per city/municipality):
 
@@ -125,6 +129,7 @@ same checks so nothing can slip past the forms.
 | Username | 3 to 40 characters from letters, numbers and `.` `_` `@` `+` `-`; it must contain a letter, must be unique, must not be only digits, must not look like an account id (`U000001`, `AD000001`, `AO000001`) and must not match another account's id. |
 | Report | Hazard type from the fixed list; city / municipality and barangay chosen from `locations.txt`; specific place (2-60 characters); specific detail (2-80 characters); description (10-500 characters, line breaks are collapsed into spaces); street is optional and saved as `N/A`; a resident cannot file the same PENDING hazard twice. |
 | Status change | The chosen status must differ from the report's current status. |
+| Rejection reason | 5-200 characters, one line, and the `\|` character is refused. Only a PENDING or VERIFIED report can be rejected, and the reason is cleared if the report is moved on to another status. |
 | Administrator actions | An administrator cannot delete the account they are signed in with or the last remaining administrator, and deleting a resident who filed reports asks for confirmation first. |
 | Any text | The `\|` character and line breaks are refused, because the data files use `\|` as the separator between fields. |
 

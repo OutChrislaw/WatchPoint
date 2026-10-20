@@ -397,6 +397,9 @@ public final class UITheme {
         if ("PENDING".equals(status)) {
             return new Color(0xA9, 0x76, 0x1B);
         }
+        if ("REJECTED".equals(status)) {
+            return DANGER;
+        }
         return MUTED;
     }
 

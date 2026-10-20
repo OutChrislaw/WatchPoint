@@ -8,6 +8,7 @@ public abstract class Report {
     private String description;
     private ReportStatus status;
     private String dateSubmitted;
+    private String remark;
 
     protected Report(String reportId, String reporterId, Location location,
                      String description, ReportStatus status, String dateSubmitted) {
@@ -17,6 +18,7 @@ public abstract class Report {
         this.description = description;
         this.status = status;
         this.dateSubmitted = dateSubmitted;
+        this.remark = "";
     }
 
     public String getReportId() {
@@ -55,6 +57,17 @@ public abstract class Report {
         this.status = status;
     }
 
+    public String getRemark() {
+        if (remark == null) {
+            return "";
+        }
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     public abstract String getReportType();
 
     public abstract String getSpecificDetail();
@@ -66,6 +79,6 @@ public abstract class Report {
                 + location.getCityMunicipality() + "|" + location.getBarangay() + "|"
                 + location.getStreet() + "|" + location.getSpecificPlace() + "|"
                 + description + "|" + getSpecificDetail() + "|"
-                + status.name() + "|" + dateSubmitted;
+                + status.name() + "|" + dateSubmitted + "|" + getRemark();
     }
 }

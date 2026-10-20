@@ -67,6 +67,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private JComboBox<String> userTypeBox;
     private JPanel reportActions;
     private JPanel userActions;
+    private OverviewPanel overview;
 
 
     public AdminDashboard() {
@@ -86,8 +87,15 @@ public class AdminDashboard extends javax.swing.JFrame {
         setTitle("WatchPoint - Administrator: " + currentUser.getFullName());
         subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Administrator");
 
+        overview = new OverviewPanel(reportManager, null);
+        tabs.addTab("Overview", overview);
         tabs.addTab("Reports", buildReportsTab());
         tabs.addTab("Users", buildUsersTab());
+        tabs.addChangeListener(e -> {
+            if (tabs.getSelectedIndex() == 0) {
+                overview.refresh();
+            }
+        });
 
         setSize(1180, 780);
         setMinimumSize(new Dimension(980, 660));
@@ -160,7 +168,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     private JPanel buildReportActions() {
-        statusBox = UITheme.options(new String[] { "PENDING", "VERIFIED", "IN_PROGRESS", "RESOLVED" });
+        statusBox = UITheme.options(ReportManager.statusNames());
 
         JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, UITheme.CARD);
         updateStatusButton.addActionListener(e -> updateReportStatus());
@@ -309,28 +317,47 @@ public class AdminDashboard extends javax.swing.JFrame {
             return;
         }
 
-        String statusText = UITheme.text(statusBox);
-        ReportStatus status;
-        if (statusText.equals("VERIFIED")) {
-            status = ReportStatus.VERIFIED;
-        } else if (statusText.equals("IN_PROGRESS")) {
-            status = ReportStatus.IN_PROGRESS;
-        } else if (statusText.equals("RESOLVED")) {
-            status = ReportStatus.RESOLVED;
-        } else {
-            status = ReportStatus.PENDING;
-        }
+        ReportStatus status = ReportManager.parseStatus(UITheme.text(statusBox));
 
         if (status == report.getStatus()) {
             showMessage("Report " + report.getReportId() + " is already " + status.name() + ".");
+            return;
+        }
+        if (status == ReportStatus.REJECTED) {
+            rejectReport(report);
             return;
         }
 
         if (reportManager.updateReportStatus(report.getReportId(), status)) {
             showMessage("Report " + report.getReportId() + " is now " + status.name() + ".");
             showAllReports();
+            overview.refresh();
         } else {
             showMessage("The report status could not be updated.");
+        }
+    }
+
+    /** Asks for the reason, then marks the report as rejected. */
+    private void rejectReport(Report report) {
+        if (report.getStatus() == ReportStatus.RESOLVED) {
+            showMessage("Report " + report.getReportId()
+                    + " is already RESOLVED, so it cannot be rejected.");
+            return;
+        }
+
+        ReportRejectDialog dialog = new ReportRejectDialog(this, report);
+        String reason = dialog.showDialog();
+        if (reason == null) {
+            return;
+        }
+
+        if (reportManager.updateReportStatus(report.getReportId(), ReportStatus.REJECTED, reason)) {
+            showMessage("Report " + report.getReportId()
+                    + " was rejected. The resident sees the reason you wrote.");
+            showAllReports();
+            overview.refresh();
+        } else {
+            showMessage("The report could not be rejected.");
         }
     }
 
@@ -487,6 +514,7 @@ public class AdminDashboard extends javax.swing.JFrame {
             { "REPORT ID", report.getReportId() },
             { "REPORT TYPE", report.getReportType() },
             { "REPORTER", userManager.getFullNameById(report.getReporterId()) },
+            { "REPORTER CONTACT", userManager.getContactById(report.getReporterId()) },
             { "DATE SUBMITTED", report.getDateSubmitted() }
         });
 
@@ -496,6 +524,13 @@ public class AdminDashboard extends javax.swing.JFrame {
             { "STREET", report.getLocation().getStreet() },
             { "SPECIFIC PLACE", report.getLocation().getSpecificPlace() }
         });
+
+        if (report.getRemark().length() > 0) {
+            body.add(UITheme.label("Rejection reason", UITheme.FONT_SECTION, UITheme.PRIMARY));
+            body.add(Box.createVerticalStrut(8));
+            body.add(UITheme.descriptionBox(report.getRemark()));
+            body.add(Box.createVerticalStrut(18));
+        }
 
         body.add(UITheme.label(UITheme.detailCaption(report.getReportType()),
                 UITheme.FONT_SECTION, UITheme.PRIMARY));

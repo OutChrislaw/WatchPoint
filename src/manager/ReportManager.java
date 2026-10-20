@@ -239,11 +239,20 @@ public class ReportManager {
     }
 
     public boolean updateReportStatus(String reportId, ReportStatus status) {
-        return updateReportStatusInCity(reportId, status, null);
+        return updateReportStatus(reportId, status, null);
+    }
+
+    public boolean updateReportStatus(String reportId, ReportStatus status, String remark) {
+        return updateReportStatusInCity(reportId, status, null, remark);
     }
 
     public boolean updateReportStatusInCity(String reportId, ReportStatus status,
                                             String cityMunicipality) {
+        return updateReportStatusInCity(reportId, status, cityMunicipality, null);
+    }
+
+    public boolean updateReportStatusInCity(String reportId, ReportStatus status,
+                                            String cityMunicipality, String remark) {
         Report report = getReportById(reportId);
         if (report == null) {
             return false;
@@ -252,8 +261,15 @@ public class ReportManager {
                 && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
             return false;
         }
+        if (status == ReportStatus.REJECTED && report.getStatus() == ReportStatus.RESOLVED) {
+            return false;
+        }
+        if (status == ReportStatus.REJECTED && remarkProblem(remark) != null) {
+            return false;
+        }
 
         report.setStatus(status);
+        report.setRemark(status == ReportStatus.REJECTED ? oneLine(remark) : "");
         saveReports();
         return true;
     }
@@ -284,6 +300,185 @@ public class ReportManager {
 
         sort(result, sortMode);
         return result;
+    }
+
+    public List<Report> getReportsInCity(String cityMunicipality) {
+        return getReports(cityMunicipality, null, null);
+    }
+
+    /**
+     * Number of reports in one area (null = the whole province) with the given
+     * status (null = every status).
+     */
+    public int countReports(String cityMunicipality, ReportStatus status) {
+        int total = 0;
+        for (int i = 0; i < reports.size(); i++) {
+            Report report = reports.get(i);
+            if (cityMunicipality != null
+                    && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
+                continue;
+            }
+            if (status != null && report.getStatus() != status) {
+                continue;
+            }
+            total++;
+        }
+        return total;
+    }
+
+    /** Reports per barangay, busiest first, as { barangay, count } pairs. */
+    public List<String[]> countByBarangay(String cityMunicipality) {
+        return countBy(cityMunicipality, true);
+    }
+
+    /** Reports per hazard type, most common first, as { type, count } pairs. */
+    public List<String[]> countByHazardType(String cityMunicipality) {
+        return countBy(cityMunicipality, false);
+    }
+
+    private List<String[]> countBy(String cityMunicipality, boolean byBarangay) {
+        List<String> names = new ArrayList<String>();
+        List<Integer> totals = new ArrayList<Integer>();
+
+        for (int i = 0; i < reports.size(); i++) {
+            Report report = reports.get(i);
+            if (cityMunicipality != null
+                    && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
+                continue;
+            }
+            if (byBarangay) {
+                addTotal(names, totals, report.getLocation().getBarangay());
+            } else {
+                addTotal(names, totals, report.getReportType());
+            }
+        }
+
+        for (int i = 0; i < totals.size(); i++) {
+            for (int j = i + 1; j < totals.size(); j++) {
+                if (totals.get(j).intValue() > totals.get(i).intValue()) {
+                    String name = names.get(i);
+                    names.set(i, names.get(j));
+                    names.set(j, name);
+
+                    Integer total = totals.get(i);
+                    totals.set(i, totals.get(j));
+                    totals.set(j, total);
+                }
+            }
+        }
+
+        List<String[]> result = new ArrayList<String[]>();
+        for (int i = 0; i < names.size(); i++) {
+            result.add(new String[] { names.get(i), String.valueOf(totals.get(i)) });
+        }
+        return result;
+    }
+
+    private static void addTotal(List<String> names, List<Integer> totals, String name) {
+        for (int i = 0; i < names.size(); i++) {
+            if (names.get(i).equals(name)) {
+                totals.set(i, Integer.valueOf(totals.get(i).intValue() + 1));
+                return;
+            }
+        }
+        names.add(name);
+        totals.add(Integer.valueOf(1));
+    }
+
+    /** The PENDING report that has been waiting the longest in one area. */
+    public Report oldestPending(String cityMunicipality) {
+        Report oldest = null;
+        for (int i = 0; i < reports.size(); i++) {
+            Report report = reports.get(i);
+            if (cityMunicipality != null
+                    && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
+                continue;
+            }
+            if (report.getStatus() != ReportStatus.PENDING) {
+                continue;
+            }
+            if (oldest == null
+                    || report.getDateSubmitted().compareTo(oldest.getDateSubmitted()) < 0) {
+                oldest = report;
+            }
+        }
+        return oldest;
+    }
+
+    /**
+     * Whole days between the submitted timestamp and now, or -1 when the
+     * timestamp cannot be read.
+     */
+    public static int daysWaiting(String dateSubmitted) {
+        if (dateSubmitted == null || dateSubmitted.trim().length() < 10) {
+            return -1;
+        }
+        try {
+            String value = dateSubmitted.trim();
+            java.time.LocalDateTime submitted;
+            if (value.length() <= 10) {
+                submitted = java.time.LocalDate.parse(value).atStartOfDay();
+            } else {
+                submitted = java.time.LocalDateTime.parse(value,
+                        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            }
+            long days = java.time.Duration.between(submitted, java.time.LocalDateTime.now()).toDays();
+            if (days < 0) {
+                return 0;
+            }
+            return (int) days;
+        } catch (Exception error) {
+            return -1;
+        }
+    }
+
+    /** Rules for the reason written when a report is rejected. */
+    public static String remarkProblem(String remark) {
+        if (remark == null || remark.trim().length() < 5) {
+            return "Please write at least 5 characters to explain why the report is rejected.";
+        }
+
+        String text = oneLine(remark);
+        if (text.length() > 200) {
+            return "The reason must be 200 characters or fewer.";
+        }
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '|') {
+                return "The | character cannot be used in the reason.";
+            }
+        }
+        return null;
+    }
+
+    /** Every status name, in display order, for the status picker. */
+    public static String[] statusNames() {
+        ReportStatus[] values = ReportStatus.values();
+        String[] names = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            names[i] = values[i].name();
+        }
+        return names;
+    }
+
+    /** Reads a status name, falling back to PENDING for anything unknown. */
+    public static ReportStatus parseStatus(String text) {
+        if (text == null) {
+            return ReportStatus.PENDING;
+        }
+        String value = text.trim().toUpperCase();
+        if (value.equals("VERIFIED")) {
+            return ReportStatus.VERIFIED;
+        }
+        if (value.equals("IN_PROGRESS")) {
+            return ReportStatus.IN_PROGRESS;
+        }
+        if (value.equals("RESOLVED")) {
+            return ReportStatus.RESOLVED;
+        }
+        if (value.equals("REJECTED")) {
+            return ReportStatus.REJECTED;
+        }
+        return ReportStatus.PENDING;
     }
 
     private static void sort(List<Report> list, String sortMode) {
@@ -346,33 +541,26 @@ public class ReportManager {
         String description = parts[7];
         String specificDetail = parts[8];
 
-        ReportStatus status;
-        if (parts[9].equals("VERIFIED")) {
-            status = ReportStatus.VERIFIED;
-        } else if (parts[9].equals("IN_PROGRESS")) {
-            status = ReportStatus.IN_PROGRESS;
-        } else if (parts[9].equals("RESOLVED")) {
-            status = ReportStatus.RESOLVED;
-        } else {
-            status = ReportStatus.PENDING;
-        }
-
+        ReportStatus status = parseStatus(parts[9]);
         String dateSubmitted = parts[10];
+        String remark = parts.length > 11 ? parts[11] : "";
 
+        Report report;
         if (type.equals("Road Hazard")) {
-            return new RoadHazardReport(reportId, reporterId, location, description,
+            report = new RoadHazardReport(reportId, reporterId, location, description,
+                    status, dateSubmitted, specificDetail);
+        } else if (type.equals("Flood")) {
+            report = new FloodReport(reportId, reporterId, location, description,
+                    status, dateSubmitted, specificDetail);
+        } else if (type.equals("Streetlight")) {
+            report = new StreetlightReport(reportId, reporterId, location, description,
+                    status, dateSubmitted, specificDetail);
+        } else {
+            report = new OtherHazardReport(reportId, reporterId, location, description,
                     status, dateSubmitted, specificDetail);
         }
-        if (type.equals("Flood")) {
-            return new FloodReport(reportId, reporterId, location, description,
-                    status, dateSubmitted, specificDetail);
-        }
-        if (type.equals("Streetlight")) {
-            return new StreetlightReport(reportId, reporterId, location, description,
-                    status, dateSubmitted, specificDetail);
-        }
-        return new OtherHazardReport(reportId, reporterId, location, description,
-                status, dateSubmitted, specificDetail);
+        report.setRemark(remark);
+        return report;
     }
 
     private String currentTimestamp() {

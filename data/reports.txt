@@ -1,4 +1,4 @@
-Road Hazard|R001|U000001|Tagbilaran City|Tiptip|Casa Road|Near Water Refiller|Road blocked due to accident|Guba na Karsada|VERIFIED|2026-10-06 08:15
+Road Hazard|R001|U000001|Tagbilaran City|Tiptip|Casa Road|Near Water Refiller|Road blocked due to accident|Guba na Karsada|RESOLVED|2026-10-06 08:15
 Road Hazard|R002|U000001|Tagbilaran City|Tiptip|Casa Road|Crossway|Deep hole in the middle of the road|Guba na Karsada|IN_PROGRESS|2026-10-07 09:40
 Road Hazard|R003|U000002|Batuan|Santa Cruz|JA Clarin Street|Near Santa Cruz Chapel|Unfixed road since the 2013 earthquake|Broken road|PENDING|2026-10-15 16:32
 Flood|R004|U000003|Tagbilaran City|Cogon|M. Torralba Street|Near Cogon Market|Water rising after heavy rain|Knee deep|VERIFIED|2026-10-16 07:20
