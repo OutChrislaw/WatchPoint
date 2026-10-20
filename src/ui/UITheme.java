@@ -254,8 +254,12 @@ public final class UITheme {
         body.add(Box.createVerticalStrut(8));
 
         for (int i = 0; i < fields.length; i = i + 2) {
-            body.add(twoColumns(fieldBox(fields[i][0], fields[i][1]),
-                    fieldBox(fields[i + 1][0], fields[i + 1][1])));
+            if (i + 1 < fields.length) {
+                body.add(twoColumns(fieldBox(fields[i][0], fields[i][1]),
+                        fieldBox(fields[i + 1][0], fields[i + 1][1])));
+            } else {
+                body.add(fieldBox(fields[i][0], fields[i][1]));
+            }
             body.add(Box.createVerticalStrut(12));
         }
         body.add(Box.createVerticalStrut(6));

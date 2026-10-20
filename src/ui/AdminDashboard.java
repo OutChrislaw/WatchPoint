@@ -184,8 +184,9 @@ public class AdminDashboard extends javax.swing.JFrame {
         filter.add(userTypeBox);
         row.add(filter, BorderLayout.WEST);
 
-        JPanel search = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JPanel search = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         search.setBackground(UITheme.PAGE);
+        search.add(UITheme.label("Search:", UITheme.FONT_BASE, UITheme.TEXT));
         userSearchField = UITheme.textField(26);
         userSearchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             @Override
@@ -505,8 +506,7 @@ public class AdminDashboard extends javax.swing.JFrame {
             UITheme.addSection(body, "Account Information", new String[][] {
                 { "USER ID", user.getUserId() },
                 { "ACCOUNT TYPE", user.getUserType() },
-                { "FULL NAME", user.getFullName() },
-                { "LOGIN", "Uses the User ID" }
+                { "FULL NAME", user.getFullName() }
             });
         }
 
