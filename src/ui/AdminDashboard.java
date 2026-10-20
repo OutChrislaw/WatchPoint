@@ -100,14 +100,14 @@ public class AdminDashboard extends javax.swing.JFrame {
         reportTable.getSelectionModel().addListSelectionListener(e -> showSelectedReport());
 
         reportDetailScroll = UITheme.detailScroll();
+        reportActions = buildReportActions();
 
         JPanel body = new JPanel(new GridLayout(1, 2, 14, 0));
         body.setBackground(UITheme.PAGE);
         body.add(UITheme.borderedScroll(reportTable));
-        body.add(reportDetailScroll);
+        body.add(UITheme.detailPane(reportDetailScroll, reportActions));
         tab.add(body, BorderLayout.CENTER);
 
-        reportActions = buildReportActions();
         tab.add(UITheme.hint("Select a report on the left to review it."), BorderLayout.SOUTH);
         return tab;
     }
@@ -173,14 +173,14 @@ public class AdminDashboard extends javax.swing.JFrame {
         userTable.getSelectionModel().addListSelectionListener(e -> showSelectedUser());
 
         userDetailScroll = UITheme.detailScroll();
+        userActions = buildUserActions();
 
         JPanel body = new JPanel(new GridLayout(1, 2, 14, 0));
         body.setBackground(UITheme.PAGE);
         body.add(UITheme.borderedScroll(userTable));
-        body.add(userDetailScroll);
+        body.add(UITheme.detailPane(userDetailScroll, userActions));
         tab.add(body, BorderLayout.CENTER);
 
-        userActions = buildUserActions();
         tab.add(buildUserControls(), BorderLayout.SOUTH);
         return tab;
     }
@@ -486,9 +486,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private JPanel reportForm(Report report) {
         JPanel body = UITheme.cardBody();
 
-        body.add(reportActions);
-        body.add(Box.createVerticalStrut(12));
-
         body.add(UITheme.label("Report " + report.getReportId() + "   -   " + report.getReportType(),
                 UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));
@@ -525,9 +522,6 @@ public class AdminDashboard extends javax.swing.JFrame {
 
     private JPanel userForm(User user) {
         JPanel body = UITheme.cardBody();
-
-        body.add(userActions);
-        body.add(Box.createVerticalStrut(12));
 
         body.add(UITheme.label(user.getFullName(), UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));

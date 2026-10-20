@@ -293,14 +293,14 @@ public class ResidentDashboard extends javax.swing.JFrame {
         reportTable.getSelectionModel().addListSelectionListener(e -> showSelectedReport());
 
         detailScroll = UITheme.detailScroll();
+        reportActions = buildReportButtonRow();
 
         JPanel body = new JPanel(new GridLayout(1, 2, 14, 0));
         body.setBackground(UITheme.PAGE);
         body.add(UITheme.borderedScroll(reportTable));
-        body.add(detailScroll);
+        body.add(UITheme.detailPane(detailScroll, reportActions));
         tab.add(body, BorderLayout.CENTER);
 
-        reportActions = buildReportButtonRow();
         tab.add(UITheme.hint("Only reports that are still PENDING can be changed."), BorderLayout.SOUTH);
 
         return tab;
@@ -447,9 +447,6 @@ public class ResidentDashboard extends javax.swing.JFrame {
 
     private JPanel reportForm(Report report) {
         JPanel body = UITheme.cardBody();
-
-        body.add(reportActions);
-        body.add(Box.createVerticalStrut(12));
 
         body.add(UITheme.label("Report " + report.getReportId() + "   -   " + report.getReportType(),
                 UITheme.FONT_HEADING, UITheme.PRIMARY));

@@ -137,14 +137,14 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         reportTable.getSelectionModel().addListSelectionListener(e -> showSelectedReport());
 
         reportDetailScroll = UITheme.detailScroll();
+        reportActions = buildReportActions();
 
         JPanel body = new JPanel(new GridLayout(1, 2, 14, 0));
         body.setBackground(UITheme.PAGE);
         body.add(UITheme.borderedScroll(reportTable));
-        body.add(reportDetailScroll);
+        body.add(UITheme.detailPane(reportDetailScroll, reportActions));
         tab.add(body, BorderLayout.CENTER);
 
-        reportActions = buildReportActions();
         tab.add(UITheme.hint("You only see the reports filed in " + currentOfficer.getArea() + "."),
                 BorderLayout.SOUTH);
         return tab;
@@ -259,9 +259,6 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     private JPanel reportForm(Report report) {
         JPanel body = UITheme.cardBody();
 
-        body.add(reportActions);
-        body.add(Box.createVerticalStrut(12));
-
         body.add(UITheme.label("Report " + report.getReportId() + "   -   " + report.getReportType(),
                 UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));
@@ -303,14 +300,14 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         requestTable.getSelectionModel().addListSelectionListener(e -> showSelectedRequest());
 
         requestDetailScroll = UITheme.detailScroll();
+        requestActions = buildRequestActions();
 
         JPanel body = new JPanel(new GridLayout(1, 2, 14, 0));
         body.setBackground(UITheme.PAGE);
         body.add(UITheme.borderedScroll(requestTable));
-        body.add(requestDetailScroll);
+        body.add(UITheme.detailPane(requestDetailScroll, requestActions));
         tab.add(body, BorderLayout.CENTER);
 
-        requestActions = buildRequestActions();
         tab.add(UITheme.hint("Only residents who registered in " + currentOfficer.getArea()
                 + " appear here. Accepted residents can log in right away."), BorderLayout.SOUTH);
 
@@ -410,9 +407,6 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
 
     private JPanel requestForm(RegistrationRequest request) {
         JPanel body = UITheme.cardBody();
-
-        body.add(requestActions);
-        body.add(Box.createVerticalStrut(12));
 
         body.add(UITheme.label(request.getFullName(), UITheme.FONT_HEADING, UITheme.PRIMARY));
         body.add(Box.createVerticalStrut(6));

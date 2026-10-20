@@ -134,7 +134,24 @@ public final class UITheme {
     }
 
     public static JScrollPane detailScroll() {
-        return borderedScroll(null);
+        JScrollPane pane = borderedScroll(null);
+        pane.setBorder(null);
+        return pane;
+    }
+
+    public static JPanel detailPane(JScrollPane scroll, JPanel actions) {
+        JPanel pane = new JPanel(new BorderLayout());
+        pane.setBackground(Color.WHITE);
+        pane.setBorder(BorderFactory.createLineBorder(BORDER));
+
+        actions.setBackground(Color.WHITE);
+        actions.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, BORDER),
+                BorderFactory.createEmptyBorder(10, 14, 10, 14)));
+
+        pane.add(scroll, BorderLayout.CENTER);
+        pane.add(actions, BorderLayout.SOUTH);
+        return pane;
     }
 
     public static JTable dataTable(Object[] columns) {
