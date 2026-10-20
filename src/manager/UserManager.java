@@ -239,16 +239,61 @@ public class UserManager {
         return true;
     }
 
-    public boolean saveProfile(User user, String fullName, String password, String contactNumber,
-                               String barangay, String municipality) {
+    public String checkUsername(User user, String username) {
+        if (username == null || username.trim().length() == 0) {
+            return "Please enter a username.";
+        }
+
+        String name = username.trim();
+        if (name.length() < 3) {
+            return "The username must be at least 3 characters.";
+        }
+        if (name.length() > 40) {
+            return "The username must be 40 characters or fewer.";
+        }
+
+        for (int i = 0; i < name.length(); i++) {
+            char letter = name.charAt(i);
+            boolean allowed = (letter >= 'a' && letter <= 'z')
+                    || (letter >= 'A' && letter <= 'Z')
+                    || (letter >= '0' && letter <= '9')
+                    || letter == '.' || letter == '_' || letter == '@'
+                    || letter == '+' || letter == '-';
+            if (!allowed) {
+                return "Use only letters, numbers, dot, underscore, at sign, plus or dash.";
+            }
+        }
+
+        for (int i = 0; i < users.size(); i++) {
+            User other = users.get(i);
+            if (user != null && other.getUserId().equals(user.getUserId())) {
+                continue;
+            }
+            if (other.getUsername().equalsIgnoreCase(name)) {
+                return "That username is already taken.";
+            }
+        }
+
+        if (isUsernamePending(name)) {
+            return "That username is waiting for approval.";
+        }
+
+        return null;
+    }
+
+    public String saveDetails(User user, String fullName, String username, String contactNumber,
+                              String barangay, String municipality) {
         if (user == null || fullName == null || fullName.trim().length() == 0) {
-            return false;
+            return "Please enter your full name.";
+        }
+
+        String problem = checkUsername(user, username);
+        if (problem != null) {
+            return problem;
         }
 
         user.setFullName(fullName.trim());
-        if (password != null && password.trim().length() > 0) {
-            user.setPassword(password);
-        }
+        user.setUsername(username.trim());
 
         if (user instanceof Resident) {
             Resident resident = (Resident) user;
@@ -261,9 +306,33 @@ public class UserManager {
             }
         }
 
-        return updateUser(user);
+        if (updateUser(user)) {
+            return null;
+        }
+        return "Your details could not be saved.";
     }
 
+    public String changePassword(User user, String currentPassword, String newPassword,
+                                 String confirmPassword) {
+        if (user == null) {
+            return "No account is signed in.";
+        }
+        if (currentPassword == null || !user.verifyPassword(currentPassword)) {
+            return "Your current password is not correct.";
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            return "The new password must be at least 6 characters.";
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            return "The new passwords do not match.";
+        }
+
+        user.setPassword(newPassword);
+        if (updateUser(user)) {
+            return null;
+        }
+        return "Your password could not be changed.";
+    }
     public boolean saveAccountChanges(User user, String fullName, String password, String address,
                                       String contactNumber, String area) {
         if (user == null || fullName == null || fullName.trim().length() == 0) {

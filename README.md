@@ -60,9 +60,9 @@ app  ──►  ui  ──►  manager  ──►  model
 
 | Role | Created by | Sees | Can do |
 |---|---|---|---|
-| Resident | self-registers, then accepted by the Area Officer of that area | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own profile from the Update Profile button |
-| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, accept or reject resident registrations, edit own profile |
-| Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, edit own profile |
+| Resident | self-registers, then accepted by the Area Officer of that area | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own details, username and password from the Settings button |
+| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, accept or reject resident registrations, change own password from the Settings button |
+| Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, change own password from the Settings button |
 
 `users.txt` line format:
 
@@ -99,6 +99,13 @@ type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|descript
 cityMunicipality|barangay1|barangay2|...
 ```
 
+**Settings window.** The **Settings** button in the header (every role) opens a window with a menu on the left:
+
+| Item | What it does |
+|---|---|
+| Account Details | Full name, username, contact and address. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be taken by another account or already waiting for approval). |
+| Change Password | Current password, new password (at least 6 characters) and confirmation. |
+| Logout | Signs out and returns to the login window. |
 ## Build and run
 
 From the project root (PowerShell):

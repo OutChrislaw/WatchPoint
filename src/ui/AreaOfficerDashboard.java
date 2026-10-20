@@ -121,8 +121,8 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         titles.add(Box.createVerticalStrut(2));
         titles.add(subtitleLabel);
 
-        JButton profileButton = UITheme.button("Update Profile", UITheme.ACCENT, Color.WHITE);
-        profileButton.addActionListener(e -> openProfile());
+        JButton profileButton = UITheme.button("Settings", UITheme.ACCENT, Color.WHITE);
+        profileButton.addActionListener(e -> openSettings());
 
         header.add(titles, BorderLayout.WEST);
         header.add(profileButton, BorderLayout.EAST);
@@ -410,7 +410,7 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, message);
     }
 
-    public void openProfile() {
+    public void openSettings() {
         ProfileDialog dialog = new ProfileDialog(this, currentOfficer, userManager, locationManager);
         if (dialog.showDialog()) {
             subtitleLabel.setText("Signed in as " + currentOfficer.getFullName()

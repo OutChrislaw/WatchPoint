@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -303,6 +304,19 @@ public final class UITheme {
             row.add(items[i]);
         }
         return row;
+    }
+
+    public static JPasswordField passwordField(int columns) {
+        JPasswordField field = new JPasswordField(columns);
+        field.setFont(FONT_BASE);
+        field.setForeground(TEXT);
+        field.setBackground(Color.WHITE);
+        field.setEchoChar('\u2022');
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER),
+                BorderFactory.createEmptyBorder(7, 9, 7, 9)));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return field;
     }
 
     public static void selectItem(JComboBox<String> box, String value) {

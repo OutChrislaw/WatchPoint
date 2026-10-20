@@ -513,7 +513,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         return body;
     }
-    public void openProfile() {
+    public void openSettings() {
         ProfileDialog dialog = new ProfileDialog(this, currentUser, userManager, locationManager);
         if (dialog.showDialog()) {
             subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Administrator");
@@ -553,7 +553,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         profileButton.setBackground(new java.awt.Color(0, 153, 255));
         profileButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         profileButton.setForeground(new java.awt.Color(255, 255, 255));
-        profileButton.setText("Update Profile");
+        profileButton.setText("Settings");
         profileButton.addActionListener(this::profileButtonActionPerformed);
 
         jLayeredPane1.setLayer(titleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -617,7 +617,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void profileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_profileButtonActionPerformed
-        openProfile();
+        openSettings();
     }//GEN-LAST:event_profileButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
