@@ -17,7 +17,6 @@ WatchPoint/
 │   │   ├── Administrator.java      Staff who manages reports and users
 │   │   ├── AreaOfficer.java        Staff for one city/municipality (AO ids)
 │   │   ├── RegistrationRequest.java A resident sign-up waiting for approval
-│   │   ├── ProfileChangeRequest.java A resident moving to another area
 │   │   ├── Location.java           City/municipality, barangay, street, specific place
 │   │   ├── ReportStatus.java       PENDING, VERIFIED, IN_PROGRESS, RESOLVED
 │   │   ├── Report.java             Abstract parent of the four report types
@@ -38,12 +37,12 @@ WatchPoint/
 │       ├── AdminDashboard.java     Window for administrators
 │       ├── AreaOfficerDashboard.java Window for area officers
 │       ├── UserUpdateDialog.java   Form an admin uses to edit an account
+│       ├── ProfileDialog.java      Update Profile window of the signed-in user
 │       ├── ReportUpdateDialog.java Modal Update Report form
 │       └── UITheme.java            Shared colours, fonts, and reusable widgets
 ├── data/                       Plain text storage
 │   ├── users.txt               One user or area officer per line
 │   ├── registrations.txt       Resident sign-ups waiting for approval
-│   ├── profilechanges.txt      Residents moving to another area
 │   ├── reports.txt             One report per line
 │   └── locations.txt           Bohol cities/municipalities and barangays
 └── bin/                        Compiled .class files (same package folders)
@@ -61,8 +60,8 @@ app  ──►  ui  ──►  manager  ──►  model
 
 | Role | Created by | Sees | Can do |
 |---|---|---|---|
-| Resident | self-registers, then accepted by the Area Officer of that area | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own profile (moving to another area needs that Area Officer to accept it) |
-| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, accept or reject resident registrations and area changes, edit own profile |
+| Resident | self-registers, then accepted by the Area Officer of that area | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own profile from the Update Profile button |
+| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, accept or reject resident registrations, edit own profile |
 | Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, edit own profile |
 
 `users.txt` line format:
@@ -79,11 +78,6 @@ where the last field is the city/municipality the officer handles and the id sta
 AreaOfficer|AO001|officer|officer123|Tagbilaran City Officer|Tagbilaran City
 ```
 
-`profilechanges.txt` line format (a resident moving to another area):
-
-```
-residentId|residentName|barangay|municipality|dateRequested
-```
 
 `registrations.txt` line format (a resident sign-up that is still waiting):
 

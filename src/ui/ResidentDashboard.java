@@ -7,7 +7,7 @@ import model.Resident;
 import model.Report;
 import model.ReportStatus;
 import model.Location;
-import model.ProfileChangeRequest;
+
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -71,13 +71,6 @@ public class ResidentDashboard extends javax.swing.JFrame {
     private List<Report> currentReports;
     private JPanel reportActions;
 
-    private JTextField profileFullNameField;
-    private JTextField profileUsernameField;
-    private JTextField profilePasswordField;
-    private JTextField profileContactField;
-    private JComboBox<String> profileCityBox;
-    private JComboBox<String> profileBarangayBox;
-    private JLabel profileNote;
 
     public ResidentDashboard() {
         initComponents();
@@ -98,7 +91,6 @@ public class ResidentDashboard extends javax.swing.JFrame {
         tabs.addTab("Reports", buildAllReportsTab());
         tabs.addTab("Submit Report", buildSubmitTab());
         tabs.addTab("My Reports", buildReportsTab());
-        tabs.addTab("My Profile", buildProfileTab());
 
         setSize(1180, 780);
         setMinimumSize(new Dimension(980, 660));
@@ -491,134 +483,15 @@ public class ResidentDashboard extends javax.swing.JFrame {
 
         return body;
     }
-    private JPanel buildProfileTab() {
-        JPanel tab = new JPanel(new GridBagLayout());
-        tab.setBackground(UITheme.PAGE);
-
-        JPanel content = UITheme.card();
-        content.setLayout(new BorderLayout(0, 14));
-
-        JPanel header = new JPanel();
-        header.setBackground(Color.WHITE);
-        header.setLayout(new javax.swing.BoxLayout(header, javax.swing.BoxLayout.Y_AXIS));
-        header.add(UITheme.label("My Profile", UITheme.FONT_HEADING, UITheme.PRIMARY));
-        header.add(Box.createVerticalStrut(2));
-        header.add(UITheme.label("Change your own details, then press Save Changes.",
-                UITheme.FONT_BASE, UITheme.MUTED));
-        content.add(header, BorderLayout.NORTH);
-
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Color.WHITE);
-
-        int row = 0;
-
-        profileFullNameField = UITheme.hintField("Your full name", 20);
-        profileFullNameField.setText(currentUser.getFullName());
-        UITheme.addFormRow(form, row, "Full Name", profileFullNameField);
-        row = row + 2;
-
-        profileUsernameField = UITheme.hintField("", 20);
-        profileUsernameField.setText(currentUser.getUsername());
-        profileUsernameField.setEnabled(false);
-        UITheme.addFormRow(form, row, "Username (cannot be changed)", profileUsernameField);
-        row = row + 2;
-
-        profilePasswordField = UITheme.hintField("Leave blank to keep your password", 20);
-        UITheme.addFormRow(form, row, "New Password", profilePasswordField);
-        row = row + 2;
-
-        profileContactField = UITheme.hintField("09XXXXXXXXX", 20);
-        profileContactField.setText(currentUser.getContactNumber());
-        UITheme.addFormRow(form, row, "Contact Number", profileContactField);
-        row = row + 2;
-
-        profileCityBox = UITheme.combo(null, locationManager.getMunicipalities());
-        profileCityBox.addActionListener(e -> updateProfileBarangays());
-        UITheme.addFormRow(form, row, "City / Municipality", profileCityBox);
-        row = row + 2;
-
-        profileBarangayBox = new JComboBox<String>();
-        profileBarangayBox.setFont(UITheme.FONT_BASE);
-        UITheme.addFormRow(form, row, "Barangay", profileBarangayBox);
-
-        content.add(form, BorderLayout.CENTER);
-
-        JPanel south = new JPanel(new BorderLayout(0, 10));
-        south.setBackground(Color.WHITE);
-
-        profileNote = UITheme.hint("");
-        south.add(profileNote, BorderLayout.NORTH);
-
-        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        buttonRow.setBackground(Color.WHITE);
-        JButton saveButton = UITheme.button("Save Changes", UITheme.ACCENT, Color.WHITE);
-        saveButton.addActionListener(e -> saveProfile());
-        buttonRow.add(saveButton);
-        south.add(buttonRow, BorderLayout.SOUTH);
-
-        content.add(south, BorderLayout.SOUTH);
-
-        Dimension preferred = content.getPreferredSize();
-        content.setPreferredSize(new Dimension(660, preferred.height));
-
-        tab.add(content);
-
-        UITheme.selectItem(profileCityBox, UserManager.municipalityOf(currentUser.getAddress()));
-        updateProfileBarangays();
-        UITheme.selectItem(profileBarangayBox, UserManager.barangayOf(currentUser.getAddress()));
-        updateProfileNote();
-
-        return tab;
-    }
-
-    private void updateProfileBarangays() {
-        profileBarangayBox.removeAllItems();
-        List<String> barangays = locationManager.getBarangays(UITheme.text(profileCityBox));
-        for (int i = 0; i < barangays.size(); i++) {
-            profileBarangayBox.addItem(barangays.get(i));
+    public void openProfile() {
+        ProfileDialog dialog = new ProfileDialog(this, currentUser, userManager, locationManager);
+        if (dialog.showDialog()) {
+            subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Resident");
+        } else if (dialog.isLogoutRequested()) {
+            logout();
         }
     }
 
-    private void updateProfileNote() {
-        ProfileChangeRequest pending = userManager.getAreaChangeRequest(currentUser.getUserId());
-        if (pending == null) {
-            profileNote.setText("Changing your City / Municipality needs that Area Officer's approval.");
-        } else {
-            profileNote.setText("Waiting for the " + pending.getMunicipality()
-                    + " Area Officer to approve your move to " + pending.getAddress() + ".");
-        }
-    }
-
-    public void saveProfile() {
-        String fullName = profileFullNameField.getText().trim();
-        String password = profilePasswordField.getText();
-        String contactNumber = profileContactField.getText().trim();
-        String city = UITheme.text(profileCityBox);
-        String barangay = UITheme.text(profileBarangayBox);
-
-        if (fullName.length() == 0 || city.length() == 0 || barangay.length() == 0) {
-            showMessage("Please fill in your name, city / municipality and barangay.");
-            return;
-        }
-
-        int result = userManager.saveProfile(currentUser, fullName, password, contactNumber,
-                barangay, city);
-        if (result == UserManager.PROFILE_FAILED) {
-            showMessage("Your profile could not be saved.");
-            return;
-        }
-        if (result == UserManager.PROFILE_AREA_PENDING) {
-            showMessage("Your details were saved. Your move to " + city
-                    + " is waiting for that Area Officer's approval.");
-        } else {
-            showMessage("Your profile was saved.");
-        }
-
-        profilePasswordField.setText("");
-        profileContactField.setText(currentUser.getContactNumber());
-        subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Resident");
-        updateProfileNote();
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -632,7 +505,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
         jLayeredPane1 = new javax.swing.JLayeredPane();
         titleLabel = new javax.swing.JLabel();
         subtitleLabel = new javax.swing.JLabel();
-        logoutButton = new javax.swing.JButton();
+        profileButton = new javax.swing.JButton();
         tabs = new javax.swing.JTabbedPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -647,15 +520,15 @@ public class ResidentDashboard extends javax.swing.JFrame {
         subtitleLabel.setForeground(new java.awt.Color(102, 102, 102));
         subtitleLabel.setText("Signed in as");
 
-        logoutButton.setBackground(new java.awt.Color(0, 153, 255));
-        logoutButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        logoutButton.setForeground(new java.awt.Color(255, 255, 255));
-        logoutButton.setText("Log Out");
-        logoutButton.addActionListener(this::logoutButtonActionPerformed);
+        profileButton.setBackground(new java.awt.Color(0, 153, 255));
+        profileButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        profileButton.setForeground(new java.awt.Color(255, 255, 255));
+        profileButton.setText("Update Profile");
+        profileButton.addActionListener(this::profileButtonActionPerformed);
 
         jLayeredPane1.setLayer(titleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(subtitleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane1.setLayer(logoutButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(profileButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(tabs, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
@@ -668,7 +541,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
                     .addComponent(titleLabel)
                     .addComponent(subtitleLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
-                .addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(profileButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28))
             .addGroup(jLayeredPane1Layout.createSequentialGroup()
                 .addGap(20, 20, 20)
@@ -687,7 +560,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
                 .addGap(18, 18, 18))
             .addGroup(jLayeredPane1Layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(profileButton, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -713,12 +586,12 @@ public class ResidentDashboard extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutButtonActionPerformed
-        logout();
-    }//GEN-LAST:event_logoutButtonActionPerformed
+    private void profileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_profileButtonActionPerformed
+        openProfile();
+    }//GEN-LAST:event_profileButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton logoutButton;
+    private javax.swing.JButton profileButton;
     private javax.swing.JLabel subtitleLabel;
     private javax.swing.JTabbedPane tabs;
     private javax.swing.JLabel titleLabel;

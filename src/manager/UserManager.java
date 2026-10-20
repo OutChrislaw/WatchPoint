@@ -5,7 +5,7 @@ import model.Resident;
 import model.Administrator;
 import model.AreaOfficer;
 import model.RegistrationRequest;
-import model.ProfileChangeRequest;
+
 import storage.FileManager;
 
 import java.time.LocalDateTime;
@@ -22,17 +22,17 @@ public class UserManager {
 
     private List<User> users;
     private List<RegistrationRequest> requests;
-    private List<ProfileChangeRequest> profileChanges;
+
     private FileManager fileManager;
 
     public UserManager(FileManager fileManager) {
         this.fileManager = fileManager;
         this.users = new ArrayList<User>();
         this.requests = new ArrayList<RegistrationRequest>();
-        this.profileChanges = new ArrayList<ProfileChangeRequest>();
+
         loadUsers();
         loadRequests();
-        loadProfileChanges();
+
     }
 
     public boolean registerResident(String fullName, String username, String password,
@@ -239,14 +239,10 @@ public class UserManager {
         return true;
     }
 
-    public static final int PROFILE_FAILED = 0;
-    public static final int PROFILE_SAVED = 1;
-    public static final int PROFILE_AREA_PENDING = 2;
-
-    public int saveProfile(User user, String fullName, String password, String contactNumber,
-                           String barangay, String municipality) {
+    public boolean saveProfile(User user, String fullName, String password, String contactNumber,
+                               String barangay, String municipality) {
         if (user == null || fullName == null || fullName.trim().length() == 0) {
-            return PROFILE_FAILED;
+            return false;
         }
 
         user.setFullName(fullName.trim());
@@ -254,7 +250,6 @@ public class UserManager {
             user.setPassword(password);
         }
 
-        int result = PROFILE_SAVED;
         if (user instanceof Resident) {
             Resident resident = (Resident) user;
             if (contactNumber != null) {
@@ -262,17 +257,11 @@ public class UserManager {
             }
             if (barangay != null && municipality != null
                     && barangay.trim().length() > 0 && municipality.trim().length() > 0) {
-                if (municipalityOf(resident.getAddress()).equalsIgnoreCase(municipality.trim())) {
-                    resident.setAddress(barangay.trim() + ", " + municipality.trim());
-                } else {
-                    requestAreaChange(resident, barangay.trim(), municipality.trim());
-                    result = PROFILE_AREA_PENDING;
-                }
+                resident.setAddress(barangay.trim() + ", " + municipality.trim());
             }
         }
 
-        updateUser(user);
-        return result;
+        return updateUser(user);
     }
 
     public boolean saveAccountChanges(User user, String fullName, String password, String address,
@@ -305,77 +294,6 @@ public class UserManager {
         return updateUser(user);
     }
 
-    public boolean requestAreaChange(Resident resident, String barangay, String municipality) {
-        if (resident == null || barangay == null || municipality == null
-                || barangay.trim().length() == 0 || municipality.trim().length() == 0) {
-            return false;
-        }
-
-        removeAreaChange(resident.getUserId());
-        profileChanges.add(new ProfileChangeRequest(resident.getUserId(), resident.getFullName(),
-                barangay.trim(), municipality.trim(), currentTimestamp()));
-        saveProfileChanges();
-        return true;
-    }
-
-    public List<ProfileChangeRequest> getAreaChangeRequests(String area) {
-        List<ProfileChangeRequest> result = new ArrayList<ProfileChangeRequest>();
-        for (int i = 0; i < profileChanges.size(); i++) {
-            ProfileChangeRequest request = profileChanges.get(i);
-            if (area == null || request.getMunicipality().equals(area)) {
-                result.add(request);
-            }
-        }
-        return result;
-    }
-
-    public ProfileChangeRequest getAreaChangeRequest(String residentId) {
-        for (int i = 0; i < profileChanges.size(); i++) {
-            if (profileChanges.get(i).getResidentId().equals(residentId)) {
-                return profileChanges.get(i);
-            }
-        }
-        return null;
-    }
-
-    public boolean approveAreaChange(ProfileChangeRequest request) {
-        if (request == null) {
-            return false;
-        }
-
-        User user = getUserById(request.getResidentId());
-        if (user instanceof Resident) {
-            Resident resident = (Resident) user;
-            resident.setAddress(request.getAddress());
-            saveUsers();
-        }
-
-        removeAreaChange(request.getResidentId());
-        saveProfileChanges();
-        return true;
-    }
-
-    public boolean rejectAreaChange(ProfileChangeRequest request) {
-        if (request == null) {
-            return false;
-        }
-        if (!removeAreaChange(request.getResidentId())) {
-            return false;
-        }
-        saveProfileChanges();
-        return true;
-    }
-
-    private boolean removeAreaChange(String residentId) {
-        for (int i = 0; i < profileChanges.size(); i++) {
-            if (profileChanges.get(i).getResidentId().equals(residentId)) {
-                profileChanges.remove(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static String municipalityOf(String address) {
         if (address == null) {
             return "";
@@ -396,32 +314,6 @@ public class UserManager {
             return "";
         }
         return address.substring(0, comma).trim();
-    }
-
-    private void loadProfileChanges() {
-        List<String> lines = fileManager.readLines("profilechanges.txt");
-        for (int i = 0; i < lines.size(); i++) {
-            ProfileChangeRequest request = parseProfileChange(lines.get(i));
-            if (request != null) {
-                profileChanges.add(request);
-            }
-        }
-    }
-
-    private void saveProfileChanges() {
-        List<String> lines = new ArrayList<String>();
-        for (int i = 0; i < profileChanges.size(); i++) {
-            lines.add(profileChanges.get(i).toFileString());
-        }
-        fileManager.writeLines("profilechanges.txt", lines);
-    }
-
-    private ProfileChangeRequest parseProfileChange(String line) {
-        String[] parts = line.split("\\|", -1);
-        if (parts.length < 5) {
-            return null;
-        }
-        return new ProfileChangeRequest(parts[0], parts[1], parts[2], parts[3], parts[4]);
     }
     private boolean isUsernameTaken(String username) {
         for (int i = 0; i < users.size(); i++) {
