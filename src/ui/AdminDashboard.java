@@ -38,6 +38,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
     private static final String ALL_MUNICIPALITIES = "All Municipalities";
     private static final String ALL_BARANGAYS = "All Barangays";
+    private static final String ALL_TYPES = "All Types";
     private static final String[] SORT_OPTIONS = {
         "Report ID (Oldest first)", "Report ID (Newest first)",
         "Date and Time (Newest first)", "Date and Time (Oldest first)",
@@ -63,6 +64,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private JScrollPane userDetailScroll;
     private List<User> currentUsers;
     private JTextField userSearchField;
+    private JComboBox<String> userTypeBox;
     private JPanel reportActions;
     private JPanel userActions;
 
@@ -170,11 +172,21 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     private JPanel buildUserFilterRow() {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        JPanel row = new JPanel(new BorderLayout(12, 0));
         row.setBackground(UITheme.PAGE);
 
-        row.add(UITheme.label("Search:", UITheme.FONT_BASE, UITheme.TEXT));
-        userSearchField = UITheme.hintField("ID, username or full name", 26);
+        JPanel filter = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        filter.setBackground(UITheme.PAGE);
+        filter.add(UITheme.label("Type:", UITheme.FONT_BASE, UITheme.TEXT));
+        userTypeBox = UITheme.options(new String[] { ALL_TYPES, "Resident", "Administrator",
+            "Area Officer" });
+        userTypeBox.addActionListener(e -> manageUsers());
+        filter.add(userTypeBox);
+        row.add(filter, BorderLayout.WEST);
+
+        JPanel search = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        search.setBackground(UITheme.PAGE);
+        userSearchField = UITheme.textField(26);
         userSearchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             @Override
             public void insertUpdate(javax.swing.event.DocumentEvent event) {
@@ -191,9 +203,9 @@ public class AdminDashboard extends javax.swing.JFrame {
                 manageUsers();
             }
         });
-        row.add(userSearchField);
+        search.add(userSearchField);
+        row.add(search, BorderLayout.EAST);
 
-        row.add(UITheme.hint("Shows the accounts whose id, username or full name contains the text."));
         return row;
     }
 
@@ -364,7 +376,12 @@ public class AdminDashboard extends javax.swing.JFrame {
         if (userSearchField != null) {
             keyword = userSearchField.getText();
         }
-        currentUsers = userManager.searchUsers(keyword);
+        String type = ALL_TYPES;
+        if (userTypeBox != null) {
+            type = UITheme.text(userTypeBox);
+        }
+
+        currentUsers = userManager.searchUsers(keyword, type);
 
         userTableModel.setRowCount(0);
         for (int i = 0; i < currentUsers.size(); i++) {
@@ -375,8 +392,8 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         if (userTableModel.getRowCount() > 0) {
             userTable.setRowSelectionInterval(0, 0);
-        } else if (keyword.trim().length() > 0) {
-            userDetailScroll.setViewportView(UITheme.emptyDetail("No accounts match your search."));
+        } else if (keyword.trim().length() > 0 || !ALL_TYPES.equals(type)) {
+            userDetailScroll.setViewportView(UITheme.emptyDetail("No accounts match your filter."));
         } else {
             userDetailScroll.setViewportView(UITheme.emptyDetail("There are no accounts to show."));
         }

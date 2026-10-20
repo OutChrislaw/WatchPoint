@@ -367,6 +367,18 @@ public final class UITheme {
         return "Hazard Category";
     }
 
+    public static JTextField textField(int columns) {
+        JTextField field = new JTextField(columns);
+        field.setFont(FONT_BASE);
+        field.setForeground(TEXT);
+        field.setBackground(Color.WHITE);
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER),
+                BorderFactory.createEmptyBorder(7, 9, 7, 9)));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return field;
+    }
+
     public static JTextField hintField(final String hint, int columns) {
         JTextField field = new JTextField(columns) {
             private static final long serialVersionUID = 1L;

@@ -293,19 +293,34 @@ public class UserManager {
         return address.substring(0, comma).trim();
     }
     public List<User> searchUsers(String keyword) {
-        if (keyword == null || keyword.trim().length() == 0) {
-            return getAllUsers();
+        return searchUsers(keyword, null);
+    }
+
+    public List<User> searchUsers(String keyword, String userType) {
+        String type = "";
+        if (userType != null) {
+            type = userType.trim().replace(" ", "");
+        }
+        boolean allTypes = type.length() == 0 || type.equalsIgnoreCase("AllTypes");
+
+        String text = "";
+        if (keyword != null) {
+            text = keyword.trim().toLowerCase();
         }
 
-        String text = keyword.trim().toLowerCase();
         List<User> result = new ArrayList<User>();
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
 
-            boolean matches = user.getUserId().toLowerCase().contains(text)
+            if (!allTypes && !user.getUserType().equalsIgnoreCase(type)) {
+                continue;
+            }
+
+            boolean matches = text.length() == 0
+                    || user.getUserId().toLowerCase().contains(text)
                     || user.getFullName().toLowerCase().contains(text);
 
-            if (user instanceof Resident) {
+            if (user instanceof Resident && text.length() > 0) {
                 matches = matches || ((Resident) user).getUsername().toLowerCase().contains(text);
             }
 
