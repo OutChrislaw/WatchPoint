@@ -59,7 +59,6 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     private JScrollPane reportDetailScroll;
     private JComboBox<String> reportBarangayBox;
     private JComboBox<String> reportSortBox;
-    private JComboBox<String> statusBox;
     private List<Report> currentReports;
 
     private JPanel reportActions;
@@ -180,13 +179,11 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     }
 
     private JPanel buildReportActions() {
-        statusBox = UITheme.options(ReportManager.statusNames());
-
         JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, UITheme.CARD);
         updateStatusButton.addActionListener(e -> updateReportStatus());
 
-        return UITheme.actionRow(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT),
-                statusBox, updateStatusButton);
+        return UITheme.actionRow(UITheme.label("Only this area: " + currentOfficer.getArea(),
+                UITheme.FONT_BASE, UITheme.MUTED), updateStatusButton);
     }
 
     public void showAreaReports() {
@@ -243,50 +240,23 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
             return;
         }
 
-        ReportStatus status = ReportManager.parseStatus(UITheme.text(statusBox));
-
-        if (status == report.getStatus()) {
-            showMessage("Report " + report.getReportId() + " is already " + status.name() + ".");
-            return;
-        }
-        if (status == ReportStatus.REJECTED) {
-            rejectReport(report);
+        ReportStatusDialog dialog = new ReportStatusDialog(this, report, false);
+        if (!dialog.showDialog()) {
             return;
         }
 
-        if (reportManager.updateReportStatusInCity(report.getReportId(), status,
-                currentOfficer.getArea())) {
-            showMessage("Report " + report.getReportId() + " is now " + status.name() + ".");
-            showAreaReports();
-            overview.refresh();
-        } else {
-            showMessage("This report is not inside your area, so its status cannot be changed.");
-        }
-    }
-
-    /** Asks for the reason, then marks the report as rejected. */
-    private void rejectReport(Report report) {
-        if (report.getStatus() == ReportStatus.RESOLVED) {
-            showMessage("Report " + report.getReportId()
-                    + " is already RESOLVED, so it cannot be rejected.");
+        ReportStatus target = dialog.getSelectedStatus();
+        String problem = reportManager.changeStatusInCity(report, target, dialog.getReason(),
+                currentOfficer.getArea());
+        if (problem != null) {
+            showMessage(problem);
             return;
         }
 
-        ReportRejectDialog dialog = new ReportRejectDialog(this, report);
-        String reason = dialog.showDialog();
-        if (reason == null) {
-            return;
-        }
-
-        if (reportManager.updateReportStatusInCity(report.getReportId(), ReportStatus.REJECTED,
-                currentOfficer.getArea(), reason)) {
-            showMessage("Report " + report.getReportId()
-                    + " was rejected. The resident sees the reason you wrote.");
-            showAreaReports();
-            overview.refresh();
-        } else {
-            showMessage("The report could not be rejected.");
-        }
+        showMessage("Report " + report.getReportId() + " is now " + target.name() + ".");
+        showAreaReports();
+        showSelectedReport();
+        overview.refresh();
     }
 
     private JPanel reportForm(Report report) {

@@ -57,7 +57,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private JComboBox<String> reportFilterBarangayBox;
     private JComboBox<String> reportFilterSortBox;
     private List<Report> currentReports;
-    private JComboBox<String> statusBox;
 
     private JTable userTable;
     private DefaultTableModel userTableModel;
@@ -168,16 +167,13 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     private JPanel buildReportActions() {
-        statusBox = UITheme.options(ReportManager.statusNames());
-
         JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, UITheme.CARD);
         updateStatusButton.addActionListener(e -> updateReportStatus());
 
         JButton deleteButton = UITheme.button("Delete Invalid Report", UITheme.DANGER, UITheme.CARD);
         deleteButton.addActionListener(e -> deleteInvalidReport());
 
-        return UITheme.actionRow(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT),
-                statusBox, updateStatusButton, deleteButton);
+        return UITheme.actionRow(updateStatusButton, deleteButton);
     }
 
     private JPanel buildUserFilterRow() {
@@ -317,48 +313,31 @@ public class AdminDashboard extends javax.swing.JFrame {
             return;
         }
 
-        ReportStatus status = ReportManager.parseStatus(UITheme.text(statusBox));
-
-        if (status == report.getStatus()) {
-            showMessage("Report " + report.getReportId() + " is already " + status.name() + ".");
-            return;
-        }
-        if (status == ReportStatus.REJECTED) {
-            rejectReport(report);
+        ReportStatusDialog dialog = new ReportStatusDialog(this, report, true);
+        if (!dialog.showDialog()) {
             return;
         }
 
-        if (reportManager.updateReportStatus(report.getReportId(), status)) {
-            showMessage("Report " + report.getReportId() + " is now " + status.name() + ".");
-            showAllReports();
-            overview.refresh();
+        String problem;
+        String done;
+        if (dialog.isReopenRequested()) {
+            problem = reportManager.reopenReport(report, true);
+            done = "Report " + report.getReportId() + " was reopened and is PENDING again.";
         } else {
-            showMessage("The report status could not be updated.");
+            ReportStatus target = dialog.getSelectedStatus();
+            problem = reportManager.changeStatus(report, target, dialog.getReason());
+            done = "Report " + report.getReportId() + " is now " + target.name() + ".";
         }
-    }
 
-    /** Asks for the reason, then marks the report as rejected. */
-    private void rejectReport(Report report) {
-        if (report.getStatus() == ReportStatus.RESOLVED) {
-            showMessage("Report " + report.getReportId()
-                    + " is already RESOLVED, so it cannot be rejected.");
+        if (problem != null) {
+            showMessage(problem);
             return;
         }
 
-        ReportRejectDialog dialog = new ReportRejectDialog(this, report);
-        String reason = dialog.showDialog();
-        if (reason == null) {
-            return;
-        }
-
-        if (reportManager.updateReportStatus(report.getReportId(), ReportStatus.REJECTED, reason)) {
-            showMessage("Report " + report.getReportId()
-                    + " was rejected. The resident sees the reason you wrote.");
-            showAllReports();
-            overview.refresh();
-        } else {
-            showMessage("The report could not be rejected.");
-        }
+        showMessage(done);
+        showAllReports();
+        showSelectedReport();
+        overview.refresh();
     }
 
     public void deleteInvalidReport() {

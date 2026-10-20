@@ -243,7 +243,7 @@ public class ReportManager {
     }
 
     public boolean updateReportStatus(String reportId, ReportStatus status, String remark) {
-        return updateReportStatusInCity(reportId, status, null, remark);
+        return changeStatus(getReportById(reportId), status, remark) == null;
     }
 
     public boolean updateReportStatusInCity(String reportId, ReportStatus status,
@@ -253,25 +253,107 @@ public class ReportManager {
 
     public boolean updateReportStatusInCity(String reportId, ReportStatus status,
                                             String cityMunicipality, String remark) {
-        Report report = getReportById(reportId);
+        return changeStatusInCity(getReportById(reportId), status, remark, cityMunicipality) == null;
+    }
+
+    /**
+     * The workflow rule for one status change. Returns the message to show, or
+     * null when the change is allowed.
+     */
+    public static String statusProblem(Report report, ReportStatus target, String reason) {
         if (report == null) {
-            return false;
+            return "That report is no longer in the records.";
+        }
+        if (target == null) {
+            return "Please choose the new status.";
+        }
+
+        ReportStatus current = report.getStatus();
+        if (current == null) {
+            return "This report has no status yet.";
+        }
+        if (target == current) {
+            return "Report " + report.getReportId() + " is already " + current.displayName() + ".";
+        }
+        if (current == ReportStatus.REJECTED) {
+            return "A rejected report cannot be changed. Only an administrator can reopen it.";
+        }
+        if (current == ReportStatus.RESOLVED) {
+            return "This report is already RESOLVED and can no longer be changed.";
+        }
+        if (!current.canMoveTo(target)) {
+            return "A " + current.displayName() + " report can only move to "
+                    + nextStatusesText(current) + ".";
+        }
+        if (target == ReportStatus.REJECTED) {
+            String problem = remarkProblem(reason);
+            if (problem != null) {
+                return problem;
+            }
+        }
+        return null;
+    }
+
+    private static String nextStatusesText(ReportStatus status) {
+        List<ReportStatus> next = status.nextStatuses();
+        String text = "";
+        for (int i = 0; i < next.size(); i++) {
+            if (i > 0) {
+                text = text + (i == next.size() - 1 ? " or " : ", ");
+            }
+            text = text + next.get(i).displayName();
+        }
+        return text;
+    }
+
+    /**
+     * Validates, applies and saves a status change. Returns null on success, or
+     * the message explaining why the change was denied.
+     */
+    public String changeStatus(Report report, ReportStatus target, String reason) {
+        return changeStatusInCity(report, target, reason, null);
+    }
+
+    public String changeStatusInCity(Report report, ReportStatus target, String reason,
+                                     String cityMunicipality) {
+        if (report == null || getReportById(report.getReportId()) == null) {
+            return "That report is no longer in the records.";
         }
         if (cityMunicipality != null
                 && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
-            return false;
-        }
-        if (status == ReportStatus.REJECTED && report.getStatus() == ReportStatus.RESOLVED) {
-            return false;
-        }
-        if (status == ReportStatus.REJECTED && remarkProblem(remark) != null) {
-            return false;
+            return "This report is not inside your area, so its status cannot be changed.";
         }
 
-        report.setStatus(status);
-        report.setRemark(status == ReportStatus.REJECTED ? oneLine(remark) : "");
+        String problem = statusProblem(report, target, reason);
+        if (problem != null) {
+            return problem;
+        }
+
+        report.setStatus(target);
+        report.setRemark(target == ReportStatus.REJECTED ? oneLine(reason) : "");
         saveReports();
-        return true;
+        return null;
+    }
+
+    /**
+     * Reopens a rejected report: it goes back to PENDING and the rejection
+     * reason is cleared. Only an administrator may do this.
+     */
+    public String reopenReport(Report report, boolean administrator) {
+        if (!administrator) {
+            return "Only an administrator can reopen a rejected report.";
+        }
+        if (report == null || getReportById(report.getReportId()) == null) {
+            return "That report is no longer in the records.";
+        }
+        if (report.getStatus() != ReportStatus.REJECTED) {
+            return "Only a rejected report can be reopened.";
+        }
+
+        report.setStatus(ReportStatus.PENDING);
+        report.setRemark("");
+        saveReports();
+        return null;
     }
 
     public boolean deleteInvalidReport(String reportId) {
@@ -448,16 +530,6 @@ public class ReportManager {
             }
         }
         return null;
-    }
-
-    /** Every status name, in display order, for the status picker. */
-    public static String[] statusNames() {
-        ReportStatus[] values = ReportStatus.values();
-        String[] names = new String[values.length];
-        for (int i = 0; i < values.length; i++) {
-            names[i] = values[i].name();
-        }
-        return names;
     }
 
     /** Reads a status name, falling back to PENDING for anything unknown. */

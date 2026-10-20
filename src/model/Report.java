@@ -57,6 +57,11 @@ public abstract class Report {
         this.status = status;
     }
 
+    /** True when the workflow allows this report to move to the given status. */
+    public boolean canChangeStatusTo(ReportStatus target) {
+        return status != null && status.canMoveTo(target);
+    }
+
     public String getRemark() {
         if (remark == null) {
             return "";
