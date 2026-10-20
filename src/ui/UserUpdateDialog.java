@@ -128,7 +128,9 @@ public class UserUpdateDialog {
             UITheme.addFormRow(form, row, "Assigned Area (city / municipality)", areaBox);
         }
 
-        content.add(form, BorderLayout.CENTER);        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        content.add(form, BorderLayout.CENTER);
+
+        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttonRow.setBackground(Color.WHITE);
 
         JButton cancelButton = UITheme.button("Cancel", UITheme.BORDER, UITheme.TEXT);

@@ -500,13 +500,15 @@ public class AdminDashboard extends javax.swing.JFrame {
                 { "USER ID", residentUser.getUserId() },
                 { "ACCOUNT TYPE", residentUser.getUserType() },
                 { "USERNAME", residentUser.getUsername() },
-                { "FULL NAME", residentUser.getFullName() }
+                { "FULL NAME", residentUser.getFullName() },
+                { "ACCOUNT CREATED", UITheme.display(residentUser.getDateCreated()) }
             });
         } else {
             UITheme.addSection(body, "Account Information", new String[][] {
                 { "USER ID", user.getUserId() },
                 { "ACCOUNT TYPE", user.getUserType() },
-                { "FULL NAME", user.getFullName() }
+                { "FULL NAME", user.getFullName() },
+                { "ACCOUNT CREATED", UITheme.display(user.getDateCreated()) }
             });
         }
 

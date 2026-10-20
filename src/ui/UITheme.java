@@ -194,6 +194,9 @@ public final class UITheme {
 
         box.add(captionLabel, BorderLayout.NORTH);
         box.add(valueLabel, BorderLayout.CENTER);
+
+        box.setAlignmentX(Component.LEFT_ALIGNMENT);
+        box.setMaximumSize(new Dimension(Integer.MAX_VALUE, box.getPreferredSize().height));
         return box;
     }
 

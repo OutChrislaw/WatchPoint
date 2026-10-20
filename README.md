@@ -70,10 +70,15 @@ new id is shown after saving, because administrators and area officers log in wi
 `users.txt` line format (one line per account type):
 
 ```
-Resident|userId|password|fullName|username|address|contactNumber
-Administrator|userId|password|fullName
-AreaOfficer|userId|password|fullName|area
+Resident|userId|password|fullName|dateCreated|username|address|contactNumber
+Administrator|userId|password|fullName|dateCreated
+AreaOfficer|userId|password|fullName|dateCreated|area
 ```
+
+`dateCreated` is the moment the account was made, stored as `yyyy-MM-dd HH:mm`. It is written
+automatically when a resident signs up or when an administrator creates an account, and it shows as
+**ACCOUNT CREATED** on the account card. The field is empty on accounts that were added before it
+existed, and the card shows `-` for those.
 
 Only a **Resident** has a username, because residents sign in with it (their id works too).
 Administrators and area officers have **no username** and sign in with their **id**.
@@ -81,9 +86,9 @@ Every id ends with six digits: `U000003` for a resident, `AD000001` for an admin
 `AO000001` for an area officer. Example lines:
 
 ```
-Administrator|AD000001|admin123|System Admin
-Resident|U000003|maria123|Maria Santos|maria|Cogon, Tagbilaran City|09171234567
-AreaOfficer|AO000001|officer123|Tagbilaran City Officer|Tagbilaran City
+Administrator|AD000001|admin123|System Admin|2026-10-20 09:15
+Resident|U000003|maria123|Maria Santos|2026-10-20 09:16|maria|Cogon, Tagbilaran City|09171234567
+AreaOfficer|AO000001|officer123|Tagbilaran City Officer|2026-10-20 09:17|Tagbilaran City
 ```
 
 

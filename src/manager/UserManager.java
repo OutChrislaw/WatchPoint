@@ -47,7 +47,7 @@ public class UserManager {
         }
 
         Resident resident = new Resident(generateUserId(), username.trim(), password,
-                fullName.trim(), address, contactNumber);
+                fullName.trim(), currentTimestamp(), address, contactNumber);
         users.add(resident);
         saveUsers();
         return true;
@@ -127,7 +127,8 @@ public class UserManager {
             return null;
         }
 
-        Administrator administrator = new Administrator(generateAdministratorId(), password, fullName.trim());
+        Administrator administrator = new Administrator(generateAdministratorId(), password,
+                fullName.trim(), currentTimestamp());
         users.add(administrator);
         saveUsers();
         return administrator;
@@ -141,7 +142,7 @@ public class UserManager {
         }
 
         AreaOfficer officer = new AreaOfficer(generateAreaOfficerId(), password, fullName.trim(),
-                area.trim());
+                currentTimestamp(), area.trim());
         users.add(officer);
         saveUsers();
         return officer;
@@ -369,30 +370,36 @@ public class UserManager {
         String password = parts[2];
         String fullName = parts[3];
 
+        String dateCreated = "";
+        if (parts.length > 4) {
+            dateCreated = parts[4];
+        }
+
         if (type.equals("Resident")) {
             String username = "";
             String address = "";
             String contactNumber = "";
-            if (parts.length > 4) {
-                username = parts[4];
-            }
             if (parts.length > 5) {
-                address = parts[5];
+                username = parts[5];
             }
             if (parts.length > 6) {
-                contactNumber = parts[6];
+                address = parts[6];
             }
-            return new Resident(userId, username, password, fullName, address, contactNumber);
+            if (parts.length > 7) {
+                contactNumber = parts[7];
+            }
+            return new Resident(userId, username, password, fullName, dateCreated, address,
+                    contactNumber);
         }
         if (type.equals("Administrator")) {
-            return new Administrator(userId, password, fullName);
+            return new Administrator(userId, password, fullName, dateCreated);
         }
         if (type.equals("AreaOfficer")) {
             String area = "";
-            if (parts.length > 4) {
-                area = parts[4];
+            if (parts.length > 5) {
+                area = parts[5];
             }
-            return new AreaOfficer(userId, password, fullName, area);
+            return new AreaOfficer(userId, password, fullName, dateCreated, area);
         }
         return null;
     }

@@ -11,8 +11,9 @@ public class AreaOfficer extends User {
 
     private String area;
 
-    public AreaOfficer(String userId, String password, String fullName, String area) {
-        super(userId, password, fullName);
+    public AreaOfficer(String userId, String password, String fullName, String dateCreated,
+                       String area) {
+        super(userId, password, fullName, dateCreated);
         this.area = area;
     }
 

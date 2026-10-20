@@ -12,8 +12,8 @@ public class Resident extends User {
     private String contactNumber;
 
     public Resident(String userId, String username, String password,
-                    String fullName, String address, String contactNumber) {
-        super(userId, password, fullName);
+                    String fullName, String dateCreated, String address, String contactNumber) {
+        super(userId, password, fullName, dateCreated);
         this.username = username;
         this.address = address;
         this.contactNumber = contactNumber;

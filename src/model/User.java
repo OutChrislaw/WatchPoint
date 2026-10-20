@@ -10,11 +10,13 @@ public abstract class User {
     private String userId;
     private String password;
     private String fullName;
+    private String dateCreated;
 
-    protected User(String userId, String password, String fullName) {
+    protected User(String userId, String password, String fullName, String dateCreated) {
         this.userId = userId;
         this.password = password;
         this.fullName = fullName;
+        this.dateCreated = dateCreated;
     }
 
     public String getUserId() {
@@ -23,6 +25,14 @@ public abstract class User {
 
     public String getFullName() {
         return fullName;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     public void setFullName(String fullName) {
@@ -43,6 +53,6 @@ public abstract class User {
     public abstract String getUserType();
 
     public String toFileString() {
-        return getUserType() + "|" + userId + "|" + password + "|" + fullName;
+        return getUserType() + "|" + userId + "|" + password + "|" + fullName + "|" + dateCreated;
     }
 }
