@@ -2,8 +2,9 @@ package model;
 
 /**
  * User.java
- * Every account has an id, a password and a full name. Only a Resident also
- * has a username; administrators and area officers log in with their id.
+ * Every account has an id, a password, a full name and the date it was made.
+ * Only a Resident also has a username; administrators and area officers log in
+ * with their id.
  */
 public abstract class User {
 
