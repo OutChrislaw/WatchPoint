@@ -10,4 +10,4 @@ Resident|U1008|mark|mark123|Mark Villanueva|Poblacion, Cortes|09671234567
 Resident|U1009|grace|grace123|Grace Lim|Poblacion, Ubay|09781234567
 Resident|U1010|john|john123|John Paul Bacalso|Poblacion Norte, Carmen|09891234567
 Resident|U1011|kim|kim123|Kim Bautista|Centro, Tubigon|09991234567
-
+AreaOfficer|AO001|officer|officer123|Tagbilaran City Officer|Tagbilaran City

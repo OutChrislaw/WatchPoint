@@ -6,6 +6,8 @@ import manager.LocationManager;
 import model.User;
 import model.Resident;
 import model.Administrator;
+import model.AreaOfficer;
+import model.RegistrationRequest;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -40,13 +42,23 @@ public class LoginFrame extends javax.swing.JFrame {
         User user = userManager.login(username, password);
 
         if (user == null) {
-            showMessage("Invalid username or password.");
+            RegistrationRequest pending = userManager.getPendingRegistration(username);
+            if (pending != null) {
+                showMessage("Your registration is still waiting for the " + pending.getMunicipality()
+                        + " Area Officer to accept it.");
+            } else {
+                showMessage("Invalid username or password.");
+            }
             return;
         }
 
         if (user.getUserType().equals("Administrator")) {
             AdminDashboard dashboard = new AdminDashboard((Administrator) user, reportManager, userManager,
                     locationManager);
+            dashboard.setVisible(true);
+        } else if (user.getUserType().equals("AreaOfficer")) {
+            AreaOfficerDashboard dashboard = new AreaOfficerDashboard((AreaOfficer) user, reportManager,
+                    userManager, locationManager);
             dashboard.setVisible(true);
         } else {
             ResidentDashboard dashboard = new ResidentDashboard((Resident) user, reportManager, userManager,

@@ -6,6 +6,7 @@ import manager.LocationManager;
 import model.User;
 import model.Resident;
 import model.Administrator;
+import model.AreaOfficer;
 import model.Report;
 import model.ReportStatus;
 
@@ -337,7 +338,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     public void createUser() {
-        String[] types = { "Resident", "Administrator" };
+        String[] types = { "Area Officer", "Administrator" };
         String type = (String) JOptionPane.showInputDialog(this, "User type:", "Create User",
                 JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
         if (type == null) {
@@ -360,20 +361,41 @@ public class AdminDashboard extends javax.swing.JFrame {
         }
 
         boolean created;
-        if (type.equals("Resident")) {
-            String address = JOptionPane.showInputDialog(this, "Address:");
-            String contactNumber = JOptionPane.showInputDialog(this, "Contact number:");
-            created = userManager.registerResident(fullName, username, password, address, contactNumber);
+        if (type.equals("Area Officer")) {
+            String area = pickArea(null);
+            if (area == null) {
+                return;
+            }
+            created = userManager.addAreaOfficer(fullName, username, password, area);
         } else {
             created = userManager.addAdministrator(fullName, username, password);
         }
 
         if (created) {
-            showMessage("User created.");
+            showMessage("Account created.");
             manageUsers();
         } else {
             showMessage("The user could not be created. The username may already be taken.");
         }
+    }
+
+    private String pickArea(String current) {
+        java.util.List<String> municipalities = locationManager.getMunicipalities();
+        if (municipalities.isEmpty()) {
+            return current;
+        }
+
+        String[] choices = new String[municipalities.size()];
+        for (int i = 0; i < choices.length; i++) {
+            choices[i] = municipalities.get(i);
+        }
+
+        Object start = choices[0];
+        if (current != null && current.length() > 0) {
+            start = current;
+        }
+        return (String) JOptionPane.showInputDialog(this, "Area (city / municipality):",
+                "Area Officer", JOptionPane.QUESTION_MESSAGE, null, choices, start);
     }
 
     public void updateUser() {
@@ -406,6 +428,22 @@ public class AdminDashboard extends javax.swing.JFrame {
             if (contactNumber == null) {
                 contactNumber = resident.getContactNumber();
             }
+        }
+
+        if (existing instanceof AreaOfficer) {
+            AreaOfficer officer = (AreaOfficer) existing;
+            String area = pickArea(officer.getArea());
+            if (area == null) {
+                area = officer.getArea();
+            }
+
+            if (userManager.updateAreaOfficer(officer, fullName, password, area)) {
+                showMessage("User updated.");
+                manageUsers();
+            } else {
+                showMessage("The user could not be updated.");
+            }
+            return;
         }
 
         if (userManager.updateAccount(existing, fullName, password, address, contactNumber)) {
@@ -504,6 +542,14 @@ public class AdminDashboard extends javax.swing.JFrame {
                 { "ADDRESS", resident.getAddress() },
                 { "CONTACT NUMBER", resident.getContactNumber() }
             });
+        }
+
+        if (user instanceof AreaOfficer) {
+            AreaOfficer officer = (AreaOfficer) user;
+            body.add(UITheme.label("Area Officer Details", UITheme.FONT_SECTION, UITheme.PRIMARY));
+            body.add(Box.createVerticalStrut(8));
+            body.add(UITheme.fieldBox("ASSIGNED AREA", officer.getArea()));
+            body.add(Box.createVerticalStrut(6));
         }
 
         return body;

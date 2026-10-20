@@ -15,6 +15,8 @@ WatchPoint/
 │   │   ├── User.java               Abstract parent of Resident and Administrator
 │   │   ├── Resident.java           A community member who files reports
 │   │   ├── Administrator.java      Staff who manages reports and users
+│   │   ├── AreaOfficer.java        Staff for one city/municipality (AO ids)
+│   │   ├── RegistrationRequest.java A resident sign-up waiting for approval
 │   │   ├── Location.java           City/municipality, barangay, street, specific place
 │   │   ├── ReportStatus.java       PENDING, VERIFIED, IN_PROGRESS, RESOLVED
 │   │   ├── Report.java             Abstract parent of the four report types
@@ -33,10 +35,12 @@ WatchPoint/
 │       ├── RegistrationFrame.java  New resident sign-up window
 │       ├── ResidentDashboard.java  Window for residents
 │       ├── AdminDashboard.java     Window for administrators
+│       ├── AreaOfficerDashboard.java Window for area officers
 │       ├── ReportUpdateDialog.java Modal Update Report form
 │       └── UITheme.java            Shared colours, fonts, and reusable widgets
 ├── data/                       Plain text storage
-│   ├── users.txt               One user per line
+│   ├── users.txt               One user or area officer per line
+│   ├── registrations.txt       Resident sign-ups waiting for approval
 │   ├── reports.txt             One report per line
 │   └── locations.txt           Bohol cities/municipalities and barangays
 └── bin/                        Compiled .class files (same package folders)
@@ -50,10 +54,32 @@ app  ──►  ui  ──►  manager  ──►  model
                      └──►  storage
 ```
 
+**Roles**
+
+| Role | Created by | Sees | Can do |
+|---|---|---|---|
+| Resident | self-registers, then accepted by the Area Officer of that area | own reports | Submit a report, view reports, update or delete own PENDING reports |
+| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, accept or reject resident registrations |
+| Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, manage all accounts |
+
 `users.txt` line format:
 
 ```
 type|userId|username|password|fullName[|address|contactNumber]
+```
+
+`type` is `Resident` (with address and contact number), `Administrator`, or `AreaOfficer`,
+where the last field is the city/municipality the officer handles and the id starts with
+`AO` — for example:
+
+```
+AreaOfficer|AO001|officer|officer123|Tagbilaran City Officer|Tagbilaran City
+```
+
+`registrations.txt` line format (a resident sign-up that is still waiting):
+
+```
+fullName|username|password|contactNumber|barangay|municipality|dateRequested
 ```
 
 `reports.txt` line format:

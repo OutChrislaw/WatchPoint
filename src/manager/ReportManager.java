@@ -107,8 +107,17 @@ public class ReportManager {
     }
 
     public boolean updateReportStatus(String reportId, ReportStatus status) {
+        return updateReportStatusInCity(reportId, status, null);
+    }
+
+    public boolean updateReportStatusInCity(String reportId, ReportStatus status,
+                                            String cityMunicipality) {
         Report report = getReportById(reportId);
         if (report == null) {
+            return false;
+        }
+        if (cityMunicipality != null
+                && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
             return false;
         }
 

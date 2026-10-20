@@ -78,10 +78,11 @@ public class RegistrationFrame extends javax.swing.JFrame {
             contactNumber = "";
         }
 
-        String address = barangay + ", " + cityMunicipality;
-
-        if (userManager.registerResident(fullName, username, password, address, contactNumber)) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Account created. You may now log in.");
+        if (userManager.requestRegistration(fullName, username, password, barangay, cityMunicipality,
+                contactNumber)) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Registration sent to the " + cityMunicipality
+                    + " office. You can log in once the Area Officer accepts your account.");
             clearFields();
         } else {
             javax.swing.JOptionPane.showMessageDialog(this,
