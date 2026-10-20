@@ -110,9 +110,26 @@ cityMunicipality|barangay1|barangay2|...
 
 | Item | What it does |
 |---|---|
-| Account Details | Full name, username (residents only), contact and address. Administrators and area officers also see the user id they log in with. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be used by another resident). |
-| Change Password | Current password, new password (at least 6 characters) and confirmation. |
+| Account Details | Full name, username (residents only), contact and address. Administrators and area officers also see the user id they log in with. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must contain a letter and must not be used by another resident or look like an account id). |
+| Change Password | Current password, new password (at least 8 characters, no spaces, different from the current one) and confirmation. |
 | Logout | Signs out and returns to the login window. |
+
+**Validation rules.** Every text field is checked before it is saved, and the managers repeat the
+same checks so nothing can slip past the forms.
+
+| Field | Rule |
+|---|---|
+| Password | 8 to 64 characters, no spaces, and it is typed twice on every form that sets a password. A new password must be different from the old one. |
+| Contact Number | Exactly 11 digits and it must start with `09` (for example `09171234567`). The field only accepts digits, so letters, spaces and dashes cannot be typed or pasted. |
+| Full Name | 2 to 60 characters, letters and space `.` `'` `-` `,` only, and it must contain a letter. |
+| Username | 3 to 40 characters from letters, numbers and `.` `_` `@` `+` `-`; it must contain a letter, must be unique, must not be only digits, must not look like an account id (`U000001`, `AD000001`, `AO000001`) and must not match another account's id. |
+| Report | Hazard type from the fixed list; city / municipality and barangay chosen from `locations.txt`; specific place (2-60 characters); specific detail (2-80 characters); description (10-500 characters, line breaks are collapsed into spaces); street is optional and saved as `N/A`; a resident cannot file the same PENDING hazard twice. |
+| Status change | The chosen status must differ from the report's current status. |
+| Administrator actions | An administrator cannot delete the account they are signed in with or the last remaining administrator, and deleting a resident who filed reports asks for confirmation first. |
+| Any text | The `\|` character and line breaks are refused, because the data files use `\|` as the separator between fields. |
+
+Rules are only applied to new input. Accounts created before a rule existed keep working, and their
+stored values are checked again the next time somebody edits them.
 ## Build and run
 
 From the project root (PowerShell):

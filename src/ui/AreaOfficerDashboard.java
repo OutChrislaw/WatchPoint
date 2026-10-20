@@ -245,6 +245,11 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
             status = ReportStatus.PENDING;
         }
 
+        if (status == report.getStatus()) {
+            showMessage("Report " + report.getReportId() + " is already " + status.name() + ".");
+            return;
+        }
+
         if (reportManager.updateReportStatusInCity(report.getReportId(), status,
                 currentOfficer.getArea())) {
             showMessage("Report " + report.getReportId() + " is now " + status.name() + ".");

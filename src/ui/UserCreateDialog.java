@@ -40,6 +40,7 @@ public class UserCreateDialog {
     private JComboBox<String> typeBox;
     private JTextField fullNameField;
     private JPasswordField passwordField;
+    private JPasswordField confirmPasswordField;
     private JComboBox<String> areaBox;
     private boolean created;
 
@@ -82,11 +83,16 @@ public class UserCreateDialog {
         row = row + 2;
 
         fullNameField = UITheme.hintField("Full name", 20);
+        UITheme.maxLength(fullNameField, 60);
         UITheme.addFormRow(form, row, "Full Name", fullNameField);
         row = row + 2;
 
         passwordField = UITheme.passwordField(20);
-        UITheme.addFormRow(form, row, "Password", passwordField);
+        UITheme.addFormRow(form, row, "Password (8+ characters)", passwordField);
+        row = row + 2;
+
+        confirmPasswordField = UITheme.passwordField(20);
+        UITheme.addFormRow(form, row, "Confirm Password", confirmPasswordField);
         row = row + 2;
 
         areaBox = UITheme.combo(null, locationManager.getMunicipalities());
@@ -126,22 +132,25 @@ public class UserCreateDialog {
         String type = UITheme.text(typeBox);
         String fullName = fullNameField.getText().trim();
         String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
 
-        if (fullName.length() == 0) {
-            JOptionPane.showMessageDialog(dialog, "Please enter the full name.");
-            return;
+        String problem = UserManager.fullNameProblem(fullName);
+        if (problem == null) {
+            problem = UserManager.passwordProblem(password);
         }
-        if (password.trim().length() == 0) {
-            JOptionPane.showMessageDialog(dialog, "Please enter a password.");
+        if (problem == null && !password.equals(confirmPassword)) {
+            problem = "The two passwords do not match.";
+        }
+        if (problem == null && AREA_OFFICER.equals(type)) {
+            problem = UserManager.areaProblem(UITheme.text(areaBox));
+        }
+        if (problem != null) {
+            JOptionPane.showMessageDialog(dialog, problem);
             return;
         }
 
         if (AREA_OFFICER.equals(type)) {
             String area = UITheme.text(areaBox);
-            if (area.length() == 0) {
-                JOptionPane.showMessageDialog(dialog, "Please select the area this officer handles.");
-                return;
-            }
 
             AreaOfficer officer = userManager.addAreaOfficer(fullName, password, area);
             if (officer == null) {

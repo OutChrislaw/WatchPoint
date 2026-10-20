@@ -161,6 +161,7 @@ public class ProfileDialog {
         int row = 0;
 
         fullNameField = UITheme.hintField("Full name", 30);
+        UITheme.maxLength(fullNameField, 60);
         fullNameField.setText(user.getFullName());
         UITheme.addFormRow(form, row, "Full Name", fullNameField);
         row = row + 2;
@@ -176,6 +177,7 @@ public class ProfileDialog {
         if (user instanceof Resident) {
             Resident residentUser = (Resident) user;
             usernameField = UITheme.hintField("", 30);
+            UITheme.maxLength(usernameField, 40);
             usernameField.setText(residentUser.getUsername());
             UITheme.addFormRow(form, row, "Username (3-40 characters: letters, numbers, . _ @ + -)",
                     usernameField);
@@ -186,8 +188,9 @@ public class ProfileDialog {
             Resident resident = (Resident) user;
 
             contactField = UITheme.hintField("09XXXXXXXXX", 30);
+            UITheme.digitsOnly(contactField, 11);
             contactField.setText(resident.getContactNumber());
-            UITheme.addFormRow(form, row, "Contact Number", contactField);
+            UITheme.addFormRow(form, row, "Contact Number (11 digits)", contactField);
             row = row + 2;
 
             cityBox = UITheme.combo(null, locationManager.getMunicipalities());
@@ -243,7 +246,7 @@ public class ProfileDialog {
         UITheme.addFormRow(form, 0, "Current Password", currentPasswordField);
 
         newPasswordField = UITheme.passwordField(30);
-        UITheme.addFormRow(form, 2, "New Password (at least 6 characters)", newPasswordField);
+        UITheme.addFormRow(form, 2, "New Password (8+ characters, no spaces)", newPasswordField);
 
         confirmPasswordField = UITheme.passwordField(30);
         UITheme.addFormRow(form, 4, "Confirm New Password", confirmPasswordField);

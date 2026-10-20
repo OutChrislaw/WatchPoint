@@ -35,6 +35,11 @@ public class RegistrationFrame extends javax.swing.JFrame {
         updateBarangayBox();
 
         passwordField.setEchoChar('\u2022');
+        confirmPasswordField.setEchoChar('\u2022');
+        UITheme.maxLength(fullNameField, 60);
+        UITheme.maxLength(usernameField, 40);
+        UITheme.digitsOnly(contactNumberField, 11);
+        confirmPasswordField.addActionListener(e -> cityMunicipalityBox.requestFocusInWindow());
         cityMunicipalityBox.addActionListener(e -> updateBarangayBox());
         registerButton.addActionListener(e -> register());
     }
@@ -56,6 +61,7 @@ public class RegistrationFrame extends javax.swing.JFrame {
         String fullName = fullNameField.getText().trim();
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
         String contactNumber = contactNumberField.getText().trim();
 
         String cityMunicipality = "";
@@ -74,6 +80,23 @@ public class RegistrationFrame extends javax.swing.JFrame {
             return;
         }
 
+        String problem = UserManager.fullNameProblem(fullName);
+        if (problem == null) {
+            problem = userManager.checkUsername(null, username);
+        }
+        if (problem == null) {
+            problem = UserManager.passwordProblem(password);
+        }
+        if (problem == null && !password.equals(confirmPassword)) {
+            problem = "The two passwords do not match.";
+        }
+        if (problem == null) {
+            problem = UserManager.contactNumberProblem(contactNumber);
+        }
+        if (problem != null) {
+            javax.swing.JOptionPane.showMessageDialog(this, problem);
+            return;
+        }
 
         String address = barangay + ", " + cityMunicipality;
 
@@ -82,7 +105,7 @@ public class RegistrationFrame extends javax.swing.JFrame {
             clearFields();
         } else {
             javax.swing.JOptionPane.showMessageDialog(this,
-                    "Registration failed. Please fill in the required fields or use another username.");
+                    "Registration failed. The account could not be saved.");
         }
     }
 
@@ -90,6 +113,7 @@ public class RegistrationFrame extends javax.swing.JFrame {
         fullNameField.setText("");
         usernameField.setText("");
         passwordField.setText("");
+        confirmPasswordField.setText("");
         contactNumberField.setText("");
 
         if (cityMunicipalityBox.getItemCount() > 0) {
@@ -116,6 +140,8 @@ public class RegistrationFrame extends javax.swing.JFrame {
         usernameField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         passwordField = new javax.swing.JPasswordField();
+        jLabel9 = new javax.swing.JLabel();
+        confirmPasswordField = new javax.swing.JPasswordField();
         jLabel6 = new javax.swing.JLabel();
         cityMunicipalityBox = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
@@ -150,9 +176,13 @@ public class RegistrationFrame extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel5.setText("Password");
+        jLabel5.setText("Password (8+ characters)");
 
         passwordField.addActionListener(this::passwordFieldActionPerformed);
+
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel9.setText("Confirm Password");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(102, 102, 102));
@@ -162,13 +192,13 @@ public class RegistrationFrame extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel7.setText("Baranggay");
+        jLabel7.setText("Barangay");
 
         barangayBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel8.setText("Contact Number");
+        jLabel8.setText("Contact Number (11 digits, e.g. 09171234567)");
 
         contactNumberField.setForeground(new java.awt.Color(51, 51, 51));
         contactNumberField.addActionListener(this::contactNumberFieldActionPerformed);
@@ -186,6 +216,8 @@ public class RegistrationFrame extends javax.swing.JFrame {
         jLayeredPane2.setLayer(usernameField, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane2.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane2.setLayer(passwordField, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jLabel9, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(confirmPasswordField, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane2.setLayer(jLabel6, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane2.setLayer(cityMunicipalityBox, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane2.setLayer(jLabel7, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -213,6 +245,8 @@ public class RegistrationFrame extends javax.swing.JFrame {
                             .addComponent(jLabel1)
                             .addComponent(fullNameField)
                             .addComponent(passwordField)
+                            .addComponent(jLabel9)
+                            .addComponent(confirmPasswordField)
                             .addComponent(cityMunicipalityBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(barangayBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(contactNumberField)
@@ -241,6 +275,10 @@ public class RegistrationFrame extends javax.swing.JFrame {
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(confirmPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -309,8 +347,10 @@ public class RegistrationFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JLayeredPane jLayeredPane2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPasswordField confirmPasswordField;
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JButton registerButton;
     private javax.swing.JTextField usernameField;

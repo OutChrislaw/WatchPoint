@@ -386,6 +386,71 @@ public final class UITheme {
         return field;
     }
 
+    /**
+     * Lets the field keep digits only and stops it at maxDigits characters, so a
+     * contact number cannot receive letters, spaces or dashes while typing or
+     * when text is pasted into it.
+     */
+    public static void digitsOnly(JTextField field, final int maxDigits) {
+        final javax.swing.text.PlainDocument document = new javax.swing.text.PlainDocument();
+        document.setDocumentFilter(new javax.swing.text.DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass bypass, int offset, String text,
+                                     javax.swing.text.AttributeSet attributes)
+                    throws javax.swing.text.BadLocationException {
+                replace(bypass, offset, 0, text, attributes);
+            }
+
+            @Override
+            public void replace(FilterBypass bypass, int offset, int length, String text,
+                                javax.swing.text.AttributeSet attributes)
+                    throws javax.swing.text.BadLocationException {
+                javax.swing.text.Document target = bypass.getDocument();
+                String current = target.getText(0, target.getLength());
+                String insert = text == null ? "" : text;
+                String updated = current.substring(0, offset) + insert
+                        + current.substring(offset + length);
+                updated = updated.replaceAll("[^0-9]", "");
+                if (updated.length() > maxDigits) {
+                    updated = updated.substring(0, maxDigits);
+                }
+                bypass.replace(0, current.length(), updated, attributes);
+            }
+        });
+        field.setDocument(document);
+    }
+
+    /**
+     * Stops the field at maxLength characters.
+     */
+    public static void maxLength(JTextField field, final int maxLength) {
+        final javax.swing.text.PlainDocument document = new javax.swing.text.PlainDocument();
+        document.setDocumentFilter(new javax.swing.text.DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass bypass, int offset, String text,
+                                     javax.swing.text.AttributeSet attributes)
+                    throws javax.swing.text.BadLocationException {
+                replace(bypass, offset, 0, text, attributes);
+            }
+
+            @Override
+            public void replace(FilterBypass bypass, int offset, int length, String text,
+                                javax.swing.text.AttributeSet attributes)
+                    throws javax.swing.text.BadLocationException {
+                javax.swing.text.Document target = bypass.getDocument();
+                String current = target.getText(0, target.getLength());
+                String insert = text == null ? "" : text;
+                String updated = current.substring(0, offset) + insert
+                        + current.substring(offset + length);
+                if (updated.length() > maxLength) {
+                    updated = updated.substring(0, maxLength);
+                }
+                bypass.replace(0, current.length(), updated, attributes);
+            }
+        });
+        field.setDocument(document);
+    }
+
     public static JTextField hintField(final String hint, int columns) {
         JTextField field = new JTextField(columns) {
             private static final long serialVersionUID = 1L;

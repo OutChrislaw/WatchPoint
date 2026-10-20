@@ -28,6 +28,16 @@ public class ReportManager {
 
     public Report submitReport(String reporterId, String hazardType, Location location,
                                String description, String specificDetail) {
+        if (reportProblem(hazardType, location, description, specificDetail) != null) {
+            return null;
+        }
+
+        description = oneLine(description);
+        specificDetail = specificDetail.trim();
+        location = new Location(location.getCityMunicipality().trim(),
+                location.getBarangay().trim(), location.getStreet().trim(),
+                location.getSpecificPlace().trim());
+
         String reportId = generateReportId();
         String dateSubmitted = currentTimestamp();
         Report report;
@@ -72,6 +82,128 @@ public class ReportManager {
 
     public List<Report> getAllReports() {
         return new ArrayList<Report>(reports);
+    }
+
+    /**
+     * The hazard types the system accepts, matching the report classes.
+     */
+    public static final String[] HAZARD_TYPES = { "Road Hazard", "Flood", "Streetlight", "Other" };
+
+    /**
+     * Collapses every run of spaces, tabs and line breaks into one space, so a
+     * description typed on several lines is still saved as a single line.
+     */
+    public static String oneLine(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replaceAll("\\s+", " ").trim();
+    }
+
+    /**
+     * The rules for a new report. Returns the problem to show, or null when the
+     * report is acceptable.
+     */
+    public static String reportProblem(String hazardType, Location location, String description,
+                                       String specificDetail) {
+        boolean knownType = false;
+        for (int i = 0; i < HAZARD_TYPES.length; i++) {
+            if (HAZARD_TYPES[i].equals(hazardType)) {
+                knownType = true;
+            }
+        }
+        if (!knownType) {
+            return "Please choose one of the listed hazard types.";
+        }
+        if (location == null) {
+            return "Please select a City / Municipality and a Barangay.";
+        }
+
+        String city = oneLine(location.getCityMunicipality());
+        if (city.length() == 0) {
+            return "Please select a City / Municipality.";
+        }
+        String barangay = oneLine(location.getBarangay());
+        if (barangay.length() == 0) {
+            return "Please select a Barangay.";
+        }
+
+        String street = oneLine(location.getStreet());
+        String place = oneLine(location.getSpecificPlace());
+        String detail = oneLine(specificDetail);
+        String text = oneLine(description);
+
+        String forbidden = forbiddenCharacterProblem(street, place, detail, text);
+        if (forbidden != null) {
+            return forbidden;
+        }
+
+        if (place.length() < 2) {
+            return "Please enter the specific place, like Near Water Refiller.";
+        }
+        if (place.length() > 60) {
+            return "The specific place must be 60 characters or fewer.";
+        }
+        if (street.length() > 60) {
+            return "The street must be 60 characters or fewer.";
+        }
+        if (detail.length() < 2) {
+            return "Please enter the specific detail, like the pole number or depth.";
+        }
+        if (detail.length() > 80) {
+            return "The specific detail must be 80 characters or fewer.";
+        }
+        if (text.length() < 10) {
+            return "Please describe the hazard in at least 10 characters.";
+        }
+        if (text.length() > 500) {
+            return "The description must be 500 characters or fewer.";
+        }
+        return null;
+    }
+
+    private static String forbiddenCharacterProblem(String street, String place, String detail,
+                                                    String description) {
+        String[] values = { street, place, detail, description };
+        for (int i = 0; i < values.length; i++) {
+            String value = values[i];
+            if (value == null) {
+                continue;
+            }
+            for (int j = 0; j < value.length(); j++) {
+                if (value.charAt(j) == '|') {
+                    return "The | character cannot be used in a report.";
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * True when this resident already has a PENDING report with the same hazard
+     * type, barangay and specific detail.
+     */
+    public boolean hasPendingDuplicate(String reporterId, String hazardType, String barangay,
+                                       String specificDetail) {
+        for (int i = 0; i < reports.size(); i++) {
+            Report report = reports.get(i);
+            if (report.getStatus() != ReportStatus.PENDING) {
+                continue;
+            }
+            if (!report.getReporterId().equals(reporterId)) {
+                continue;
+            }
+            if (!report.getReportType().equals(hazardType)) {
+                continue;
+            }
+            if (!report.getLocation().getBarangay().equalsIgnoreCase(barangay.trim())) {
+                continue;
+            }
+            if (report.getSpecificDetail().equalsIgnoreCase(specificDetail.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean updateResidentReport(Report report, String residentId) {

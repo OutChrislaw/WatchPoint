@@ -320,6 +320,11 @@ public class AdminDashboard extends javax.swing.JFrame {
             status = ReportStatus.PENDING;
         }
 
+        if (status == report.getStatus()) {
+            showMessage("Report " + report.getReportId() + " is already " + status.name() + ".");
+            return;
+        }
+
         if (reportManager.updateReportStatus(report.getReportId(), status)) {
             showMessage("Report " + report.getReportId() + " is now " + status.name() + ".");
             showAllReports();
@@ -425,9 +430,27 @@ public class AdminDashboard extends javax.swing.JFrame {
             showMessage("Please select a user first.");
             return;
         }
+        if (existing.getUserId().equals(currentUser.getUserId())) {
+            showMessage("You cannot delete the account you are signed in with.");
+            return;
+        }
+        if (existing instanceof Administrator && userManager.countAdministrators() <= 1) {
+            showMessage("The last Administrator cannot be deleted.");
+            return;
+        }
 
-        int answer = JOptionPane.showConfirmDialog(this, "Delete user " + existing.getUserId() + "?",
-                "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        String question = "Delete user " + existing.getUserId() + "?";
+        if (existing instanceof Resident) {
+            int reports = reportManager.getReportsByReporter(existing.getUserId()).size();
+            if (reports > 0) {
+                question = "This resident filed " + reports + " report(s). The reports stay in the "
+                        + "records, but they will show \"-\" as the reporter.\n\nDelete "
+                        + existing.getUserId() + " anyway?";
+            }
+        }
+
+        int answer = JOptionPane.showConfirmDialog(this, question, "Confirm Delete",
+                JOptionPane.YES_NO_OPTION);
         if (answer != JOptionPane.YES_OPTION) {
             return;
         }

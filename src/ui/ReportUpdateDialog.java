@@ -103,16 +103,19 @@ public class ReportUpdateDialog {
         cityBox.addActionListener(e -> fillBarangays());
 
         streetField = UITheme.hintField("Optional (e.g. Casa Road)", 20);
+        UITheme.maxLength(streetField, 60);
         streetField.setText(report.getLocation().getStreet());
         UITheme.addFormRow(form, row, "Street", streetField);
         row = row + 2;
 
         placeField = UITheme.hintField("(e.g. Near Water Refiller)", 20);
+        UITheme.maxLength(placeField, 60);
         placeField.setText(report.getLocation().getSpecificPlace());
         UITheme.addFormRow(form, row, "Specific Place", placeField);
         row = row + 2;
 
         detailField = UITheme.hintField("(e.g. Pothole, Knee deep, Pole 12)", 20);
+        UITheme.maxLength(detailField, 80);
         detailField.setText(report.getSpecificDetail());
         UITheme.addFormRow(form, row, "Specific Detail", detailField);
         row = row + 2;
@@ -157,25 +160,25 @@ public class ReportUpdateDialog {
     private void save() {
         String city = UITheme.text(cityBox);
         String barangay = UITheme.text(barangayBox);
-        String street = streetField.getText().trim();
-        String place = placeField.getText().trim();
-        String detail = detailField.getText().trim();
-        String description = descriptionArea.getText().trim();
+        String street = ReportManager.oneLine(streetField.getText());
+        String place = ReportManager.oneLine(placeField.getText());
+        String detail = ReportManager.oneLine(detailField.getText());
+        String description = ReportManager.oneLine(descriptionArea.getText());
 
-        if (city.length() == 0 || barangay.length() == 0) {
-            JOptionPane.showMessageDialog(dialog,
-                    "Please select a City / Municipality and a Barangay.");
-            return;
-        }
-        if (description.length() == 0) {
-            JOptionPane.showMessageDialog(dialog, "Please enter a description of the hazard.");
-            return;
-        }
         if (street.length() == 0) {
             street = "N/A";
         }
 
-        report.setLocation(new Location(city, barangay, street, place));
+        Location location = new Location(city, barangay, street, place);
+
+        String problem = ReportManager.reportProblem(report.getReportType(), location, description,
+                detail);
+        if (problem != null) {
+            JOptionPane.showMessageDialog(dialog, problem);
+            return;
+        }
+
+        report.setLocation(location);
         report.setSpecificDetail(detail);
         report.setDescription(description);
 

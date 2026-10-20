@@ -37,9 +37,9 @@ public class UserManager {
 
     public boolean registerResident(String fullName, String username, String password,
                                     String address, String contactNumber) {
-        if (fullName == null || fullName.trim().length() == 0
-                || username == null || username.trim().length() == 0
-                || password == null || password.trim().length() == 0) {
+        if (fullNameProblem(fullName) != null || checkUsername(null, username) != null
+                || passwordProblem(password) != null || contactNumberProblem(contactNumber) != null
+                || address == null || address.trim().length() == 0) {
             return false;
         }
         if (isUsernameTaken(username)) {
@@ -122,8 +122,7 @@ public class UserManager {
     }
 
     public Administrator addAdministrator(String fullName, String password) {
-        if (fullName == null || fullName.trim().length() == 0
-                || password == null || password.trim().length() == 0) {
+        if (fullNameProblem(fullName) != null || passwordProblem(password) != null) {
             return null;
         }
 
@@ -135,9 +134,8 @@ public class UserManager {
     }
 
     public AreaOfficer addAreaOfficer(String fullName, String password, String area) {
-        if (fullName == null || fullName.trim().length() == 0
-                || password == null || password.trim().length() == 0
-                || area == null || area.trim().length() == 0) {
+        if (fullNameProblem(fullName) != null || passwordProblem(password) != null
+                || areaProblem(area) != null) {
             return null;
         }
 
@@ -161,6 +159,15 @@ public class UserManager {
             return "The username must be 40 characters or fewer.";
         }
 
+        String forbidden = forbiddenCharacterProblem(name);
+        if (forbidden != null) {
+            return forbidden;
+        }
+        if (looksLikeAccountId(name)) {
+            return "The username must not look like an account ID.";
+        }
+
+        boolean hasLetter = false;
         for (int i = 0; i < name.length(); i++) {
             char letter = name.charAt(i);
             boolean allowed = (letter >= 'a' && letter <= 'z')
@@ -171,14 +178,23 @@ public class UserManager {
             if (!allowed) {
                 return "Use only letters, numbers, dot, underscore, at sign, plus or dash.";
             }
+            if ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z')) {
+                hasLetter = true;
+            }
+        }
+        if (!hasLetter) {
+            return "The username must contain at least one letter.";
         }
 
         for (int i = 0; i < users.size(); i++) {
             User other = users.get(i);
-            if (!(other instanceof Resident)) {
+            if (user != null && other.getUserId().equals(user.getUserId())) {
                 continue;
             }
-            if (user != null && other.getUserId().equals(user.getUserId())) {
+            if (other.getUserId().equalsIgnoreCase(name)) {
+                return "That username is already used as an account ID.";
+            }
+            if (!(other instanceof Resident)) {
                 continue;
             }
             if (((Resident) other).getUsername().equalsIgnoreCase(name)) {
@@ -186,20 +202,29 @@ public class UserManager {
             }
         }
 
-
         return null;
     }
 
     public String saveDetails(User user, String fullName, String username, String contactNumber,
                               String barangay, String municipality) {
-        if (user == null || fullName == null || fullName.trim().length() == 0) {
-            return "Please enter your full name.";
+        if (user == null) {
+            return "No account is signed in.";
+        }
+
+        String nameProblem = fullNameProblem(fullName);
+        if (nameProblem != null) {
+            return nameProblem;
         }
 
         if (user instanceof Resident) {
             String problem = checkUsername(user, username);
             if (problem != null) {
                 return problem;
+            }
+
+            String contactProblem = contactNumberProblem(contactNumber);
+            if (contactProblem != null) {
+                return contactProblem;
             }
 
             Resident resident = (Resident) user;
@@ -229,8 +254,13 @@ public class UserManager {
         if (currentPassword == null || !user.verifyPassword(currentPassword)) {
             return "Your current password is not correct.";
         }
-        if (newPassword == null || newPassword.length() < 6) {
-            return "The new password must be at least 6 characters.";
+
+        String problem = passwordProblem(newPassword);
+        if (problem != null) {
+            return problem;
+        }
+        if (newPassword.equals(currentPassword)) {
+            return "The new password must be different from your current password.";
         }
         if (!newPassword.equals(confirmPassword)) {
             return "The new passwords do not match.";
@@ -244,7 +274,16 @@ public class UserManager {
     }
     public boolean saveAccountChanges(User user, String fullName, String password, String address,
                                       String contactNumber, String area) {
-        if (user == null || fullName == null || fullName.trim().length() == 0) {
+        if (user == null || fullNameProblem(fullName) != null) {
+            return false;
+        }
+        if (password != null && password.trim().length() > 0 && passwordProblem(password) != null) {
+            return false;
+        }
+        if (user instanceof Resident && contactNumberProblem(contactNumber) != null) {
+            return false;
+        }
+        if (user instanceof AreaOfficer && areaProblem(area) != null) {
             return false;
         }
 
@@ -270,6 +309,154 @@ public class UserManager {
         }
 
         return updateUser(user);
+    }
+
+    /**
+     * The rules for a full name. Returns the problem to show, or null when the
+     * name is acceptable.
+     */
+    public static String fullNameProblem(String fullName) {
+        if (fullName == null || fullName.trim().length() == 0) {
+            return "Please enter the full name.";
+        }
+
+        String name = fullName.trim();
+        if (name.length() < 2) {
+            return "The full name must be at least 2 characters.";
+        }
+        if (name.length() > 60) {
+            return "The full name must be 60 characters or fewer.";
+        }
+
+        String forbidden = forbiddenCharacterProblem(name);
+        if (forbidden != null) {
+            return forbidden;
+        }
+
+        boolean hasLetter = false;
+        for (int i = 0; i < name.length(); i++) {
+            char letter = name.charAt(i);
+            if ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z')) {
+                hasLetter = true;
+            } else if (!(letter == ' ' || letter == '.' || letter == '\''
+                    || letter == '-' || letter == ',')) {
+                return "Use only letters, space, dot, apostrophe, dash or comma in the full name.";
+            }
+        }
+        if (!hasLetter) {
+            return "The full name must contain letters.";
+        }
+        return null;
+    }
+
+    /**
+     * The password rules: 8 to 64 characters, no spaces and no pipe character.
+     */
+    public static String passwordProblem(String password) {
+        if (password == null || password.length() == 0) {
+            return "Please enter a password.";
+        }
+        if (password.length() < 8) {
+            return "The password must be at least 8 characters.";
+        }
+        if (password.length() > 64) {
+            return "The password must be 64 characters or fewer.";
+        }
+
+        for (int i = 0; i < password.length(); i++) {
+            char letter = password.charAt(i);
+            if (letter == ' ') {
+                return "The password must not contain spaces.";
+            }
+            if (letter == '|' || letter == '\n' || letter == '\r') {
+                return "The password must not contain the | character or line breaks.";
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The contact number rules: exactly 11 digits and it must start with 09.
+     */
+    public static String contactNumberProblem(String contactNumber) {
+        if (contactNumber == null || contactNumber.trim().length() == 0) {
+            return "Please enter the contact number.";
+        }
+
+        String number = contactNumber.trim();
+        for (int i = 0; i < number.length(); i++) {
+            char digit = number.charAt(i);
+            if (digit < '0' || digit > '9') {
+                return "The contact number must contain digits only.";
+            }
+        }
+        if (number.length() != 11) {
+            return "The contact number must be exactly 11 digits.";
+        }
+        if (!number.startsWith("09")) {
+            return "The contact number must start with 09, like 09171234567.";
+        }
+        return null;
+    }
+
+    /**
+     * The assigned area of an area officer, which is a city/municipality name.
+     */
+    public static String areaProblem(String area) {
+        if (area == null || area.trim().length() == 0) {
+            return "Please select the area this officer handles.";
+        }
+
+        String name = area.trim();
+        if (name.length() > 60) {
+            return "The area must be 60 characters or fewer.";
+        }
+        return forbiddenCharacterProblem(name);
+    }
+
+    private static String forbiddenCharacterProblem(String value) {
+        if (value == null) {
+            return null;
+        }
+        for (int i = 0; i < value.length(); i++) {
+            char letter = value.charAt(i);
+            if (letter == '|' || letter == '\n' || letter == '\r') {
+                return "The | character and line breaks cannot be used here.";
+            }
+        }
+        return null;
+    }
+
+    private static boolean looksLikeAccountId(String text) {
+        String upper = text.toUpperCase();
+        int digitsStart;
+        if (upper.startsWith("AD") || upper.startsWith("AO")) {
+            digitsStart = 2;
+        } else if (upper.startsWith("U")) {
+            digitsStart = 1;
+        } else {
+            return false;
+        }
+        if (upper.length() != digitsStart + 6) {
+            return false;
+        }
+        for (int i = digitsStart; i < upper.length(); i++) {
+            char digit = upper.charAt(i);
+            if (digit < '0' || digit > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int countAdministrators() {
+        int total = 0;
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i) instanceof Administrator) {
+                total++;
+            }
+        }
+        return total;
     }
 
     public static String municipalityOf(String address) {

@@ -14,6 +14,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import manager.LocationManager;
@@ -37,7 +38,8 @@ public class UserUpdateDialog {
     private JDialog dialog;
     private JTextField fullNameField;
     private JTextField usernameField;
-    private JTextField passwordField;
+    private JPasswordField passwordField;
+    private JPasswordField confirmPasswordField;
     private JTextField contactField;
     private JComboBox<String> cityBox;
     private JComboBox<String> barangayBox;
@@ -81,6 +83,7 @@ public class UserUpdateDialog {
         int row = 0;
 
         fullNameField = UITheme.hintField("Full name", 20);
+        UITheme.maxLength(fullNameField, 60);
         fullNameField.setText(user.getFullName());
         UITheme.addFormRow(form, row, "Full Name", fullNameField);
         row = row + 2;
@@ -95,16 +98,22 @@ public class UserUpdateDialog {
             row = row + 2;
         }
 
-        passwordField = UITheme.hintField("Leave blank to keep the current password", 20);
-        UITheme.addFormRow(form, row, "New Password", passwordField);
+        passwordField = UITheme.passwordField(20);
+        UITheme.addFormRow(form, row, "New Password (8+ characters, blank keeps the current one)",
+                passwordField);
+        row = row + 2;
+
+        confirmPasswordField = UITheme.passwordField(20);
+        UITheme.addFormRow(form, row, "Confirm New Password", confirmPasswordField);
         row = row + 2;
 
         if (user instanceof Resident) {
             Resident resident = (Resident) user;
 
             contactField = UITheme.hintField("09XXXXXXXXX", 20);
+            UITheme.digitsOnly(contactField, 11);
             contactField.setText(resident.getContactNumber());
-            UITheme.addFormRow(form, row, "Contact Number", contactField);
+            UITheme.addFormRow(form, row, "Contact Number (11 digits)", contactField);
             row = row + 2;
 
             cityBox = UITheme.combo(null, locationManager.getMunicipalities());
@@ -161,11 +170,15 @@ public class UserUpdateDialog {
 
     private void save() {
         String fullName = fullNameField.getText().trim();
-        String password = passwordField.getText();
+        String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
 
-        if (fullName.length() == 0) {
-            JOptionPane.showMessageDialog(dialog, "Please enter the full name.");
-            return;
+        String problem = UserManager.fullNameProblem(fullName);
+        if (problem == null && password.length() > 0) {
+            problem = UserManager.passwordProblem(password);
+        }
+        if (problem == null && password.length() > 0 && !password.equals(confirmPassword)) {
+            problem = "The two passwords do not match.";
         }
 
         String address = null;
@@ -175,21 +188,26 @@ public class UserUpdateDialog {
         if (user instanceof Resident) {
             String city = UITheme.text(cityBox);
             String barangay = UITheme.text(barangayBox);
-            if (city.length() == 0 || barangay.length() == 0) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Please select a City / Municipality and a Barangay.");
-                return;
+            if (problem == null && (city.length() == 0 || barangay.length() == 0)) {
+                problem = "Please select a City / Municipality and a Barangay.";
             }
             address = barangay + ", " + city;
             contactNumber = contactField.getText().trim();
+            if (problem == null) {
+                problem = UserManager.contactNumberProblem(contactNumber);
+            }
         }
 
         if (user instanceof AreaOfficer) {
             area = UITheme.text(areaBox);
-            if (area.length() == 0) {
-                JOptionPane.showMessageDialog(dialog, "Please select the area this officer handles.");
-                return;
+            if (problem == null) {
+                problem = UserManager.areaProblem(area);
             }
+        }
+
+        if (problem != null) {
+            JOptionPane.showMessageDialog(dialog, problem);
+            return;
         }
 
         if (userManager.saveAccountChanges(user, fullName, password, address, contactNumber, area)) {

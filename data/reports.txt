@@ -9,7 +9,7 @@ Flood|R008|U000005|Corella|Poblacion|Corella-Bilar Road|Near Corella Plaza|Canal
 Streetlight|R009|U000005|Corella|Tanday|Tanday Road|Near the waiting shed|Flickering lamp post|Pole 3|PENDING|2026-10-16 11:02
 Other|R010|U000006|Panglao|Tawala|Panglao Island Circumferential Road|Near Alona Beach|Uncollected garbage along the road|Garbage|RESOLVED|2026-10-17 07:50
 Road Hazard|R011|U000006|Panglao|Danao|Danao Road|Near Danao Beach|Broken pavement near the resort|Broken road|IN_PROGRESS|2026-10-17 08:25
-Flood|R012|U000007|Maribojoc|Poblacion|Maribojoc-Antequera Road|Near Maribojoc Church|Flooded intersection|Knee deep|PENDING|2026-10-17 13:10
+Flood|R012|U000007|Maribojoc|Poblacion|Maribojoc-Antequera Road|Near Maribojoc Church|Flooded intersection|Knee deep|VERIFIED|2026-10-17 13:10
 Streetlight|R013|U000007|Maribojoc|Toril|Toril Road|Near Toril Barangay Hall|No light on the whole stretch|Pole 8|PENDING|2026-10-17 14:05
 Other|R014|U000008|Cortes|Poblacion|Cortes-Nueva Vida Road|Near Cortes Municipal Hall|Fallen tree branch blocking the lane|Fallen tree|VERIFIED|2026-10-18 07:35
 Road Hazard|R015|U000008|Cortes|Malayo Norte|Malayo Road|Near Malayo Norte Chapel|Uneven road surface|Pothole|PENDING|2026-10-18 08:40

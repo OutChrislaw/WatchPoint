@@ -247,14 +247,17 @@ public class ResidentDashboard extends javax.swing.JFrame {
         updateBarangayBox();
 
         streetField = UITheme.hintField("Optional (e.g. Casa Road)", 20);
+        UITheme.maxLength(streetField, 60);
         UITheme.addFormRow(form, row, "Street", streetField);
         row = row + 2;
 
         specificPlaceField = UITheme.hintField("(e.g. Near Water Refiller)", 20);
+        UITheme.maxLength(specificPlaceField, 60);
         UITheme.addFormRow(form, row, "Specific Place", specificPlaceField);
         row = row + 2;
 
         specificDetailField = UITheme.hintField("(e.g. Pothole, Knee deep, Pole 12)", 20);
+        UITheme.maxLength(specificDetailField, 80);
         UITheme.addFormRow(form, row, "Specific Detail", specificDetailField);
         row = row + 2;
 
@@ -355,24 +358,30 @@ public class ResidentDashboard extends javax.swing.JFrame {
         String hazardType = UITheme.text(hazardTypeBox);
         String cityMunicipality = UITheme.text(cityMunicipalityBox);
         String barangay = UITheme.text(barangayBox);
-        String street = streetField.getText().trim();
-        String specificPlace = specificPlaceField.getText().trim();
-        String specificDetail = specificDetailField.getText().trim();
-        String description = descriptionArea.getText().trim();
+        String street = ReportManager.oneLine(streetField.getText());
+        String specificPlace = ReportManager.oneLine(specificPlaceField.getText());
+        String specificDetail = ReportManager.oneLine(specificDetailField.getText());
+        String description = ReportManager.oneLine(descriptionArea.getText());
 
-        if (cityMunicipality.length() == 0 || barangay.length() == 0) {
-            showMessage("Please select a City / Municipality and a Barangay.");
-            return;
-        }
-        if (description.length() == 0) {
-            showMessage("Please enter a description of the hazard.");
-            return;
-        }
         if (street.length() == 0) {
             street = "N/A";
         }
 
         Location location = new Location(cityMunicipality, barangay, street, specificPlace);
+
+        String problem = ReportManager.reportProblem(hazardType, location, description,
+                specificDetail);
+        if (problem != null) {
+            showMessage(problem);
+            return;
+        }
+        if (reportManager.hasPendingDuplicate(currentUser.getUserId(), hazardType, barangay,
+                specificDetail)) {
+            showMessage("You already have a PENDING " + hazardType + " report for that place in "
+                    + barangay + ".");
+            return;
+        }
+
         Report report = reportManager.submitReport(currentUser.getUserId(), hazardType, location,
                 description, specificDetail);
 

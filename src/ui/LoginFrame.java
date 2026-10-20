@@ -33,12 +33,19 @@ public class LoginFrame extends javax.swing.JFrame {
         this.reportManager = reportManager;
         this.locationManager = locationManager;
         initComponents();
+        UITheme.maxLength(usernameField, 40);
         registerButton.addActionListener(e -> openRegistration());
     }
 
     public void handleLogin() {
         String loginId = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
+
+        if (loginId.length() == 0 || password.length() == 0) {
+            showMessage("Please enter your username or ID and password.");
+            return;
+        }
+
         User user = userManager.login(loginId, password);
 
         if (user == null) {
