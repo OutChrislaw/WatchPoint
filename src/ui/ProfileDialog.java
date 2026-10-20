@@ -130,7 +130,7 @@ public class ProfileDialog {
     }
 
     private JButton menuButton(String text) {
-        JButton button = UITheme.button(text, Color.WHITE, UITheme.PRIMARY);
+        JButton button = UITheme.button(text, UITheme.CARD, UITheme.PRIMARY);
         button.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
@@ -147,8 +147,8 @@ public class ProfileDialog {
     }
 
     private static void paintMenuButton(JButton button, boolean selected) {
-        button.setBackground(selected ? UITheme.ACCENT : Color.WHITE);
-        button.setForeground(selected ? Color.WHITE : UITheme.PRIMARY);
+        button.setBackground(selected ? UITheme.ACCENT : UITheme.CARD);
+        button.setForeground(selected ? UITheme.CARD : UITheme.PRIMARY);
     }    private JPanel buildDetailsCard() {
         JPanel card = UITheme.card();
         card.setLayout(new BorderLayout(0, 16));
@@ -156,7 +156,7 @@ public class ProfileDialog {
         card.add(UITheme.label("Account Settings", UITheme.FONT_TITLE, UITheme.TEXT), BorderLayout.NORTH);
 
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Color.WHITE);
+        form.setBackground(UITheme.CARD);
 
         int row = 0;
 
@@ -219,13 +219,13 @@ public class ProfileDialog {
         card.add(form, BorderLayout.CENTER);
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        buttonRow.setBackground(Color.WHITE);
+        buttonRow.setBackground(UITheme.CARD);
 
         JButton cancelButton = UITheme.button("Cancel", UITheme.BORDER, UITheme.TEXT);
         cancelButton.addActionListener(e -> dialog.dispose());
         buttonRow.add(cancelButton);
 
-        JButton saveButton = UITheme.button("Save Changes", UITheme.ACCENT, Color.WHITE);
+        JButton saveButton = UITheme.button("Save Changes", UITheme.ACCENT, UITheme.CARD);
         saveButton.addActionListener(e -> saveDetails());
         buttonRow.add(saveButton);
 
@@ -240,7 +240,7 @@ public class ProfileDialog {
         card.add(UITheme.label("Change Password", UITheme.FONT_TITLE, UITheme.TEXT), BorderLayout.NORTH);
 
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Color.WHITE);
+        form.setBackground(UITheme.CARD);
 
         currentPasswordField = UITheme.passwordField(30);
         UITheme.addFormRow(form, 0, "Current Password", currentPasswordField);
@@ -254,13 +254,13 @@ public class ProfileDialog {
         card.add(form, BorderLayout.CENTER);
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        buttonRow.setBackground(Color.WHITE);
+        buttonRow.setBackground(UITheme.CARD);
 
         JButton cancelButton = UITheme.button("Cancel", UITheme.BORDER, UITheme.TEXT);
         cancelButton.addActionListener(e -> dialog.dispose());
         buttonRow.add(cancelButton);
 
-        JButton changeButton = UITheme.button("Change Password", UITheme.ACCENT, Color.WHITE);
+        JButton changeButton = UITheme.button("Change Password", UITheme.ACCENT, UITheme.CARD);
         changeButton.addActionListener(e -> savePassword());
         buttonRow.add(changeButton);
 

@@ -99,13 +99,13 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         setLayout(new BorderLayout());
 
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(Color.WHITE);
+        header.setBackground(UITheme.CARD);
         header.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER),
                 BorderFactory.createEmptyBorder(12, 20, 12, 20)));
 
         JPanel titles = new JPanel();
-        titles.setBackground(Color.WHITE);
+        titles.setBackground(UITheme.CARD);
         titles.setLayout(new javax.swing.BoxLayout(titles, javax.swing.BoxLayout.Y_AXIS));
 
         JLabel titleLabel = UITheme.label("WatchPoint", UITheme.FONT_TITLE, UITheme.PRIMARY);
@@ -114,13 +114,15 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         titles.add(Box.createVerticalStrut(2));
         titles.add(subtitleLabel);
 
-        JButton profileButton = UITheme.button("Settings", UITheme.ACCENT, Color.WHITE);
+        JButton profileButton = UITheme.button("Settings", UITheme.ACCENT, UITheme.CARD);
         profileButton.addActionListener(e -> openSettings());
 
         header.add(titles, BorderLayout.WEST);
         header.add(profileButton, BorderLayout.EAST);
 
         tabs = new JTabbedPane();
+        UITheme.styleTabs(tabs);
+        getContentPane().setBackground(UITheme.PAGE);
 
         add(header, BorderLayout.NORTH);
         add(tabs, BorderLayout.CENTER);
@@ -172,7 +174,7 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     private JPanel buildReportActions() {
         statusBox = UITheme.options(new String[] { "PENDING", "VERIFIED", "IN_PROGRESS", "RESOLVED" });
 
-        JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, Color.WHITE);
+        JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, UITheme.CARD);
         updateStatusButton.addActionListener(e -> updateReportStatus());
 
         return UITheme.actionRow(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT),

@@ -84,6 +84,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
         this.locationManager = locationManager;
 
         initComponents();
+        applyTheme();
 
         setTitle("WatchPoint - Resident: " + currentUser.getFullName());
         subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Resident");
@@ -218,7 +219,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
         content.setLayout(new BorderLayout(0, 14));
 
         JPanel header = new JPanel();
-        header.setBackground(Color.WHITE);
+        header.setBackground(UITheme.CARD);
         header.setLayout(new javax.swing.BoxLayout(header, javax.swing.BoxLayout.Y_AXIS));
         header.add(UITheme.label("Submit a Hazard Report", UITheme.FONT_HEADING, UITheme.PRIMARY));
         header.add(Box.createVerticalStrut(2));
@@ -227,7 +228,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
         content.add(header, BorderLayout.NORTH);
 
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Color.WHITE);
+        form.setBackground(UITheme.CARD);
 
         int row = 0;
 
@@ -269,8 +270,8 @@ public class ResidentDashboard extends javax.swing.JFrame {
         content.add(form, BorderLayout.CENTER);
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        buttonRow.setBackground(Color.WHITE);
-        JButton submitButton = UITheme.button("Submit Report", UITheme.ACCENT, Color.WHITE);
+        buttonRow.setBackground(UITheme.CARD);
+        JButton submitButton = UITheme.button("Submit Report", UITheme.ACCENT, UITheme.CARD);
         submitButton.addActionListener(e -> submitReport());
         buttonRow.add(submitButton);
         content.add(buttonRow, BorderLayout.SOUTH);
@@ -315,7 +316,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
         JButton updateButton = UITheme.button("Update Selected Report", UITheme.BORDER, UITheme.TEXT);
         updateButton.addActionListener(e -> updateSelectedReport());
 
-        JButton deleteButton = UITheme.button("Delete Selected Report", UITheme.DANGER, Color.WHITE);
+        JButton deleteButton = UITheme.button("Delete Selected Report", UITheme.DANGER, UITheme.CARD);
         deleteButton.addActionListener(e -> deleteSelectedReport());
 
         return UITheme.actionRow(updateButton, deleteButton);
@@ -499,6 +500,24 @@ public class ResidentDashboard extends javax.swing.JFrame {
         } else if (dialog.isLogoutRequested()) {
             logout();
         }
+    }
+
+    /** Applies the WatchPoint palette to the generated header and the tabs. */
+    private void applyTheme() {
+        getContentPane().setBackground(UITheme.PAGE);
+        jPanel1.setBackground(UITheme.PAGE);
+        jLayeredPane1.setBackground(UITheme.CARD);
+        jLayeredPane1.setOpaque(true);
+        jLayeredPane1.setBorder(javax.swing.BorderFactory.createLineBorder(UITheme.BORDER));
+
+        titleLabel.setForeground(UITheme.PRIMARY);
+        subtitleLabel.setForeground(UITheme.MUTED);
+
+        profileButton.setBackground(UITheme.ACCENT);
+        profileButton.setForeground(UITheme.CARD);
+        profileButton.setFocusPainted(false);
+
+        UITheme.styleTabs(tabs);
     }
 
     /**

@@ -81,6 +81,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         this.locationManager = locationManager;
 
         initComponents();
+        applyTheme();
 
         setTitle("WatchPoint - Administrator: " + currentUser.getFullName());
         subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Administrator");
@@ -161,10 +162,10 @@ public class AdminDashboard extends javax.swing.JFrame {
     private JPanel buildReportActions() {
         statusBox = UITheme.options(new String[] { "PENDING", "VERIFIED", "IN_PROGRESS", "RESOLVED" });
 
-        JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, Color.WHITE);
+        JButton updateStatusButton = UITheme.button("Update Status", UITheme.ACCENT, UITheme.CARD);
         updateStatusButton.addActionListener(e -> updateReportStatus());
 
-        JButton deleteButton = UITheme.button("Delete Invalid Report", UITheme.DANGER, Color.WHITE);
+        JButton deleteButton = UITheme.button("Delete Invalid Report", UITheme.DANGER, UITheme.CARD);
         deleteButton.addActionListener(e -> deleteInvalidReport());
 
         return UITheme.actionRow(UITheme.label("Set status to:", UITheme.FONT_BASE, UITheme.TEXT),
@@ -235,7 +236,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         row.setBackground(UITheme.PAGE);
 
-        JButton createUserButton = UITheme.button("Create User", UITheme.ACCENT, Color.WHITE);
+        JButton createUserButton = UITheme.button("Create User", UITheme.ACCENT, UITheme.CARD);
         createUserButton.addActionListener(e -> createUser());
         row.add(createUserButton);
 
@@ -247,7 +248,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         JButton updateUserButton = UITheme.button("Update User", UITheme.BORDER, UITheme.TEXT);
         updateUserButton.addActionListener(e -> updateUser());
 
-        JButton deleteUserButton = UITheme.button("Delete User", UITheme.DANGER, Color.WHITE);
+        JButton deleteUserButton = UITheme.button("Delete User", UITheme.DANGER, UITheme.CARD);
         deleteUserButton.addActionListener(e -> deleteUser());
 
         return UITheme.actionRow(updateUserButton, deleteUserButton);
@@ -560,6 +561,24 @@ public class AdminDashboard extends javax.swing.JFrame {
         } else if (dialog.isLogoutRequested()) {
             logout();
         }
+    }
+
+    /** Applies the WatchPoint palette to the generated header and the tabs. */
+    private void applyTheme() {
+        getContentPane().setBackground(UITheme.PAGE);
+        jPanel1.setBackground(UITheme.PAGE);
+        jLayeredPane1.setBackground(UITheme.CARD);
+        jLayeredPane1.setOpaque(true);
+        jLayeredPane1.setBorder(javax.swing.BorderFactory.createLineBorder(UITheme.BORDER));
+
+        titleLabel.setForeground(UITheme.PRIMARY);
+        subtitleLabel.setForeground(UITheme.MUTED);
+
+        profileButton.setBackground(UITheme.ACCENT);
+        profileButton.setForeground(UITheme.CARD);
+        profileButton.setFocusPainted(false);
+
+        UITheme.styleTabs(tabs);
     }
 
     /**

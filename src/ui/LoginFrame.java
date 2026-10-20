@@ -34,7 +34,23 @@ public class LoginFrame extends javax.swing.JFrame {
         this.locationManager = locationManager;
         initComponents();
         UITheme.maxLength(usernameField, 40);
+        styleFrame();
         registerButton.addActionListener(e -> openRegistration());
+    }
+
+    /** Paints the generated window with the WatchPoint palette. */
+    private void styleFrame() {
+        getContentPane().setBackground(UITheme.PAGE);
+        jPanel1.setBackground(UITheme.PAGE);
+        jLayeredPane1.setBackground(UITheme.CARD);
+        jLayeredPane1.setOpaque(true);
+        jLayeredPane1.setBorder(javax.swing.BorderFactory.createLineBorder(UITheme.BORDER));
+
+        loginButton.setFocusPainted(false);
+        registerButton.setBackground(UITheme.CARD);
+        registerButton.setForeground(UITheme.PRIMARY);
+        registerButton.setFocusPainted(false);
+        registerButton.setBorder(javax.swing.BorderFactory.createLineBorder(UITheme.BORDER));
     }
 
     public void handleLogin() {
@@ -112,32 +128,32 @@ public class LoginFrame extends javax.swing.JFrame {
         jLayeredPane1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel1.setForeground(UITheme.PRIMARY);
         jLabel1.setText("WatchPoint");
 
-        jLabel2.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel2.setForeground(UITheme.MUTED);
         jLabel2.setText("Bohol's Safety Reporting System");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel3.setForeground(UITheme.MUTED);
         jLabel3.setText("Username / ID");
 
         usernameField.addActionListener(this::usernameFieldActionPerformed);
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel4.setForeground(UITheme.MUTED);
         jLabel4.setText("Password");
 
         passwordField.addActionListener(this::passwordFieldActionPerformed);
 
 
-        loginButton.setBackground(new java.awt.Color(0, 153, 255));
+        loginButton.setBackground(UITheme.ACCENT);
         loginButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        loginButton.setForeground(new java.awt.Color(255, 255, 255));
+        loginButton.setForeground(UITheme.CARD);
         loginButton.setText("Log In");
         loginButton.addActionListener(this::loginButtonActionPerformed);
 
-        registerButton.setBackground(new java.awt.Color(204, 204, 204));
+        registerButton.setBackground(UITheme.CARD);
         registerButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         registerButton.setText("Register as Resident");
 

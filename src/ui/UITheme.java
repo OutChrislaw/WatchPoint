@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -33,15 +34,27 @@ import javax.swing.table.JTableHeader;
  */
 public final class UITheme {
 
-    public static final Color PRIMARY = new Color(0, 51, 102);
-    public static final Color MUTED = new Color(102, 102, 102);
-    public static final Color TEXT = new Color(51, 51, 51);
-    public static final Color ACCENT = new Color(0, 153, 255);
-    public static final Color BORDER = new Color(204, 204, 204);
-    public static final Color DANGER = new Color(198, 40, 40);
-    public static final Color PAGE = new Color(238, 238, 238);
-    public static final Color ROW_LINE = new Color(226, 226, 226);
-    public static final Color SELECTION = new Color(204, 229, 255);
+    /** Deep forest green from the Chocolate Hills poster: titles and headings. */
+    public static final Color PRIMARY = new Color(0x1D, 0x3F, 0x22);
+    public static final Color PRIMARY_DARK = new Color(0x16, 0x32, 0x1A);
+    /** Hill green: the primary buttons. */
+    public static final Color ACCENT = new Color(0x55, 0x7D, 0x2C);
+    public static final Color ACCENT_DARK = new Color(0x44, 0x64, 0x1F);
+    /** Bright hill lime: highlights and the Settings button. */
+    public static final Color LIME = new Color(0x9C, 0xBF, 0x4A);
+    /** Poster sky teal: info accents and the VERIFIED status. */
+    public static final Color SKY = new Color(0x2E, 0x9B, 0xA0);
+    public static final Color MUTED = new Color(0x5D, 0x6B, 0x52);
+    public static final Color TEXT = new Color(0x1F, 0x2E, 0x1B);
+    public static final Color BORDER = new Color(0xC6, 0xD2, 0xB8);
+    public static final Color CARD = Color.WHITE;
+    public static final Color DANGER = new Color(0xC1, 0x50, 0x2B);
+    public static final Color PAGE = new Color(0xF3, 0xF5, 0xEA);
+    public static final Color ROW_LINE = new Color(0xE2, 0xE8, 0xD6);
+    public static final Color SELECTION = new Color(0xDC, 0xE8, 0xC4);
+    /** Tabs: the strip is PAGE, a resting tab is TAB_FILL, the open tab is CARD. */
+    public static final Color TAB_FILL = new Color(0xE7, 0xED, 0xD9);
+    public static final Color TAB_LINE = new Color(0xB7, 0xC6, 0xA5);
 
     public static final Font FONT_TITLE = new Font("Segoe UI", 1, 24);
     public static final Font FONT_HEADING = new Font("Segoe UI", 1, 18);
@@ -50,6 +63,17 @@ public final class UITheme {
     public static final Font FONT_BASE = new Font("Segoe UI", 0, 12);
     public static final Font FONT_SMALL = new Font("Segoe UI", 1, 11);
     public static final Font FONT_VALUE = new Font("Segoe UI", 0, 13);
+    public static final Font FONT_TAB = new Font("Segoe UI", 1, 14);
+
+    /** The folder-tab look used by every dashboard. */
+    public static void styleTabs(JTabbedPane tabs) {
+        tabs.setUI(new FolderTabbedPaneUI());
+        tabs.setFont(FONT_TAB);
+        tabs.setBackground(PAGE);
+        tabs.setForeground(MUTED);
+        tabs.setOpaque(true);
+        tabs.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+    }
 
     private UITheme() {
     }
@@ -62,7 +86,7 @@ public final class UITheme {
 
     public static JPanel card() {
         JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(CARD);
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER),
                 BorderFactory.createEmptyBorder(20, 22, 20, 22)));
@@ -95,7 +119,22 @@ public final class UITheme {
         button.setForeground(foreground);
         button.setFont(FONT_BOLD);
         button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(shade(background)),
+                BorderFactory.createEmptyBorder(5, 14, 5, 14)));
         return button;
+    }
+
+    /** A slightly darker version of a colour, used for button edges. */
+    public static Color shade(Color color) {
+        if (color == null) {
+            return BORDER;
+        }
+        return new Color(Math.max((int) (color.getRed() * 0.78), 0),
+                Math.max((int) (color.getGreen() * 0.78), 0),
+                Math.max((int) (color.getBlue() * 0.78), 0));
     }
 
     public static JComboBox<String> combo(String firstItem, List<String> items) {
@@ -129,7 +168,7 @@ public final class UITheme {
     public static JScrollPane borderedScroll(Component view) {
         JScrollPane pane = new JScrollPane(view);
         pane.setBorder(BorderFactory.createLineBorder(BORDER));
-        pane.getViewport().setBackground(Color.WHITE);
+        pane.getViewport().setBackground(CARD);
         pane.getVerticalScrollBar().setUnitIncrement(16);
         return pane;
     }
@@ -142,10 +181,10 @@ public final class UITheme {
 
     public static JPanel detailPane(JScrollPane scroll, JPanel actions) {
         JPanel pane = new JPanel(new BorderLayout());
-        pane.setBackground(Color.WHITE);
+        pane.setBackground(CARD);
         pane.setBorder(BorderFactory.createLineBorder(BORDER));
 
-        actions.setBackground(Color.WHITE);
+        actions.setBackground(CARD);
         actions.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, BORDER),
                 BorderFactory.createEmptyBorder(10, 14, 10, 14)));
@@ -159,7 +198,7 @@ public final class UITheme {
         JTable table = new JTable(new DefaultTableModel(columns, 0));
         table.setFont(FONT_BASE);
         table.setForeground(TEXT);
-        table.setBackground(Color.WHITE);
+        table.setBackground(CARD);
         table.setRowHeight(28);
         table.setShowVerticalLines(false);
         table.setShowHorizontalLines(true);
@@ -179,7 +218,7 @@ public final class UITheme {
     }
     public static JPanel fieldBox(String caption, String value) {
         JPanel box = new JPanel(new BorderLayout());
-        box.setBackground(Color.WHITE);
+        box.setBackground(CARD);
         box.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER),
                 BorderFactory.createEmptyBorder(6, 10, 6, 10)));
@@ -202,7 +241,7 @@ public final class UITheme {
 
     public static JPanel valueBox(String value) {
         JPanel box = new JPanel(new BorderLayout());
-        box.setBackground(Color.WHITE);
+        box.setBackground(CARD);
         box.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
@@ -217,7 +256,7 @@ public final class UITheme {
         JTextArea area = new JTextArea(value);
         area.setFont(FONT_VALUE);
         area.setForeground(TEXT);
-        area.setBackground(Color.WHITE);
+        area.setBackground(CARD);
         area.setEditable(false);
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
@@ -234,7 +273,7 @@ public final class UITheme {
         area.setRows(rows);
 
         JPanel box = new JPanel(new BorderLayout());
-        box.setBackground(Color.WHITE);
+        box.setBackground(CARD);
         box.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
@@ -245,7 +284,7 @@ public final class UITheme {
 
     public static JPanel twoColumns(JPanel left, JPanel right) {
         JPanel row = new JPanel(new GridLayout(1, 2, 12, 0));
-        row.setBackground(Color.WHITE);
+        row.setBackground(CARD);
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
         row.add(left);
         row.add(right);
@@ -301,7 +340,7 @@ public final class UITheme {
     }
     public static JPanel actionRow(javax.swing.JComponent... items) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        row.setBackground(Color.WHITE);
+        row.setBackground(CARD);
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         for (int i = 0; i < items.length; i++) {
@@ -317,7 +356,7 @@ public final class UITheme {
         JPasswordField field = new JPasswordField(columns);
         field.setFont(FONT_BASE);
         field.setForeground(TEXT);
-        field.setBackground(Color.WHITE);
+        field.setBackground(CARD);
         field.setEchoChar('\u2022');
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER),
@@ -347,16 +386,16 @@ public final class UITheme {
 
     public static Color statusColor(String status) {
         if ("VERIFIED".equals(status)) {
-            return new Color(0, 102, 204);
+            return SKY;
         }
         if ("IN_PROGRESS".equals(status)) {
-            return new Color(123, 31, 162);
+            return new Color(0x45, 0x68, 0x9B);
         }
         if ("RESOLVED".equals(status)) {
-            return new Color(46, 125, 50);
+            return new Color(0x2A, 0x6B, 0x39);
         }
         if ("PENDING".equals(status)) {
-            return new Color(230, 126, 0);
+            return new Color(0xA9, 0x76, 0x1B);
         }
         return MUTED;
     }
@@ -378,7 +417,7 @@ public final class UITheme {
         JTextField field = new JTextField(columns);
         field.setFont(FONT_BASE);
         field.setForeground(TEXT);
-        field.setBackground(Color.WHITE);
+        field.setBackground(CARD);
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER),
                 BorderFactory.createEmptyBorder(7, 9, 7, 9)));
@@ -473,7 +512,7 @@ public final class UITheme {
         };
         field.setFont(FONT_BASE);
         field.setForeground(TEXT);
-        field.setBackground(Color.WHITE);
+        field.setBackground(CARD);
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER),
                 BorderFactory.createEmptyBorder(7, 9, 7, 9)));
@@ -502,7 +541,7 @@ public final class UITheme {
         };
         area.setFont(FONT_BASE);
         area.setForeground(TEXT);
-        area.setBackground(Color.WHITE);
+        area.setBackground(CARD);
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -519,7 +558,7 @@ public final class UITheme {
                     isSelected, hasFocus, row, column);
             label.setOpaque(true);
             label.setBackground(PRIMARY);
-            label.setForeground(Color.WHITE);
+            label.setForeground(CARD);
             label.setFont(FONT_BOLD);
             label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
             return label;
@@ -553,7 +592,7 @@ public final class UITheme {
         private static final long serialVersionUID = 1L;
 
         BodyPanel() {
-            setBackground(Color.WHITE);
+            setBackground(CARD);
             setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
             setBorder(BorderFactory.createEmptyBorder(20, 22, 20, 22));
         }

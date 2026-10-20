@@ -64,7 +64,7 @@ public class UserCreateDialog {
         content.setLayout(new BorderLayout(0, 14));
 
         JPanel header = new JPanel();
-        header.setBackground(Color.WHITE);
+        header.setBackground(UITheme.CARD);
         header.setLayout(new javax.swing.BoxLayout(header, javax.swing.BoxLayout.Y_AXIS));
         header.add(UITheme.label("Create User", UITheme.FONT_HEADING, UITheme.PRIMARY));
         header.add(Box.createVerticalStrut(2));
@@ -73,7 +73,7 @@ public class UserCreateDialog {
         content.add(header, BorderLayout.NORTH);
 
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Color.WHITE);
+        form.setBackground(UITheme.CARD);
 
         int row = 0;
 
@@ -101,13 +101,13 @@ public class UserCreateDialog {
         content.add(form, BorderLayout.CENTER);
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        buttonRow.setBackground(Color.WHITE);
+        buttonRow.setBackground(UITheme.CARD);
 
         JButton cancelButton = UITheme.button("Cancel", UITheme.BORDER, UITheme.TEXT);
         cancelButton.addActionListener(e -> dialog.dispose());
         buttonRow.add(cancelButton);
 
-        JButton createButton = UITheme.button("Create User", UITheme.ACCENT, Color.WHITE);
+        JButton createButton = UITheme.button("Create User", UITheme.ACCENT, UITheme.CARD);
         createButton.addActionListener(e -> save());
         buttonRow.add(createButton);
 

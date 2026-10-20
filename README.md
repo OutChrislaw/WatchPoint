@@ -130,6 +130,26 @@ same checks so nothing can slip past the forms.
 
 Rules are only applied to new input. Accounts created before a rule existed keep working, and their
 stored values are checked again the next time somebody edits them.
+
+**Theme.** The look follows the Chocolate Hills poster: cream pages, white cards, forest-green text
+and hill-green buttons. Every colour and font lives in `ui/UITheme.java`, so the whole application
+changes from that one file.
+
+| Colour | Value | Used for |
+|---|---|---|
+| Forest green | `#1D3F22` | window titles, section headings, table headers, tab labels |
+| Hill green | `#557D2C` | primary buttons (Log In, Save, Submit, Create, Update Status) |
+| Hill lime | `#9CBF4A` | highlights and accents |
+| Sky teal | `#2E9BA0` | the VERIFIED status |
+| Palm red | `#C1502B` | Delete buttons |
+| Sage | `#C6D2B8` | borders and lines |
+| Cream | `#F3F5EA` | page background behind the cards |
+| White | `#FFFFFF` | cards, fields and the open tab |
+
+The dashboards use a **folder tab** strip drawn by `ui/FolderTabbedPaneUI.java`: a 40 pixel tall
+trapezoid tab with slanted top corners, Segoe UI bold 14, the open tab white with no bottom line so it
+joins the page, and the other tabs on the `#E7EDD9` tint. Tab height, width, slant and colours are the
+four constants at the top of that file.
 ## Build and run
 
 From the project root (PowerShell):

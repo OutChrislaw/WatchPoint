@@ -36,12 +36,24 @@ public class RegistrationFrame extends javax.swing.JFrame {
 
         passwordField.setEchoChar('\u2022');
         confirmPasswordField.setEchoChar('\u2022');
+        styleFrame();
         UITheme.maxLength(fullNameField, 60);
         UITheme.maxLength(usernameField, 40);
         UITheme.digitsOnly(contactNumberField, 11);
         confirmPasswordField.addActionListener(e -> cityMunicipalityBox.requestFocusInWindow());
         cityMunicipalityBox.addActionListener(e -> updateBarangayBox());
         registerButton.addActionListener(e -> register());
+    }
+
+    /** Paints the generated window with the WatchPoint palette. */
+    private void styleFrame() {
+        getContentPane().setBackground(UITheme.PAGE);
+        jPanel1.setBackground(UITheme.PAGE);
+        jLayeredPane2.setBackground(UITheme.CARD);
+        jLayeredPane2.setOpaque(true);
+        jLayeredPane2.setBorder(javax.swing.BorderFactory.createLineBorder(UITheme.BORDER));
+
+        registerButton.setFocusPainted(false);
     }
 
     private void updateBarangayBox() {
@@ -156,56 +168,56 @@ public class RegistrationFrame extends javax.swing.JFrame {
         jLayeredPane2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel1.setForeground(UITheme.PRIMARY);
         jLabel1.setText("Create your account");
 
-        jLabel2.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel2.setForeground(UITheme.MUTED);
         jLabel2.setText("Register an account for WatchPoint as a resident of Bohol");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel3.setForeground(UITheme.MUTED);
         jLabel3.setText("Full Name");
 
         fullNameField.addActionListener(this::fullNameFieldActionPerformed);
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel4.setForeground(UITheme.MUTED);
         jLabel4.setText("Username");
 
         usernameField.addActionListener(this::usernameFieldActionPerformed);
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel5.setForeground(UITheme.MUTED);
         jLabel5.setText("Password (8+ characters)");
 
         passwordField.addActionListener(this::passwordFieldActionPerformed);
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel9.setForeground(UITheme.MUTED);
         jLabel9.setText("Confirm Password");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel6.setForeground(UITheme.MUTED);
         jLabel6.setText("City / Municipal");
 
         cityMunicipalityBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel7.setForeground(UITheme.MUTED);
         jLabel7.setText("Barangay");
 
         barangayBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel8.setForeground(UITheme.MUTED);
         jLabel8.setText("Contact Number (11 digits, e.g. 09171234567)");
 
-        contactNumberField.setForeground(new java.awt.Color(51, 51, 51));
+        contactNumberField.setForeground(UITheme.TEXT);
         contactNumberField.addActionListener(this::contactNumberFieldActionPerformed);
 
-        registerButton.setBackground(new java.awt.Color(0, 153, 255));
+        registerButton.setBackground(UITheme.ACCENT);
         registerButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        registerButton.setForeground(new java.awt.Color(255, 255, 255));
+        registerButton.setForeground(UITheme.CARD);
         registerButton.setText("Register as Resident");
 
         jLayeredPane2.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
