@@ -1,9 +1,14 @@
 package model;
 
+/**
+ * Administrator.java
+ * Staff account that manages every report and account. It has no username and
+ * logs in with its id (for example U999).
+ */
 public class Administrator extends User {
 
-    public Administrator(String userId, String username, String password, String fullName) {
-        super(userId, username, password, fullName);
+    public Administrator(String userId, String password, String fullName) {
+        super(userId, password, fullName);
     }
 
     @Override

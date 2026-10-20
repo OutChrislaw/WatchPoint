@@ -139,10 +139,22 @@ public class UserManager {
         return false;
     }
 
-    public User login(String username, String password) {
+    public User login(String loginId, String password) {
+        if (loginId == null || password == null) {
+            return null;
+        }
+
+        String id = loginId.trim();
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
-            if (user.getUsername().equals(username) && user.verifyPassword(password)) {
+
+            boolean matchesId = user.getUserId().equalsIgnoreCase(id);
+            boolean matchesUsername = false;
+            if (user instanceof Resident) {
+                matchesUsername = ((Resident) user).getUsername().equalsIgnoreCase(id);
+            }
+
+            if ((matchesId || matchesUsername) && user.verifyPassword(password)) {
                 return user;
             }
         }
@@ -160,19 +172,7 @@ public class UserManager {
 
     public List<User> getAllUsers() {
         return new ArrayList<User>(users);
-    }    public boolean addUser(User user) {
-        if (user == null) {
-            return false;
-        }
-        if (isUsernameTaken(user.getUsername())) {
-            return false;
-        }
-
-        users.add(user);
-        saveUsers();
-        return true;
     }
-
     public boolean updateUser(User user) {
         if (user == null) {
             return false;
@@ -207,36 +207,30 @@ public class UserManager {
         return user.getFullName();
     }
 
-    public boolean addAdministrator(String fullName, String username, String password) {
+    public Administrator addAdministrator(String fullName, String password) {
         if (fullName == null || fullName.trim().length() == 0
-                || username == null || username.trim().length() == 0
                 || password == null || password.trim().length() == 0) {
-            return false;
-        }
-        if (isUsernameTaken(username)) {
-            return false;
+            return null;
         }
 
-        users.add(new Administrator(generateUserId(), username.trim(), password, fullName.trim()));
+        Administrator administrator = new Administrator(generateUserId(), password, fullName.trim());
+        users.add(administrator);
         saveUsers();
-        return true;
+        return administrator;
     }
 
-    public boolean addAreaOfficer(String fullName, String username, String password, String area) {
+    public AreaOfficer addAreaOfficer(String fullName, String password, String area) {
         if (fullName == null || fullName.trim().length() == 0
-                || username == null || username.trim().length() == 0
                 || password == null || password.trim().length() == 0
                 || area == null || area.trim().length() == 0) {
-            return false;
-        }
-        if (isUsernameTaken(username)) {
-            return false;
+            return null;
         }
 
-        users.add(new AreaOfficer(generateAreaOfficerId(), username.trim(), password,
-                fullName.trim(), area.trim()));
+        AreaOfficer officer = new AreaOfficer(generateAreaOfficerId(), password, fullName.trim(),
+                area.trim());
+        users.add(officer);
         saveUsers();
-        return true;
+        return officer;
     }
 
     public String checkUsername(User user, String username) {
@@ -266,10 +260,13 @@ public class UserManager {
 
         for (int i = 0; i < users.size(); i++) {
             User other = users.get(i);
+            if (!(other instanceof Resident)) {
+                continue;
+            }
             if (user != null && other.getUserId().equals(user.getUserId())) {
                 continue;
             }
-            if (other.getUsername().equalsIgnoreCase(name)) {
+            if (((Resident) other).getUsername().equalsIgnoreCase(name)) {
                 return "That username is already taken.";
             }
         }
@@ -287,16 +284,14 @@ public class UserManager {
             return "Please enter your full name.";
         }
 
-        String problem = checkUsername(user, username);
-        if (problem != null) {
-            return problem;
-        }
-
-        user.setFullName(fullName.trim());
-        user.setUsername(username.trim());
-
         if (user instanceof Resident) {
+            String problem = checkUsername(user, username);
+            if (problem != null) {
+                return problem;
+            }
+
             Resident resident = (Resident) user;
+            resident.setUsername(username.trim());
             if (contactNumber != null) {
                 resident.setContactNumber(contactNumber.trim());
             }
@@ -305,6 +300,8 @@ public class UserManager {
                 resident.setAddress(barangay.trim() + ", " + municipality.trim());
             }
         }
+
+        user.setFullName(fullName.trim());
 
         if (updateUser(user)) {
             return null;
@@ -386,7 +383,9 @@ public class UserManager {
     }
     private boolean isUsernameTaken(String username) {
         for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getUsername().equalsIgnoreCase(username.trim())) {
+            User user = users.get(i);
+            if (user instanceof Resident
+                    && ((Resident) user).getUsername().equalsIgnoreCase(username.trim())) {
                 return true;
             }
         }
@@ -410,39 +409,43 @@ public class UserManager {
         }
         fileManager.writeLines("users.txt", lines);
     }    private User parseUser(String line) {
-        String[] parts = line.split("\\|");
-        if (parts.length < 5) {
+        String[] parts = line.split("\\|", -1);
+        if (parts.length < 4) {
             return null;
         }
 
         String type = parts[0];
         String userId = parts[1];
-        String username = parts[2];
-        String password = parts[3];
-        String fullName = parts[4];
+        String password = parts[2];
+        String fullName = parts[3];
 
         if (type.equals("Resident")) {
+            String username = "";
             String address = "";
             String contactNumber = "";
-            if (parts.length >= 7) {
+            if (parts.length > 4) {
+                username = parts[4];
+            }
+            if (parts.length > 5) {
                 address = parts[5];
+            }
+            if (parts.length > 6) {
                 contactNumber = parts[6];
             }
             return new Resident(userId, username, password, fullName, address, contactNumber);
         }
         if (type.equals("Administrator")) {
-            return new Administrator(userId, username, password, fullName);
+            return new Administrator(userId, password, fullName);
         }
         if (type.equals("AreaOfficer")) {
             String area = "";
-            if (parts.length >= 6) {
-                area = parts[5];
+            if (parts.length > 4) {
+                area = parts[4];
             }
-            return new AreaOfficer(userId, username, password, fullName, area);
+            return new AreaOfficer(userId, password, fullName, area);
         }
         return null;
     }
-
     private void loadRequests() {
         List<String> lines = fileManager.readLines("registrations.txt");
         for (int i = 0; i < lines.size(); i++) {

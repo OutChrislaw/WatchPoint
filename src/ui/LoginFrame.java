@@ -37,17 +37,17 @@ public class LoginFrame extends javax.swing.JFrame {
     }
 
     public void handleLogin() {
-        String username = usernameField.getText().trim();
+        String loginId = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
-        User user = userManager.login(username, password);
+        User user = userManager.login(loginId, password);
 
         if (user == null) {
-            RegistrationRequest pending = userManager.getPendingRegistration(username);
+            RegistrationRequest pending = userManager.getPendingRegistration(loginId);
             if (pending != null) {
                 showMessage("Your registration is still waiting for the " + pending.getMunicipality()
                         + " Area Officer to accept it.");
             } else {
-                showMessage("Invalid username or password.");
+                showMessage("Invalid username, ID or password.");
             }
             return;
         }
@@ -111,7 +111,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel3.setText("Username");
+        jLabel3.setText("Username / ID");
 
         usernameField.addActionListener(this::usernameFieldActionPerformed);
 

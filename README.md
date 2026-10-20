@@ -64,20 +64,23 @@ app  ──►  ui  ──►  manager  ──►  model
 | Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, accept or reject resident registrations, change own password from the Settings button |
 | Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, change own password from the Settings button |
 
-`users.txt` line format:
+`users.txt` line format (one line per account type):
 
 ```
-type|userId|username|password|fullName[|address|contactNumber]
+Resident|userId|password|fullName|username|address|contactNumber
+Administrator|userId|password|fullName
+AreaOfficer|userId|password|fullName|area
 ```
 
-`type` is `Resident` (with address and contact number), `Administrator`, or `AreaOfficer`,
-where the last field is the city/municipality the officer handles and the id starts with
-`AO` — for example:
+Only a **Resident** has a username, because residents sign in with it (their id works too).
+Administrators and area officers have **no username** and sign in with their **id**
+(`U…` and `AO…`). For example:
 
 ```
-AreaOfficer|AO001|officer|officer123|Tagbilaran City Officer|Tagbilaran City
+Administrator|U999|admin123|System Admin
+Resident|U1003|maria123|Maria Santos|maria|Cogon, Tagbilaran City|09171234567
+AreaOfficer|AO001|officer123|Tagbilaran City Officer|Tagbilaran City
 ```
-
 
 `registrations.txt` line format (a resident sign-up that is still waiting):
 
@@ -103,7 +106,7 @@ cityMunicipality|barangay1|barangay2|...
 
 | Item | What it does |
 |---|---|
-| Account Details | Full name, username, contact and address. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be taken by another account or already waiting for approval). |
+| Account Details | Full name, user id, username (residents only), contact and address. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be taken by another account or already waiting for approval). |
 | Change Password | Current password, new password (at least 6 characters) and confirmation. |
 | Logout | Signs out and returns to the login window. |
 ## Build and run

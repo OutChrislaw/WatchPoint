@@ -165,17 +165,20 @@ public class ProfileDialog {
         UITheme.addFormRow(form, row, "Full Name", fullNameField);
         row = row + 2;
 
-        boolean canEditUsername = user instanceof Resident;
-        usernameField = UITheme.hintField("", 30);
-        usernameField.setText(user.getUsername());
-        usernameField.setEnabled(canEditUsername);
-        if (canEditUsername) {
+        JTextField idField = UITheme.hintField("", 30);
+        idField.setText(user.getUserId());
+        idField.setEnabled(false);
+        UITheme.addFormRow(form, row, "User ID (used to log in)", idField);
+        row = row + 2;
+
+        if (user instanceof Resident) {
+            Resident residentUser = (Resident) user;
+            usernameField = UITheme.hintField("", 30);
+            usernameField.setText(residentUser.getUsername());
             UITheme.addFormRow(form, row, "Username (3-40 characters: letters, numbers, . _ @ + -)",
                     usernameField);
-        } else {
-            UITheme.addFormRow(form, row, "Username (cannot be changed)", usernameField);
+            row = row + 2;
         }
-        row = row + 2;
 
         if (user instanceof Resident) {
             Resident resident = (Resident) user;
@@ -273,7 +276,10 @@ public class ProfileDialog {
 
     private void saveDetails() {
         String fullName = fullNameField.getText().trim();
-        String username = usernameField.getText().trim();
+        String username = null;
+        if (user instanceof Resident) {
+            username = usernameField.getText().trim();
+        }
 
         String contactNumber = null;
         String barangay = null;

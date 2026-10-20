@@ -71,7 +71,7 @@ public class UserUpdateDialog {
         header.add(UITheme.label("Update Account " + user.getUserId(),
                 UITheme.FONT_HEADING, UITheme.PRIMARY));
         header.add(Box.createVerticalStrut(2));
-        header.add(UITheme.label(user.getUserType() + "  -  " + user.getUsername(),
+        header.add(UITheme.label(user.getUserType() + "  -  " + user.getUserId(),
                 UITheme.FONT_BASE, UITheme.MUTED));
         content.add(header, BorderLayout.NORTH);
 
@@ -85,11 +85,15 @@ public class UserUpdateDialog {
         UITheme.addFormRow(form, row, "Full Name", fullNameField);
         row = row + 2;
 
-        usernameField = UITheme.hintField("", 20);
-        usernameField.setText(user.getUsername());
-        usernameField.setEnabled(false);
-        UITheme.addFormRow(form, row, "Username (cannot be changed)", usernameField);
-        row = row + 2;
+        if (user instanceof Resident) {
+            Resident residentUser = (Resident) user;
+            usernameField = UITheme.hintField("", 20);
+            usernameField.setText(residentUser.getUsername());
+            usernameField.setEnabled(false);
+            UITheme.addFormRow(form, row, "Username (the resident changes it in Settings)",
+                    usernameField);
+            row = row + 2;
+        }
 
         passwordField = UITheme.hintField("Leave blank to keep the current password", 20);
         UITheme.addFormRow(form, row, "New Password", passwordField);

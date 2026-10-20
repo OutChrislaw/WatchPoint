@@ -1,15 +1,18 @@
 package model;
 
+/**
+ * User.java
+ * Every account has an id, a password and a full name. Only a Resident also
+ * has a username; administrators and area officers log in with their id.
+ */
 public abstract class User {
 
     private String userId;
-    private String username;
     private String password;
     private String fullName;
 
-    protected User(String userId, String username, String password, String fullName) {
+    protected User(String userId, String password, String fullName) {
         this.userId = userId;
-        this.username = username;
         this.password = password;
         this.fullName = fullName;
     }
@@ -18,12 +21,16 @@ public abstract class User {
         return userId;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
     public String getFullName() {
         return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public boolean verifyPassword(String input) {
@@ -33,21 +40,9 @@ public abstract class User {
         return input.equals(password);
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public abstract String getUserType();
 
     public String toFileString() {
-        return getUserType() + "|" + userId + "|" + username + "|" + password + "|" + fullName;
+        return getUserType() + "|" + userId + "|" + password + "|" + fullName;
     }
 }

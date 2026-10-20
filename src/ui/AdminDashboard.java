@@ -314,6 +314,13 @@ public class AdminDashboard extends javax.swing.JFrame {
         userDetailScroll.getVerticalScrollBar().setValue(0);
     }
 
+    private static String loginName(User user) {
+        if (user instanceof Resident) {
+            return ((Resident) user).getUsername();
+        }
+        return "-";
+    }
+
     private User selectedUser() {
         int row = userTable.getSelectedRow();
         if (row < 0 || currentUsers == null || row >= currentUsers.size()) {
@@ -329,7 +336,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         for (int i = 0; i < currentUsers.size(); i++) {
             User user = currentUsers.get(i);
             userTableModel.addRow(new Object[] { user.getUserId(), user.getUserType(),
-                user.getUsername(), user.getFullName() });
+                loginName(user), user.getFullName() });
         }
 
         if (userTableModel.getRowCount() > 0) {
@@ -352,33 +359,36 @@ public class AdminDashboard extends javax.swing.JFrame {
             return;
         }
 
-        String username = JOptionPane.showInputDialog(this, "Username:");
-        if (username == null || username.trim().length() == 0) {
-            return;
-        }
-
         String password = JOptionPane.showInputDialog(this, "Password:");
         if (password == null || password.trim().length() == 0) {
             return;
         }
 
-        boolean created;
         if (type.equals("Area Officer")) {
             String area = pickArea(null);
             if (area == null) {
                 return;
             }
-            created = userManager.addAreaOfficer(fullName, username, password, area);
-        } else {
-            created = userManager.addAdministrator(fullName, username, password);
+
+            AreaOfficer officer = userManager.addAreaOfficer(fullName, password, area);
+            if (officer == null) {
+                showMessage("The account could not be created.");
+                return;
+            }
+            showMessage("Area Officer created. " + officer.getFullName()
+                    + " logs in with the ID " + officer.getUserId() + ".");
+            manageUsers();
+            return;
         }
 
-        if (created) {
-            showMessage("Account created.");
-            manageUsers();
-        } else {
-            showMessage("The user could not be created. The username may already be taken.");
+        Administrator administrator = userManager.addAdministrator(fullName, password);
+        if (administrator == null) {
+            showMessage("The account could not be created.");
+            return;
         }
+        showMessage("Administrator created. " + administrator.getFullName()
+                + " logs in with the ID " + administrator.getUserId() + ".");
+        manageUsers();
     }
 
     private String pickArea(String current) {
@@ -488,12 +498,22 @@ public class AdminDashboard extends javax.swing.JFrame {
         body.add(UITheme.label(user.getUserType(), UITheme.FONT_SMALL, UITheme.ACCENT));
         body.add(Box.createVerticalStrut(16));
 
-        UITheme.addSection(body, "Account Information", new String[][] {
-            { "USER ID", user.getUserId() },
-            { "ACCOUNT TYPE", user.getUserType() },
-            { "USERNAME", user.getUsername() },
-            { "FULL NAME", user.getFullName() }
-        });
+        if (user instanceof Resident) {
+            Resident residentUser = (Resident) user;
+            UITheme.addSection(body, "Account Information", new String[][] {
+                { "USER ID", residentUser.getUserId() },
+                { "ACCOUNT TYPE", residentUser.getUserType() },
+                { "USERNAME", residentUser.getUsername() },
+                { "FULL NAME", residentUser.getFullName() }
+            });
+        } else {
+            UITheme.addSection(body, "Account Information", new String[][] {
+                { "USER ID", user.getUserId() },
+                { "ACCOUNT TYPE", user.getUserType() },
+                { "FULL NAME", user.getFullName() },
+                { "LOGIN", "Uses the User ID" }
+            });
+        }
 
         if (user instanceof Resident) {
             Resident resident = (Resident) user;
