@@ -18,6 +18,7 @@ public class FileManager {
         ensureFileExists("reports.txt");
         ensureFileExists("locations.txt");
         ensureFileExists("registrations.txt");
+        ensureFileExists("profilechanges.txt");
     }
 
     public List<String> readLines(String fileName) {

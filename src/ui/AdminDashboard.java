@@ -14,6 +14,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -63,6 +65,10 @@ public class AdminDashboard extends javax.swing.JFrame {
     private JPanel reportActions;
     private JPanel userActions;
 
+    private JTextField profileFullNameField;
+    private JTextField profileUsernameField;
+    private JTextField profilePasswordField;
+
     public AdminDashboard() {
         initComponents();
     }
@@ -81,6 +87,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         tabs.addTab("Reports", buildReportsTab());
         tabs.addTab("Users", buildUsersTab());
+        tabs.addTab("My Profile", buildProfileTab());
 
         setSize(1180, 780);
         setMinimumSize(new Dimension(980, 660));
@@ -404,55 +411,12 @@ public class AdminDashboard extends javax.swing.JFrame {
             return;
         }
 
-        String fullName = JOptionPane.showInputDialog(this, "Full name:", existing.getFullName());
-        if (fullName == null || fullName.trim().length() == 0) {
-            return;
-        }
-
-        String password = JOptionPane.showInputDialog(this, "New password:", "");
-        if (password == null || password.trim().length() == 0) {
-            return;
-        }
-
-        String address = null;
-        String contactNumber = null;
-        if (existing instanceof Resident) {
-            Resident resident = (Resident) existing;
-            address = JOptionPane.showInputDialog(this, "Address:", resident.getAddress());
-            if (address == null) {
-                address = resident.getAddress();
-            }
-            contactNumber = JOptionPane.showInputDialog(this, "Contact number:",
-                    resident.getContactNumber());
-            if (contactNumber == null) {
-                contactNumber = resident.getContactNumber();
-            }
-        }
-
-        if (existing instanceof AreaOfficer) {
-            AreaOfficer officer = (AreaOfficer) existing;
-            String area = pickArea(officer.getArea());
-            if (area == null) {
-                area = officer.getArea();
-            }
-
-            if (userManager.updateAreaOfficer(officer, fullName, password, area)) {
-                showMessage("User updated.");
-                manageUsers();
-            } else {
-                showMessage("The user could not be updated.");
-            }
-            return;
-        }
-
-        if (userManager.updateAccount(existing, fullName, password, address, contactNumber)) {
-            showMessage("User updated.");
+        UserUpdateDialog dialog = new UserUpdateDialog(this, existing, userManager, locationManager);
+        if (dialog.showDialog()) {
+            showMessage("Account updated.");
             manageUsers();
-        } else {
-            showMessage("The user could not be updated.");
         }
     }
-
     public void deleteUser() {
         User existing = selectedUser();
         if (existing == null) {
@@ -552,6 +516,83 @@ public class AdminDashboard extends javax.swing.JFrame {
         }
 
         return body;
+    }
+    private JPanel buildProfileTab() {
+        JPanel tab = new JPanel(new GridBagLayout());
+        tab.setBackground(UITheme.PAGE);
+
+        JPanel content = UITheme.card();
+        content.setLayout(new BorderLayout(0, 14));
+
+        JPanel header = new JPanel();
+        header.setBackground(Color.WHITE);
+        header.setLayout(new javax.swing.BoxLayout(header, javax.swing.BoxLayout.Y_AXIS));
+        header.add(UITheme.label("My Profile", UITheme.FONT_HEADING, UITheme.PRIMARY));
+        header.add(Box.createVerticalStrut(2));
+        header.add(UITheme.label("Change your own details, then press Save Changes.",
+                UITheme.FONT_BASE, UITheme.MUTED));
+        content.add(header, BorderLayout.NORTH);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+
+        int row = 0;
+
+        profileFullNameField = UITheme.hintField("Your full name", 20);
+        profileFullNameField.setText(currentUser.getFullName());
+        UITheme.addFormRow(form, row, "Full Name", profileFullNameField);
+        row = row + 2;
+
+        profileUsernameField = UITheme.hintField("", 20);
+        profileUsernameField.setText(currentUser.getUsername());
+        profileUsernameField.setEnabled(false);
+        UITheme.addFormRow(form, row, "Username (cannot be changed)", profileUsernameField);
+        row = row + 2;
+
+        profilePasswordField = UITheme.hintField("Leave blank to keep your password", 20);
+        UITheme.addFormRow(form, row, "New Password", profilePasswordField);
+
+        content.add(form, BorderLayout.CENTER);
+
+        JPanel south = new JPanel(new BorderLayout(0, 10));
+        south.setBackground(Color.WHITE);
+        south.add(UITheme.hint("Administrator accounts are managed by other administrators."),
+                BorderLayout.NORTH);
+
+        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        buttonRow.setBackground(Color.WHITE);
+        JButton saveButton = UITheme.button("Save Changes", UITheme.ACCENT, Color.WHITE);
+        saveButton.addActionListener(e -> saveProfile());
+        buttonRow.add(saveButton);
+        south.add(buttonRow, BorderLayout.SOUTH);
+
+        content.add(south, BorderLayout.SOUTH);
+
+        Dimension preferred = content.getPreferredSize();
+        content.setPreferredSize(new Dimension(660, preferred.height));
+
+        tab.add(content);
+        return tab;
+    }
+
+    public void saveProfile() {
+        String fullName = profileFullNameField.getText().trim();
+        String password = profilePasswordField.getText();
+
+        if (fullName.length() == 0) {
+            showMessage("Please enter your full name.");
+            return;
+        }
+
+        if (userManager.saveProfile(currentUser, fullName, password, null, null, null)
+                == UserManager.PROFILE_FAILED) {
+            showMessage("Your profile could not be saved.");
+            return;
+        }
+
+        showMessage("Your profile was saved.");
+        profilePasswordField.setText("");
+        subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Administrator");
     }
     /**
      * This method is called from within the constructor to initialize the form.

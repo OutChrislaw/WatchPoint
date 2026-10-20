@@ -5,6 +5,7 @@ import manager.ReportManager;
 import manager.UserManager;
 import model.AreaOfficer;
 import model.RegistrationRequest;
+import model.ProfileChangeRequest;
 import model.Report;
 import model.ReportStatus;
 
@@ -12,6 +13,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -25,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -67,6 +70,17 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     private JPanel reportActions;
     private JPanel requestActions;
 
+    private JTable changeTable;
+    private DefaultTableModel changeTableModel;
+    private JScrollPane changeDetailScroll;
+    private JPanel changeActions;
+    private List<ProfileChangeRequest> currentChanges;
+
+    private JTextField profileFullNameField;
+    private JTextField profileUsernameField;
+    private JTextField profilePasswordField;
+    private JTextField profileAreaField;
+
     public AreaOfficerDashboard() {
         initComponents();
     }
@@ -87,6 +101,8 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
 
         tabs.addTab("Reports", buildReportsTab());
         tabs.addTab("Registrations", buildRegistrationsTab());
+        tabs.addTab("Area Changes", buildAreaChangesTab());
+        tabs.addTab("My Profile", buildProfileTab());
 
         setSize(1180, 780);
         setMinimumSize(new Dimension(980, 660));
@@ -94,6 +110,7 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
 
         showAreaReports();
         showRegistrations();
+        showAreaChanges();
     }
 
     private void initComponents() {
@@ -405,6 +422,212 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, message);
     }
 
+    private JPanel buildAreaChangesTab() {
+        JPanel tab = UITheme.page();
+
+        changeTable = UITheme.dataTable(
+                new Object[] { "Resident", "New Municipality", "New Barangay", "Date Requested" });
+        changeTableModel = (DefaultTableModel) changeTable.getModel();
+        changeTable.getSelectionModel().addListSelectionListener(e -> showSelectedChange());
+
+        changeDetailScroll = UITheme.detailScroll();
+
+        JButton approveButton = UITheme.button("Approve Change", UITheme.ACCENT, Color.WHITE);
+        approveButton.addActionListener(e -> approveAreaChange());
+
+        JButton rejectButton = UITheme.button("Reject Change", UITheme.DANGER, Color.WHITE);
+        rejectButton.addActionListener(e -> rejectAreaChange());
+
+        changeActions = UITheme.actionRow(approveButton, rejectButton);
+
+        JPanel body = new JPanel(new GridLayout(1, 2, 14, 0));
+        body.setBackground(UITheme.PAGE);
+        body.add(UITheme.borderedScroll(changeTable));
+        body.add(UITheme.detailPane(changeDetailScroll, changeActions));
+        tab.add(body, BorderLayout.CENTER);
+
+        tab.add(UITheme.hint("Only residents who moved into " + currentOfficer.getArea()
+                + " appear here."), BorderLayout.SOUTH);
+        return tab;
+    }
+
+    private void showSelectedChange() {
+        ProfileChangeRequest request = selectedChange();
+        if (request == null) {
+            return;
+        }
+        changeDetailScroll.setViewportView(changeForm(request));
+        changeDetailScroll.getVerticalScrollBar().setValue(0);
+    }
+
+    private ProfileChangeRequest selectedChange() {
+        int row = changeTable.getSelectedRow();
+        if (row < 0 || currentChanges == null || row >= currentChanges.size()) {
+            return null;
+        }
+        return currentChanges.get(row);
+    }
+
+    public void showAreaChanges() {
+        currentChanges = userManager.getAreaChangeRequests(currentOfficer.getArea());
+
+        changeTableModel.setRowCount(0);
+        for (int i = 0; i < currentChanges.size(); i++) {
+            ProfileChangeRequest request = currentChanges.get(i);
+            changeTableModel.addRow(new Object[] { request.getResidentName(),
+                request.getMunicipality(), request.getBarangay(), request.getDateRequested() });
+        }
+
+        if (changeTableModel.getRowCount() > 0) {
+            changeTable.setRowSelectionInterval(0, 0);
+        } else {
+            changeDetailScroll.setViewportView(UITheme.emptyDetail(
+                    "No resident is moving into " + currentOfficer.getArea() + "."));
+        }
+    }
+
+    public void approveAreaChange() {
+        ProfileChangeRequest request = selectedChange();
+        if (request == null) {
+            showMessage("Please select a request first.");
+            return;
+        }
+
+        if (userManager.approveAreaChange(request)) {
+            showMessage(request.getResidentName() + " is now in " + request.getAddress() + ".");
+            showAreaChanges();
+        } else {
+            showMessage("The change could not be approved.");
+        }
+    }
+
+    public void rejectAreaChange() {
+        ProfileChangeRequest request = selectedChange();
+        if (request == null) {
+            showMessage("Please select a request first.");
+            return;
+        }
+
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Reject the move of " + request.getResidentName() + "?",
+                "Reject Change", JOptionPane.YES_NO_OPTION);
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (userManager.rejectAreaChange(request)) {
+            showMessage("The change was rejected.");
+            showAreaChanges();
+        } else {
+            showMessage("The change could not be rejected.");
+        }
+    }
+
+    private JPanel changeForm(ProfileChangeRequest request) {
+        JPanel body = UITheme.cardBody();
+
+        body.add(UITheme.label(request.getResidentName(), UITheme.FONT_HEADING, UITheme.PRIMARY));
+        body.add(Box.createVerticalStrut(6));
+        body.add(UITheme.label("Waiting to move into " + currentOfficer.getArea(),
+                UITheme.FONT_SMALL, UITheme.statusColor("PENDING")));
+        body.add(Box.createVerticalStrut(16));
+
+        UITheme.addSection(body, "Resident", new String[][] {
+            { "FULL NAME", request.getResidentName() },
+            { "USER ID", request.getResidentId() },
+            { "NEW CITY / MUNICIPALITY", request.getMunicipality() },
+            { "NEW BARANGAY", request.getBarangay() }
+        });
+
+        body.add(UITheme.label("Requested", UITheme.FONT_SECTION, UITheme.PRIMARY));
+        body.add(Box.createVerticalStrut(8));
+        body.add(UITheme.valueBox(request.getDateRequested()));
+
+        return body;
+    }
+    private JPanel buildProfileTab() {
+        JPanel tab = new JPanel(new GridBagLayout());
+        tab.setBackground(UITheme.PAGE);
+
+        JPanel content = UITheme.card();
+        content.setLayout(new BorderLayout(0, 14));
+
+        JPanel header = new JPanel();
+        header.setBackground(Color.WHITE);
+        header.setLayout(new javax.swing.BoxLayout(header, javax.swing.BoxLayout.Y_AXIS));
+        header.add(UITheme.label("My Profile", UITheme.FONT_HEADING, UITheme.PRIMARY));
+        header.add(Box.createVerticalStrut(2));
+        header.add(UITheme.label("Change your own details, then press Save Changes.",
+                UITheme.FONT_BASE, UITheme.MUTED));
+        content.add(header, BorderLayout.NORTH);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+
+        int row = 0;
+
+        profileFullNameField = UITheme.hintField("Your full name", 20);
+        profileFullNameField.setText(currentOfficer.getFullName());
+        UITheme.addFormRow(form, row, "Full Name", profileFullNameField);
+        row = row + 2;
+
+        profileUsernameField = UITheme.hintField("", 20);
+        profileUsernameField.setText(currentOfficer.getUsername());
+        profileUsernameField.setEnabled(false);
+        UITheme.addFormRow(form, row, "Username (cannot be changed)", profileUsernameField);
+        row = row + 2;
+
+        profilePasswordField = UITheme.hintField("Leave blank to keep your password", 20);
+        UITheme.addFormRow(form, row, "New Password", profilePasswordField);
+        row = row + 2;
+
+        profileAreaField = UITheme.hintField("", 20);
+        profileAreaField.setText(currentOfficer.getArea());
+        profileAreaField.setEnabled(false);
+        UITheme.addFormRow(form, row, "Assigned Area (ask an administrator to change)", profileAreaField);
+
+        content.add(form, BorderLayout.CENTER);
+
+        JPanel south = new JPanel(new BorderLayout(0, 10));
+        south.setBackground(Color.WHITE);
+        south.add(UITheme.hint("Your area is set by an administrator."), BorderLayout.NORTH);
+
+        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        buttonRow.setBackground(Color.WHITE);
+        JButton saveButton = UITheme.button("Save Changes", UITheme.ACCENT, Color.WHITE);
+        saveButton.addActionListener(e -> saveProfile());
+        buttonRow.add(saveButton);
+        south.add(buttonRow, BorderLayout.SOUTH);
+
+        content.add(south, BorderLayout.SOUTH);
+
+        Dimension preferred = content.getPreferredSize();
+        content.setPreferredSize(new Dimension(660, preferred.height));
+
+        tab.add(content);
+        return tab;
+    }
+
+    public void saveProfile() {
+        String fullName = profileFullNameField.getText().trim();
+        String password = profilePasswordField.getText();
+
+        if (fullName.length() == 0) {
+            showMessage("Please enter your full name.");
+            return;
+        }
+
+        if (userManager.saveProfile(currentOfficer, fullName, password, null, null, null)
+                == UserManager.PROFILE_FAILED) {
+            showMessage("Your profile could not be saved.");
+            return;
+        }
+
+        showMessage("Your profile was saved.");
+        profilePasswordField.setText("");
+        subtitleLabel.setText("Signed in as " + currentOfficer.getFullName()
+                + "  -  Area Officer (" + currentOfficer.getArea() + ")");
+    }
     private JPanel requestForm(RegistrationRequest request) {
         JPanel body = UITheme.cardBody();
 

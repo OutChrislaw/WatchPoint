@@ -20,6 +20,14 @@ public class Resident extends User {
         return contactNumber;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
+
     @Override
     public String getUserType() {
         return "Resident";

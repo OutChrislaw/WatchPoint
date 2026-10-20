@@ -21,6 +21,10 @@ public class AreaOfficer extends User {
         return area;
     }
 
+    public void setArea(String area) {
+        this.area = area;
+    }
+
     @Override
     public String getUserType() {
         return "AreaOfficer";

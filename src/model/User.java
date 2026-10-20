@@ -33,6 +33,14 @@ public abstract class User {
         return input.equals(password);
     }
 
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public abstract String getUserType();
 
     public String toFileString() {

@@ -305,6 +305,18 @@ public final class UITheme {
         return row;
     }
 
+    public static void selectItem(JComboBox<String> box, String value) {
+        if (value == null || value.length() == 0) {
+            return;
+        }
+        for (int i = 0; i < box.getItemCount(); i++) {
+            if (box.getItemAt(i).equals(value)) {
+                box.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
     public static String display(String text) {
         if (text == null || text.trim().length() == 0) {
             return "-";
