@@ -13,3 +13,4 @@ Resident|U000011|kim123|Kim Bautista||kim|Centro, Tubigon|09991234567
 AreaOfficer|AO000001|officer123|Tagbilaran City Officer||Tagbilaran City
 Resident|U000012|angoy123|Christian Angoy||angoy.christian@gmail.com|Tiptip, Tagbilaran City|09097720758
 Administrator|AD000002|admin123|New Dummy Admin|
+Resident|U000013|maturan|Carl Joseph|2026-10-20 21:07|Tsucchie|Dao, Tagbilaran City|09999221421

@@ -65,6 +65,14 @@ public class LoginFrame extends javax.swing.JFrame {
 
     public void openRegistration() {
         RegistrationFrame registrationFrame = new RegistrationFrame(userManager, locationManager);
+        registrationFrame.setLocationRelativeTo(this);
+        registrationFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent event) {
+                LoginFrame.this.toFront();
+                LoginFrame.this.requestFocus();
+            }
+        });
         registrationFrame.setVisible(true);
     }
 

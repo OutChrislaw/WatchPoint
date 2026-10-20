@@ -124,7 +124,7 @@ public class RegistrationFrame extends javax.swing.JFrame {
         contactNumberField = new javax.swing.JTextField();
         registerButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         jLayeredPane2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -170,7 +170,7 @@ public class RegistrationFrame extends javax.swing.JFrame {
         jLabel8.setForeground(new java.awt.Color(102, 102, 102));
         jLabel8.setText("Contact Number");
 
-        contactNumberField.setForeground(new java.awt.Color(153, 153, 153));
+        contactNumberField.setForeground(new java.awt.Color(51, 51, 51));
         contactNumberField.addActionListener(this::contactNumberFieldActionPerformed);
 
         registerButton.setBackground(new java.awt.Color(0, 153, 255));
