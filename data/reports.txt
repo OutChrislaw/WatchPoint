@@ -1,8 +1,8 @@
-Road Hazard|R001|U000001|Tagbilaran City|Tiptip|Casa Road|Near Water Refiller|Road blocked due to accident|Guba na Karsada|VERIFIED|2026-10-06 08:15|
+Road Hazard|R001|U000001|Tagbilaran City|Tiptip|Casa Road|Near Water Refiller|Road blocked due to accident|Guba na Karsada|IN_PROGRESS|2026-10-06 08:15|
 Road Hazard|R002|U000001|Tagbilaran City|Tiptip|Casa Road|Crossway|Deep hole in the middle of the road|Guba na Karsada|IN_PROGRESS|2026-10-07 09:40|
 Road Hazard|R003|U000002|Batuan|Santa Cruz|JA Clarin Street|Near Santa Cruz Chapel|Unfixed road since the 2013 earthquake|Broken road|PENDING|2026-10-15 16:32|
 Flood|R004|U000003|Tagbilaran City|Cogon|M. Torralba Street|Near Cogon Market|Water rising after heavy rain|Knee deep|IN_PROGRESS|2026-10-16 07:20|
-Streetlight|R005|U000003|Tagbilaran City|Bool|Bool Road|Near Bool Elementary School|Streetlight not working at night|Pole 14|IN_PROGRESS|2026-10-16 08:05|
+Streetlight|R005|U000003|Tagbilaran City|Bool|Bool Road|Near Bool Elementary School|Streetlight not working at night|Pole 14|RESOLVED|2026-10-16 08:05|
 Other|R006|U000004|Baclayon|Poblacion|Lopez Jaena Street|Near Baclayon Church|Stray dogs roaming the plaza|Stray animals|PENDING|2026-10-16 09:12|
 Road Hazard|R007|U000004|Baclayon|Laya|Coastal Road|Near Laya Bridge|Deep potholes along the coastal road|Pothole|PENDING|2026-10-16 09:45|
 Flood|R008|U000005|Corella|Poblacion|Corella-Bilar Road|Near Corella Plaza|Canal overflowing onto the road|Ankle deep|VERIFIED|2026-10-16 10:30|
