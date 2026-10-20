@@ -14,7 +14,7 @@ WatchPoint/
 │   ├── model/                  Data classes (no GUI, no file access)
 │   │   ├── User.java               Abstract parent of Resident and Administrator
 │   │   ├── Resident.java           A community member who files reports
-│   │   ├── Administrator.java      Staff who manages reports and users
+│   │   ├── Administrator.java      Staff who manages reports and users (AD ids)
 │   │   ├── AreaOfficer.java        Staff for one city/municipality (AO ids)
 │   │   ├── Location.java           City/municipality, barangay, street, specific place
 │   │   ├── ReportStatus.java       PENDING, VERIFIED, IN_PROGRESS, RESOLVED
@@ -76,11 +76,12 @@ AreaOfficer|userId|password|fullName|area
 ```
 
 Only a **Resident** has a username, because residents sign in with it (their id works too).
-Administrators and area officers have **no username** and sign in with their **id**
-(`U…` and `AO…`). For example:
+Administrators and area officers have **no username** and sign in with their **id**.
+The ids never overlap: `U…` for residents, `AD…` for administrators and `AO…` for area
+officers (`AD001`, `AO001`, `U1003`). For example:
 
 ```
-Administrator|U999|admin123|System Admin
+Administrator|AD001|admin123|System Admin
 Resident|U1003|maria123|Maria Santos|maria|Cogon, Tagbilaran City|09171234567
 AreaOfficer|AO001|officer123|Tagbilaran City Officer|Tagbilaran City
 ```

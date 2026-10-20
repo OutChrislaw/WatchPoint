@@ -1,4 +1,4 @@
-Administrator|U999|admin123|System Admin
+Administrator|AD001|admin123|System Admin
 Resident|U1001|test123|test only|test|Tiptip, Tagbilaran City|09097720758
 Resident|U1002|dummy123|Dummy Account|dummy|Quezon, Batuan|09127785030
 Resident|U1003|maria123|Maria Santos|maria|Cogon, Tagbilaran City|09171234567
@@ -12,3 +12,4 @@ Resident|U1010|john123|John Paul Bacalso|john|Poblacion Norte, Carmen|0989123456
 Resident|U1011|kim123|Kim Bautista|kim|Centro, Tubigon|09991234567
 AreaOfficer|AO001|officer123|Tagbilaran City Officer|Tagbilaran City
 Resident|U1012|angoy123|Christian Angoy|angoy.christian@gmail.com|Tiptip, Tagbilaran City|09097720758
+Administrator|AD002|admin123|New Dummy Admin

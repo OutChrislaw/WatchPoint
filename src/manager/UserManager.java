@@ -127,7 +127,7 @@ public class UserManager {
             return null;
         }
 
-        Administrator administrator = new Administrator(generateUserId(), password, fullName.trim());
+        Administrator administrator = new Administrator(generateAdministratorId(), password, fullName.trim());
         users.add(administrator);
         saveUsers();
         return administrator;
@@ -396,6 +396,29 @@ public class UserManager {
             digits = "0" + digits;
         }
         return "AO" + digits;
+    }
+
+    private String generateAdministratorId() {
+        int highest = 0;
+        for (int i = 0; i < users.size(); i++) {
+            String userId = users.get(i).getUserId();
+            if (userId != null && userId.startsWith("AD")) {
+                try {
+                    int number = Integer.parseInt(userId.substring(2));
+                    if (number > highest) {
+                        highest = number;
+                    }
+                } catch (Exception e) {
+                    // ids that are not in the AD<number> format are ignored
+                }
+            }
+        }
+
+        String digits = String.valueOf(highest + 1);
+        while (digits.length() < 3) {
+            digits = "0" + digits;
+        }
+        return "AD" + digits;
     }
 
     private String currentTimestamp() {
