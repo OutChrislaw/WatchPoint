@@ -4,7 +4,7 @@ import model.User;
 import model.Resident;
 import model.Administrator;
 import model.AreaOfficer;
-import model.RegistrationRequest;
+
 
 import storage.FileManager;
 
@@ -21,17 +21,17 @@ import java.util.List;
 public class UserManager {
 
     private List<User> users;
-    private List<RegistrationRequest> requests;
+
 
     private FileManager fileManager;
 
     public UserManager(FileManager fileManager) {
         this.fileManager = fileManager;
         this.users = new ArrayList<User>();
-        this.requests = new ArrayList<RegistrationRequest>();
+
 
         loadUsers();
-        loadRequests();
+
 
     }
 
@@ -51,92 +51,6 @@ public class UserManager {
         users.add(resident);
         saveUsers();
         return true;
-    }
-
-    public boolean requestRegistration(String fullName, String username, String password,
-                                       String barangay, String municipality, String contactNumber) {
-        if (fullName == null || fullName.trim().length() == 0
-                || username == null || username.trim().length() == 0
-                || password == null || password.trim().length() == 0
-                || barangay == null || barangay.trim().length() == 0
-                || municipality == null || municipality.trim().length() == 0) {
-            return false;
-        }
-        if (isUsernameTaken(username) || isUsernamePending(username)) {
-            return false;
-        }
-
-        String contact = "";
-        if (contactNumber != null) {
-            contact = contactNumber.trim();
-        }
-
-        requests.add(new RegistrationRequest(fullName.trim(), username.trim(), password, contact,
-                barangay.trim(), municipality.trim(), currentTimestamp()));
-        saveRequests();
-        return true;
-    }
-
-    public List<RegistrationRequest> getPendingRegistrations(String area) {
-        List<RegistrationRequest> result = new ArrayList<RegistrationRequest>();
-        for (int i = 0; i < requests.size(); i++) {
-            RegistrationRequest request = requests.get(i);
-            if (area == null || request.getMunicipality().equals(area)) {
-                result.add(request);
-            }
-        }
-        return result;
-    }
-
-    public RegistrationRequest getPendingRegistration(String username) {
-        if (username == null) {
-            return null;
-        }
-        for (int i = 0; i < requests.size(); i++) {
-            if (requests.get(i).getUsername().equalsIgnoreCase(username.trim())) {
-                return requests.get(i);
-            }
-        }
-        return null;
-    }
-
-    public boolean isUsernamePending(String username) {
-        return getPendingRegistration(username) != null;
-    }
-
-    public boolean approveRegistration(RegistrationRequest request) {
-        if (request == null) {
-            return false;
-        }
-        if (!registerResident(request.getFullName(), request.getUsername(), request.getPassword(),
-                request.getAddress(), request.getContactNumber())) {
-            return false;
-        }
-
-        removeRequest(request);
-        saveRequests();
-        return true;
-    }
-
-    public boolean rejectRegistration(RegistrationRequest request) {
-        if (request == null) {
-            return false;
-        }
-        if (!removeRequest(request)) {
-            return false;
-        }
-        saveRequests();
-        return true;
-    }
-
-    private boolean removeRequest(RegistrationRequest request) {
-        for (int i = 0; i < requests.size(); i++) {
-            if (requests.get(i) == request) {
-                requests.remove(i);
-                return true;
-            }
-        }
-        return false;
     }
 
     public User login(String loginId, String password) {
@@ -271,9 +185,6 @@ public class UserManager {
             }
         }
 
-        if (isUsernamePending(name)) {
-            return "That username is waiting for approval.";
-        }
 
         return null;
     }
@@ -446,33 +357,6 @@ public class UserManager {
         }
         return null;
     }
-    private void loadRequests() {
-        List<String> lines = fileManager.readLines("registrations.txt");
-        for (int i = 0; i < lines.size(); i++) {
-            RegistrationRequest request = parseRequest(lines.get(i));
-            if (request != null) {
-                requests.add(request);
-            }
-        }
-    }
-
-    private void saveRequests() {
-        List<String> lines = new ArrayList<String>();
-        for (int i = 0; i < requests.size(); i++) {
-            lines.add(requests.get(i).toFileString());
-        }
-        fileManager.writeLines("registrations.txt", lines);
-    }
-
-    private RegistrationRequest parseRequest(String line) {
-        String[] parts = line.split("\\|", -1);
-        if (parts.length < 7) {
-            return null;
-        }
-        return new RegistrationRequest(parts[0], parts[1], parts[2], parts[3],
-                parts[4], parts[5], parts[6]);
-    }
-
     private String generateUserId() {
         int highest = 0;
         for (int i = 0; i < users.size(); i++) {

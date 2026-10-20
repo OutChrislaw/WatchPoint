@@ -4,7 +4,7 @@ import manager.LocationManager;
 import manager.ReportManager;
 import manager.UserManager;
 import model.AreaOfficer;
-import model.RegistrationRequest;
+
 
 import model.Report;
 import model.ReportStatus;
@@ -35,7 +35,7 @@ import javax.swing.table.DefaultTableModel;
  * The window an Area Officer sees after logging in. The account is tied to one
  * city/municipality, so the officer only ever sees the reports filed in that
  * area, and only decides on the residents who registered there.
- * Tabs: Reports and Registrations.
+ * Tabs: Reports.
  */
 public class AreaOfficerDashboard extends javax.swing.JFrame {
 
@@ -62,13 +62,8 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
     private JComboBox<String> statusBox;
     private List<Report> currentReports;
 
-    private JTable requestTable;
-    private DefaultTableModel requestTableModel;
-    private JScrollPane requestDetailScroll;
-    private List<RegistrationRequest> currentRequests;
-
     private JPanel reportActions;
-    private JPanel requestActions;
+
 
 
 
@@ -91,14 +86,12 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
                 + "  -  Area Officer (" + currentOfficer.getArea() + ")");
 
         tabs.addTab("Reports", buildReportsTab());
-        tabs.addTab("Registrations", buildRegistrationsTab());
 
         setSize(1180, 780);
         setMinimumSize(new Dimension(980, 660));
         setLocationRelativeTo(null);
 
         showAreaReports();
-        showRegistrations();
     }
 
     private void initComponents() {
@@ -296,109 +289,6 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         body.add(UITheme.descriptionBox(report.getDescription()));
 
         return body;
-    }    private JPanel buildRegistrationsTab() {
-        JPanel tab = UITheme.page();
-
-        requestTable = UITheme.dataTable(
-                new Object[] { "Full Name", "Username", "Barangay", "Contact", "Date Requested" });
-        requestTableModel = (DefaultTableModel) requestTable.getModel();
-        requestTable.getSelectionModel().addListSelectionListener(e -> showSelectedRequest());
-
-        requestDetailScroll = UITheme.detailScroll();
-        requestActions = buildRequestActions();
-
-        JPanel body = new JPanel(new GridLayout(1, 2, 14, 0));
-        body.setBackground(UITheme.PAGE);
-        body.add(UITheme.borderedScroll(requestTable));
-        body.add(UITheme.detailPane(requestDetailScroll, requestActions));
-        tab.add(body, BorderLayout.CENTER);
-
-        tab.add(UITheme.hint("Only residents who registered in " + currentOfficer.getArea()
-                + " appear here. Accepted residents can log in right away."), BorderLayout.SOUTH);
-
-        return tab;
-    }
-
-    private JPanel buildRequestActions() {
-        JButton acceptButton = UITheme.button("Accept Registration", UITheme.ACCENT, Color.WHITE);
-        acceptButton.addActionListener(e -> acceptRegistration());
-
-        JButton rejectButton = UITheme.button("Reject Registration", UITheme.DANGER, Color.WHITE);
-        rejectButton.addActionListener(e -> rejectRegistration());
-
-        return UITheme.actionRow(acceptButton, rejectButton);
-    }
-
-    private void showSelectedRequest() {
-        RegistrationRequest request = selectedRequest();
-        if (request == null) {
-            return;
-        }
-        requestDetailScroll.setViewportView(requestForm(request));
-        requestDetailScroll.getVerticalScrollBar().setValue(0);
-    }
-
-    private RegistrationRequest selectedRequest() {
-        int row = requestTable.getSelectedRow();
-        if (row < 0 || currentRequests == null || row >= currentRequests.size()) {
-            return null;
-        }
-        return currentRequests.get(row);
-    }
-
-    public void showRegistrations() {
-        currentRequests = userManager.getPendingRegistrations(currentOfficer.getArea());
-
-        requestTableModel.setRowCount(0);
-        for (int i = 0; i < currentRequests.size(); i++) {
-            RegistrationRequest request = currentRequests.get(i);
-            requestTableModel.addRow(new Object[] { request.getFullName(), request.getUsername(),
-                request.getBarangay(), request.getContactNumber(), request.getDateRequested() });
-        }
-
-        if (requestTableModel.getRowCount() > 0) {
-            requestTable.setRowSelectionInterval(0, 0);
-        } else {
-            requestDetailScroll.setViewportView(UITheme.emptyDetail(
-                    "No residents are waiting for approval in " + currentOfficer.getArea() + "."));
-        }
-    }
-
-    public void acceptRegistration() {
-        RegistrationRequest request = selectedRequest();
-        if (request == null) {
-            showMessage("Please select a registration first.");
-            return;
-        }
-
-        if (userManager.approveRegistration(request)) {
-            showMessage("Registration accepted. " + request.getFullName() + " can now log in.");
-            showRegistrations();
-        } else {
-            showMessage("The account could not be created. The username may already be taken.");
-        }
-    }
-
-    public void rejectRegistration() {
-        RegistrationRequest request = selectedRequest();
-        if (request == null) {
-            showMessage("Please select a registration first.");
-            return;
-        }
-
-        int answer = JOptionPane.showConfirmDialog(this,
-                "Reject the registration of " + request.getFullName() + "?",
-                "Reject Registration", JOptionPane.YES_NO_OPTION);
-        if (answer != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        if (userManager.rejectRegistration(request)) {
-            showMessage("Registration rejected.");
-            showRegistrations();
-        } else {
-            showMessage("The registration could not be rejected.");
-        }
     }
 
     public void logout() {
@@ -420,27 +310,5 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         }
     }
 
-    private JPanel requestForm(RegistrationRequest request) {
-        JPanel body = UITheme.cardBody();
 
-        body.add(UITheme.label(request.getFullName(), UITheme.FONT_HEADING, UITheme.PRIMARY));
-        body.add(Box.createVerticalStrut(6));
-        body.add(UITheme.label("Pending resident registration", UITheme.FONT_SMALL,
-                UITheme.statusColor("PENDING")));
-        body.add(Box.createVerticalStrut(16));
-
-        UITheme.addSection(body, "Applicant", new String[][] {
-            { "FULL NAME", request.getFullName() },
-            { "USERNAME", request.getUsername() },
-            { "CONTACT NUMBER", request.getContactNumber() },
-            { "DATE REQUESTED", request.getDateRequested() }
-        });
-
-        UITheme.addSection(body, "Address", new String[][] {
-            { "CITY / MUNICIPALITY", request.getMunicipality() },
-            { "BARANGAY", request.getBarangay() }
-        });
-
-        return body;
-    }
 }

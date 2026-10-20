@@ -16,7 +16,6 @@ WatchPoint/
 │   │   ├── Resident.java           A community member who files reports
 │   │   ├── Administrator.java      Staff who manages reports and users
 │   │   ├── AreaOfficer.java        Staff for one city/municipality (AO ids)
-│   │   ├── RegistrationRequest.java A resident sign-up waiting for approval
 │   │   ├── Location.java           City/municipality, barangay, street, specific place
 │   │   ├── ReportStatus.java       PENDING, VERIFIED, IN_PROGRESS, RESOLVED
 │   │   ├── Report.java             Abstract parent of the four report types
@@ -37,12 +36,11 @@ WatchPoint/
 │       ├── AdminDashboard.java     Window for administrators
 │       ├── AreaOfficerDashboard.java Window for area officers
 │       ├── UserUpdateDialog.java   Form an admin uses to edit an account
-│       ├── ProfileDialog.java      Update Profile window of the signed-in user
+│       ├── ProfileDialog.java      Settings window of the signed-in user
 │       ├── ReportUpdateDialog.java Modal Update Report form
 │       └── UITheme.java            Shared colours, fonts, and reusable widgets
 ├── data/                       Plain text storage
 │   ├── users.txt               One user or area officer per line
-│   ├── registrations.txt       Resident sign-ups waiting for approval
 │   ├── reports.txt             One report per line
 │   └── locations.txt           Bohol cities/municipalities and barangays
 └── bin/                        Compiled .class files (same package folders)
@@ -60,8 +58,8 @@ app  ──►  ui  ──►  manager  ──►  model
 
 | Role | Created by | Sees | Can do |
 |---|---|---|---|
-| Resident | self-registers, then accepted by the Area Officer of that area | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own details, username and password from the Settings button |
-| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, accept or reject resident registrations, change own password from the Settings button |
+| Resident | self-registers and can log in right away | own reports | Submit a report, view reports, update or delete own PENDING reports, edit own details, username and password from the Settings button |
+| Area Officer | an Administrator | only its own city/municipality | Change report status inside its area, change own password from the Settings button |
 | Administrator | an Administrator | the whole province | All reports, change status, delete invalid reports, edit any account in a form, change own password from the Settings button |
 
 `users.txt` line format (one line per account type):
@@ -82,11 +80,6 @@ Resident|U1003|maria123|Maria Santos|maria|Cogon, Tagbilaran City|09171234567
 AreaOfficer|AO001|officer123|Tagbilaran City Officer|Tagbilaran City
 ```
 
-`registrations.txt` line format (a resident sign-up that is still waiting):
-
-```
-fullName|username|password|contactNumber|barangay|municipality|dateRequested
-```
 
 `reports.txt` line format:
 
@@ -106,7 +99,7 @@ cityMunicipality|barangay1|barangay2|...
 
 | Item | What it does |
 |---|---|
-| Account Details | Full name, user id, username (residents only), contact and address. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be taken by another account or already waiting for approval). |
+| Account Details | Full name, user id, username (residents only), contact and address. A resident may change the username (3-40 characters; letters, numbers, `.` `_` `@` `+` `-`; it must not be used by another resident). |
 | Change Password | Current password, new password (at least 6 characters) and confirmation. |
 | Logout | Signs out and returns to the login window. |
 ## Build and run

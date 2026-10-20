@@ -7,7 +7,7 @@ import model.User;
 import model.Resident;
 import model.Administrator;
 import model.AreaOfficer;
-import model.RegistrationRequest;
+
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -42,13 +42,7 @@ public class LoginFrame extends javax.swing.JFrame {
         User user = userManager.login(loginId, password);
 
         if (user == null) {
-            RegistrationRequest pending = userManager.getPendingRegistration(loginId);
-            if (pending != null) {
-                showMessage("Your registration is still waiting for the " + pending.getMunicipality()
-                        + " Area Officer to accept it.");
-            } else {
-                showMessage("Invalid username, ID or password.");
-            }
+            showMessage("Invalid username, ID or password.");
             return;
         }
 
