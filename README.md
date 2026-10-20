@@ -77,13 +77,13 @@ AreaOfficer|userId|password|fullName|area
 
 Only a **Resident** has a username, because residents sign in with it (their id works too).
 Administrators and area officers have **no username** and sign in with their **id**.
-The ids never overlap: `U…` for residents, `AD…` for administrators and `AO…` for area
-officers (`AD001`, `AO001`, `U1003`). For example:
+Every id ends with six digits: `U000003` for a resident, `AD000001` for an administrator and
+`AO000001` for an area officer. Example lines:
 
 ```
-Administrator|AD001|admin123|System Admin
-Resident|U1003|maria123|Maria Santos|maria|Cogon, Tagbilaran City|09171234567
-AreaOfficer|AO001|officer123|Tagbilaran City Officer|Tagbilaran City
+Administrator|AD000001|admin123|System Admin
+Resident|U000003|maria123|Maria Santos|maria|Cogon, Tagbilaran City|09171234567
+AreaOfficer|AO000001|officer123|Tagbilaran City Officer|Tagbilaran City
 ```
 
 

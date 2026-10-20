@@ -357,6 +357,14 @@ public class UserManager {
         }
         return null;
     }
+    private static String formatId(String prefix, int number) {
+        String digits = String.valueOf(number);
+        while (digits.length() < 6) {
+            digits = "0" + digits;
+        }
+        return prefix + digits;
+    }
+
     private String generateUserId() {
         int highest = 0;
         for (int i = 0; i < users.size(); i++) {
@@ -372,7 +380,7 @@ public class UserManager {
                 }
             }
         }
-        return "U" + (highest + 1);
+        return formatId("U", highest + 1);
     }
 
     private String generateAreaOfficerId() {
@@ -391,12 +399,9 @@ public class UserManager {
             }
         }
 
-        String digits = String.valueOf(highest + 1);
-        while (digits.length() < 3) {
-            digits = "0" + digits;
-        }
-        return "AO" + digits;
+        return formatId("AO", highest + 1);
     }
+
 
     private String generateAdministratorId() {
         int highest = 0;
@@ -414,12 +419,9 @@ public class UserManager {
             }
         }
 
-        String digits = String.valueOf(highest + 1);
-        while (digits.length() < 3) {
-            digits = "0" + digits;
-        }
-        return "AD" + digits;
+        return formatId("AD", highest + 1);
     }
+
 
     private String currentTimestamp() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
