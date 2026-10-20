@@ -81,7 +81,15 @@ public final class UITheme {
     }
 
     public static JButton button(String text, Color background, Color foreground) {
-        JButton button = new JButton(text);
+        JButton button = new JButton(text) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Dimension getPreferredSize() {
+                Dimension size = super.getPreferredSize();
+                return new Dimension(size.width, Math.max(size.height, 32));
+            }
+        };
         button.setBackground(background);
         button.setForeground(foreground);
         button.setFont(FONT_BOLD);
@@ -267,11 +275,14 @@ public final class UITheme {
         form.add(field, fieldConstraints);
     }
     public static JPanel actionRow(javax.swing.JComponent... items) {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         row.setBackground(Color.WHITE);
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         for (int i = 0; i < items.length; i++) {
+            if (i > 0) {
+                row.add(Box.createHorizontalStrut(8));
+            }
             row.add(items[i]);
         }
         return row;
