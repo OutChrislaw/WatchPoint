@@ -37,12 +37,10 @@ public class UserManager {
 
     public boolean registerResident(String fullName, String username, String password,
                                     String address, String contactNumber) {
-        if (fullNameProblem(fullName) != null || checkUsername(null, username) != null
-                || passwordProblem(password) != null || contactNumberProblem(contactNumber) != null
-                || address == null || address.trim().length() == 0) {
-            return false;
-        }
-        if (isUsernameTaken(username)) {
+        String problem = firstProblem(fullNameProblem(fullName), checkUsername(null, username),
+                passwordProblem(password), contactNumberProblem(contactNumber),
+                isBlank(address) ? "Please choose your city / municipality and barangay." : null);
+        if (problem != null) {
             return false;
         }
 
@@ -139,7 +137,7 @@ public class UserManager {
     }
 
     public Administrator addAdministrator(String fullName, String password) {
-        if (fullNameProblem(fullName) != null || passwordProblem(password) != null) {
+        if (firstProblem(fullNameProblem(fullName), passwordProblem(password)) != null) {
             return null;
         }
 
@@ -151,8 +149,8 @@ public class UserManager {
     }
 
     public AreaOfficer addAreaOfficer(String fullName, String password, String area) {
-        if (fullNameProblem(fullName) != null || passwordProblem(password) != null
-                || areaProblem(area) != null) {
+        if (firstProblem(fullNameProblem(fullName), passwordProblem(password),
+                areaProblem(area)) != null) {
             return null;
         }
 
@@ -164,39 +162,26 @@ public class UserManager {
     }
 
     public String checkUsername(User user, String username) {
-        if (username == null || username.trim().length() == 0) {
+        if (isBlank(username)) {
             return "Please enter a username.";
         }
 
         String name = username.trim();
-        if (name.length() < 3) {
-            return "The username must be at least 3 characters.";
-        }
-        if (name.length() > 40) {
-            return "The username must be 40 characters or fewer.";
-        }
-
-        String forbidden = forbiddenCharacterProblem(name);
-        if (forbidden != null) {
-            return forbidden;
-        }
-        if (looksLikeAccountId(name)) {
-            return "The username must not look like an account ID.";
+        String problem = firstProblem(lengthProblem(name, "username", 3, 40),
+                hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null,
+                name.matches("(?i)(u|ad|ao)\\d{6}")
+                        ? "The username must not look like an account ID." : null);
+        if (problem != null) {
+            return problem;
         }
 
         boolean hasLetter = false;
         for (int i = 0; i < name.length(); i++) {
             char letter = name.charAt(i);
-            boolean allowed = (letter >= 'a' && letter <= 'z')
-                    || (letter >= 'A' && letter <= 'Z')
-                    || (letter >= '0' && letter <= '9')
-                    || letter == '.' || letter == '_' || letter == '@'
-                    || letter == '+' || letter == '-';
-            if (!allowed) {
-                return "Use only letters, numbers, dot, underscore, at sign, plus or dash.";
-            }
-            if ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z')) {
+            if (isAsciiLetter(letter)) {
                 hasLetter = true;
+            } else if (!isDigit(letter) && "._@+-".indexOf(letter) < 0) {
+                return "Use only letters, numbers, dot, underscore, at sign, plus or dash.";
             }
         }
         if (!hasLetter) {
@@ -211,10 +196,8 @@ public class UserManager {
             if (other.getUserId().equalsIgnoreCase(name)) {
                 return "That username is already used as an account ID.";
             }
-            if (!(other instanceof Resident)) {
-                continue;
-            }
-            if (((Resident) other).getUsername().equalsIgnoreCase(name)) {
+            if (other instanceof Resident
+                    && ((Resident) other).getUsername().equalsIgnoreCase(name)) {
                 return "That username is already taken.";
             }
         }
@@ -228,39 +211,25 @@ public class UserManager {
             return "No account is signed in.";
         }
 
-        String nameProblem = fullNameProblem(fullName);
-        if (nameProblem != null) {
-            return nameProblem;
+        boolean resident = user instanceof Resident;
+        String problem = firstProblem(fullNameProblem(fullName),
+                resident ? checkUsername(user, username) : null,
+                resident ? contactNumberProblem(contactNumber) : null);
+        if (problem != null) {
+            return problem;
         }
 
-        if (user instanceof Resident) {
-            String problem = checkUsername(user, username);
-            if (problem != null) {
-                return problem;
-            }
-
-            String contactProblem = contactNumberProblem(contactNumber);
-            if (contactProblem != null) {
-                return contactProblem;
-            }
-
-            Resident resident = (Resident) user;
-            resident.setUsername(username.trim());
-            if (contactNumber != null) {
-                resident.setContactNumber(contactNumber.trim());
-            }
-            if (barangay != null && municipality != null
-                    && barangay.trim().length() > 0 && municipality.trim().length() > 0) {
-                resident.setAddress(barangay.trim() + ", " + municipality.trim());
+        if (resident) {
+            Resident saved = (Resident) user;
+            saved.setUsername(username.trim());
+            saved.setContactNumber(contactNumber.trim());
+            if (!isBlank(barangay) && !isBlank(municipality)) {
+                saved.setAddress(barangay.trim() + ", " + municipality.trim());
             }
         }
-
         user.setFullName(fullName.trim());
 
-        if (updateUser(user)) {
-            return null;
-        }
-        return "Your details could not be saved.";
+        return updateUser(user) ? null : "Your details could not be saved.";
     }
 
     public String changePassword(User user, String currentPassword, String newPassword,
@@ -273,56 +242,50 @@ public class UserManager {
         }
 
         String problem = passwordProblem(newPassword);
+        if (problem == null && newPassword.equals(currentPassword)) {
+            problem = "The new password must be different from your current password.";
+        }
+        if (problem == null && !newPassword.equals(confirmPassword)) {
+            problem = "The new passwords do not match.";
+        }
         if (problem != null) {
             return problem;
         }
-        if (newPassword.equals(currentPassword)) {
-            return "The new password must be different from your current password.";
-        }
-        if (!newPassword.equals(confirmPassword)) {
-            return "The new passwords do not match.";
-        }
 
         user.setPassword(newPassword);
-        if (updateUser(user)) {
-            return null;
-        }
-        return "Your password could not be changed.";
+        return updateUser(user) ? null : "Your password could not be changed.";
     }
     public boolean saveAccountChanges(User user, String fullName, String password, String address,
                                       String contactNumber, String area) {
-        if (user == null || fullNameProblem(fullName) != null) {
+        if (user == null) {
             return false;
         }
-        if (password != null && password.trim().length() > 0 && passwordProblem(password) != null) {
-            return false;
-        }
-        if (user instanceof Resident && contactNumberProblem(contactNumber) != null) {
-            return false;
-        }
-        if (user instanceof AreaOfficer && areaProblem(area) != null) {
+
+        boolean resident = user instanceof Resident;
+        boolean officer = user instanceof AreaOfficer;
+        String problem = firstProblem(fullNameProblem(fullName),
+                isBlank(password) ? null : passwordProblem(password),
+                resident ? contactNumberProblem(contactNumber) : null,
+                officer ? areaProblem(area) : null);
+        if (problem != null) {
             return false;
         }
 
         user.setFullName(fullName.trim());
-        if (password != null && password.trim().length() > 0) {
+        if (!isBlank(password)) {
             user.setPassword(password);
         }
-
-        if (user instanceof Resident) {
-            Resident resident = (Resident) user;
-            if (address != null && address.trim().length() > 0) {
-                resident.setAddress(address.trim());
+        if (resident) {
+            Resident saved = (Resident) user;
+            if (!isBlank(address)) {
+                saved.setAddress(address.trim());
             }
             if (contactNumber != null) {
-                resident.setContactNumber(contactNumber.trim());
+                saved.setContactNumber(contactNumber.trim());
             }
         }
-        if (user instanceof AreaOfficer) {
-            AreaOfficer officer = (AreaOfficer) user;
-            if (area != null && area.trim().length() > 0) {
-                officer.setArea(area.trim());
-            }
+        if (officer && !isBlank(area)) {
+            ((AreaOfficer) user).setArea(area.trim());
         }
 
         return updateUser(user);
@@ -333,37 +296,28 @@ public class UserManager {
      * name is acceptable.
      */
     public static String fullNameProblem(String fullName) {
-        if (fullName == null || fullName.trim().length() == 0) {
+        if (isBlank(fullName)) {
             return "Please enter the full name.";
         }
 
         String name = fullName.trim();
-        if (name.length() < 2) {
-            return "The full name must be at least 2 characters.";
-        }
-        if (name.length() > 60) {
-            return "The full name must be 60 characters or fewer.";
-        }
-
-        String forbidden = forbiddenCharacterProblem(name);
-        if (forbidden != null) {
-            return forbidden;
+        String problem = firstProblem(lengthProblem(name, "full name", 2, 60),
+                hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null);
+        if (problem != null) {
+            return problem;
         }
 
         boolean hasLetter = false;
         for (int i = 0; i < name.length(); i++) {
             char letter = name.charAt(i);
-            if ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z')) {
+            if (isAsciiLetter(letter)) {
                 hasLetter = true;
             } else if (!(letter == ' ' || letter == '.' || letter == '\''
                     || letter == '-' || letter == ',')) {
                 return "Use only letters, space, dot, apostrophe, dash or comma in the full name.";
             }
         }
-        if (!hasLetter) {
-            return "The full name must contain letters.";
-        }
-        return null;
+        return hasLetter ? null : "The full name must contain letters.";
     }
 
     /**
@@ -373,97 +327,98 @@ public class UserManager {
         if (password == null || password.length() == 0) {
             return "Please enter a password.";
         }
-        if (password.length() < 8) {
-            return "The password must be at least 8 characters.";
-        }
-        if (password.length() > 64) {
-            return "The password must be 64 characters or fewer.";
-        }
 
-        for (int i = 0; i < password.length(); i++) {
-            char letter = password.charAt(i);
-            if (letter == ' ') {
-                return "The password must not contain spaces.";
-            }
-            if (letter == '|' || letter == '\n' || letter == '\r') {
-                return "The password must not contain the | character or line breaks.";
-            }
+        String problem = lengthProblem(password, "password", 8, 64);
+        if (problem != null) {
+            return problem;
         }
-        return null;
+        if (password.indexOf(' ') >= 0) {
+            return "The password must not contain spaces.";
+        }
+        return hasForbiddenCharacter(password)
+                ? "The password must not contain the | character or line breaks." : null;
     }
 
     /**
      * The contact number rules: exactly 11 digits and it must start with 09.
      */
     public static String contactNumberProblem(String contactNumber) {
-        if (contactNumber == null || contactNumber.trim().length() == 0) {
+        if (isBlank(contactNumber)) {
             return "Please enter the contact number.";
         }
 
         String number = contactNumber.trim();
         for (int i = 0; i < number.length(); i++) {
-            char digit = number.charAt(i);
-            if (digit < '0' || digit > '9') {
+            if (!isDigit(number.charAt(i))) {
                 return "The contact number must contain digits only.";
             }
         }
         if (number.length() != 11) {
             return "The contact number must be exactly 11 digits.";
         }
-        if (!number.startsWith("09")) {
-            return "The contact number must start with 09, like 09171234567.";
-        }
-        return null;
+        return number.startsWith("09") ? null
+                : "The contact number must start with 09, like 09171234567.";
     }
 
     /**
      * The assigned area of an area officer, which is a city/municipality name.
      */
     public static String areaProblem(String area) {
-        if (area == null || area.trim().length() == 0) {
+        if (isBlank(area)) {
             return "Please select the area this officer handles.";
         }
 
         String name = area.trim();
-        if (name.length() > 60) {
-            return "The area must be 60 characters or fewer.";
+        String problem = lengthProblem(name, "area", 0, 60);
+        if (problem != null) {
+            return problem;
         }
-        return forbiddenCharacterProblem(name);
+        return hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null;
     }
 
-    private static String forbiddenCharacterProblem(String value) {
-        if (value == null) {
-            return null;
-        }
-        for (int i = 0; i < value.length(); i++) {
-            char letter = value.charAt(i);
-            if (letter == '|' || letter == '\n' || letter == '\r') {
-                return "The | character and line breaks cannot be used here.";
+    // ------------------------------------------------------------------- helpers
+
+    private static final String FORBIDDEN_TEXT =
+            "The | character and line breaks cannot be used here.";
+
+    /** True when a value is null or only spaces. */
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().length() == 0;
+    }
+
+    /** True when a value holds a pipe or a line break, which the data files cannot store. */
+    private static boolean hasForbiddenCharacter(String value) {
+        return value != null
+                && (value.indexOf('|') >= 0 || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0);
+    }
+
+    /** The first message in the list, or null when every value is null. */
+    private static String firstProblem(String... problems) {
+        for (int i = 0; i < problems.length; i++) {
+            if (problems[i] != null) {
+                return problems[i];
             }
         }
         return null;
     }
 
-    private static boolean looksLikeAccountId(String text) {
-        String upper = text.toUpperCase();
-        int digitsStart;
-        if (upper.startsWith("AD") || upper.startsWith("AO")) {
-            digitsStart = 2;
-        } else if (upper.startsWith("U")) {
-            digitsStart = 1;
-        } else {
-            return false;
+    /** The "at least / at most" rule for a text value, or null. */
+    private static String lengthProblem(String text, String caption, int min, int max) {
+        if (text.length() < min) {
+            return "The " + caption + " must be at least " + min + " characters.";
         }
-        if (upper.length() != digitsStart + 6) {
-            return false;
+        if (text.length() > max) {
+            return "The " + caption + " must be " + max + " characters or fewer.";
         }
-        for (int i = digitsStart; i < upper.length(); i++) {
-            char digit = upper.charAt(i);
-            if (digit < '0' || digit > '9') {
-                return false;
-            }
-        }
-        return true;
+        return null;
+    }
+
+    private static boolean isAsciiLetter(char letter) {
+        return (letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z');
+    }
+
+    private static boolean isDigit(char letter) {
+        return letter >= '0' && letter <= '9';
     }
 
     public int countAdministrators() {
@@ -536,16 +491,6 @@ public class UserManager {
         return result;
     }
 
-    private boolean isUsernameTaken(String username) {
-        for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
-            if (user instanceof Resident
-                    && ((Resident) user).getUsername().equalsIgnoreCase(username.trim())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void loadUsers() {
         List<String> lines = fileManager.readLines("users.txt");
