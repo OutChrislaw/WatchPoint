@@ -136,7 +136,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(UITheme.MUTED);
-        jLabel3.setText("Username / ID");
+        jLabel3.setText("Username");
 
         usernameField.addActionListener(this::usernameFieldActionPerformed);
 
