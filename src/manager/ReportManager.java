@@ -262,6 +262,7 @@ public class ReportManager {
             return "Please choose the new status.";
         }
 
+        // Report.setStatus(...) is public, so a hand-built report can still carry no status.
         ReportStatus current = report.getStatus();
         if (current == null) {
             return "This report has no status yet.";

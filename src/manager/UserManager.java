@@ -369,11 +369,8 @@ public class UserManager {
         }
 
         String name = area.trim();
-        String problem = lengthProblem(name, "area", 0, 60);
-        if (problem != null) {
-            return problem;
-        }
-        return hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null;
+        return firstProblem(maxProblem(name, "area", 60),
+                hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null);
     }
 
     // ------------------------------------------------------------------- helpers
@@ -411,6 +408,12 @@ public class UserManager {
             return "The " + caption + " must be " + max + " characters or fewer.";
         }
         return null;
+    }
+
+    /** The "not more than" rule for a text value, or null. */
+    private static String maxProblem(String text, String caption, int max) {
+        return text.length() > max
+                ? "The " + caption + " must be " + max + " characters or fewer." : null;
     }
 
     private static boolean isAsciiLetter(char letter) {

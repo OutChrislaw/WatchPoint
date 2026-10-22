@@ -13,4 +13,3 @@ Resident|U000008|mark1234|Mark Villanueva|2026-10-20 09:36|mark|Poblacion, Corte
 Resident|U000009|grace123|Grace Lim|2026-10-20 09:37|grace|Poblacion, Ubay|09781234567
 Resident|U000010|john1234|John Paul Bacalso|2026-10-20 09:38|john|Poblacion Norte, Carmen|09891234567
 Resident|U000011|kim123456|Kim Bautista|2026-10-20 09:39|kim|Centro, Tubigon|09991234567
-Resident|U000012|angoy123|Christian Angoy|2026-10-20 09:40|angoy|Tiptip, Tagbilaran City|09097720758
