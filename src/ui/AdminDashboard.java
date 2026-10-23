@@ -270,7 +270,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         for (int i = 0; i < currentReports.size(); i++) {
             Report report = currentReports.get(i);
             reportTableModel.addRow(new Object[] { report.getReportId(), report.getReportType(),
-                userManager.getFullNameById(report.getReporterId()), report.getStatus().name(),
+                reportManager.reporterName(report), report.getStatus().name(),
                 report.getDateSubmitted() });
         }
 
@@ -448,10 +448,10 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         String question = "Delete user " + existing.getUserId() + "?";
         if (existing instanceof Resident) {
-            int reports = reportManager.getReportsByReporter(existing.getUserId()).size();
+            int reports = reportManager.countReportsByReporter(existing.getUserId());
             if (reports > 0) {
                 question = "This resident filed " + reports + " report(s). The reports stay in the "
-                        + "records, but they will show \"-\" as the reporter.\n\nDelete "
+                        + "records with the reporter details saved with them.\n\nDelete "
                         + existing.getUserId() + " anyway?";
             }
         }
@@ -492,9 +492,13 @@ public class AdminDashboard extends javax.swing.JFrame {
         UITheme.addSection(body, "Report Information", new String[][] {
             { "REPORT ID", report.getReportId() },
             { "REPORT TYPE", report.getReportType() },
-            { "REPORTER", userManager.getFullNameById(report.getReporterId()) },
-            { "REPORTER CONTACT", userManager.getContactById(report.getReporterId()) },
             { "DATE SUBMITTED", report.getDateSubmitted() }
+        });
+
+        UITheme.addSection(body, "Reporter Information", new String[][] {
+            { "FULL NAME", reportManager.reporterName(report) },
+            { "CONTACT NUMBER", reportManager.reporterContact(report) },
+            { "ADDRESS", reportManager.reporterAddress(report) }
         });
 
         UITheme.addSection(body, "Location", new String[][] {
@@ -554,7 +558,9 @@ public class AdminDashboard extends javax.swing.JFrame {
             Resident resident = (Resident) user;
             UITheme.addSection(body, "Resident Details", new String[][] {
                 { "ADDRESS", resident.getAddress() },
-                { "CONTACT NUMBER", resident.getContactNumber() }
+                { "CONTACT NUMBER", resident.getContactNumber() },
+                { "REPORTS FILED", String.valueOf(
+                        reportManager.countReportsByReporter(resident.getUserId())) }
             });
         }
 

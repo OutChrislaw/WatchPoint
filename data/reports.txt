@@ -1,22 +1,22 @@
-Road Hazard|R001|U000003|Tagbilaran City|Tiptip|Casa Road|Near Water Refiller|Deep pothole beside the water refilling station|Pothole|IN_PROGRESS|2026-10-08 07:20|
-Flood|R002|U000002|Batuan|Poblacion Norte|Batuan-Carmen Road|Near Batuan Public Market|Market drainage overflowing after the rain|Ankle deep|IN_PROGRESS|2026-10-09 11:25|
-Road Hazard|R003|U000004|Baclayon|Poblacion|Coastal Road|Near Baclayon Church|Deep potholes along the coastal road|Pothole|PENDING|2026-10-10 08:00|
-Flood|R004|U000012|Tagbilaran City|Cogon|M. Torralba Street|Near Cogon Market|Canal overflowing after heavy rain|Knee deep|VERIFIED|2026-10-11 16:40|
-Road Hazard|R005|U000002|Batuan|Rizal|Rizal Street|Near Batuan Plaza|Potholes along the plaza frontage|Pothole|PENDING|2026-10-12 13:50|
-Flood|R006|U000004|Baclayon|Laya|Laya Road|Near Laya Bridge|River water covering the road|Knee deep|VERIFIED|2026-10-13 16:15|
-Streetlight|R007|U000001|Tagbilaran City|Dao|Dao Road|Near Dao Barangay Hall|Lamp post not working since last week|Pole 12|PENDING|2026-10-13 19:05|
-Other|R008|U000003|Tagbilaran City|Bool|Bool Road|Near Bool Elementary School|Uncollected garbage beside the school gate|Garbage|RESOLVED|2026-10-14 08:15|
-Streetlight|R009|U000005|Corella|Poblacion|Corella-Bilar Road|Near Corella Plaza|Flickering lamp post beside the plaza|Pole 3|PENDING|2026-10-14 19:30|
-Other|R010|U000006|Panglao|Tawala|Panglao Island Circumferential Road|Near Alona Beach|Uncollected garbage along the beach road|Garbage|IN_PROGRESS|2026-10-15 08:45|
-Road Hazard|R011|U000012|Tagbilaran City|Mansasa|Mansasa Road|Near Mansasa Seaside|Cracked pavement along the seawall|Broken road|REJECTED|2026-10-15 09:30|This road is maintained by the city engineer, not the barangay.
-Streetlight|R012|U000002|Batuan|Santa Cruz|Santa Cruz Road|Near Santa Cruz Chapel|No light on the whole stretch at night|Pole 7|RESOLVED|2026-10-15 20:05|
-Flood|R013|U000007|Maribojoc|Poblacion|Maribojoc-Antequera Road|Near Maribojoc Church|Flooded intersection after the typhoon|Knee deep|RESOLVED|2026-10-16 13:10|
-Flood|R014|U000001|Tagbilaran City|Taloto|Taloto Road|Near Taloto Bridge|Water rising along the bridge approach|Ankle deep|PENDING|2026-10-16 17:45|
-Other|R015|U000002|Batuan|Quezon|Quezon Street|Near Quezon Barangay Hall|Fallen tree branch blocking one lane|Fallen tree|REJECTED|2026-10-17 07:40|The branch was already cleared by the barangay tanod.
-Streetlight|R016|U000007|Maribojoc|Toril|Toril Road|Near Toril Barangay Hall|Broken lamp post leaning on the fence|Pole 8|PENDING|2026-10-17 14:05|
-Streetlight|R017|U000003|Tagbilaran City|Ubujan|Ubujan Road|Near Ubujan Chapel|Two lamp posts flickering every night|Pole 5 and 6|VERIFIED|2026-10-17 18:20|
-Road Hazard|R018|U000008|Cortes|Poblacion|Cortes-Nueva Vida Road|Near Cortes Municipal Hall|Uneven road surface near the hall|Pothole|VERIFIED|2026-10-18 07:35|
-Flood|R019|U000009|Ubay|Poblacion|Ubay-Talibon Road|Near Ubay Public Market|Canal overflowing onto the market road|Waist deep|IN_PROGRESS|2026-10-18 09:55|
-Other|R020|U000012|Tagbilaran City|Poblacion II|CPG Avenue|Near Plaza Rizal|Stray dogs roaming around the plaza|Stray animals|PENDING|2026-10-18 10:10|
-Other|R021|U000010|Carmen|Poblacion Norte|Carmen-Sagbayan Road|Near Carmen Public Market|Stray cattle grazing along the road|Stray animals|PENDING|2026-10-19 07:15|
-Road Hazard|R022|U000011|Tubigon|Centro|Tubigon Port Road|Near Tubigon Port|Collapsed road shoulder near the port|Broken road|REJECTED|2026-10-19 09:30|The road belongs to the port authority, not the municipality.
+Road Hazard|R001|U000003|Tagbilaran City|Tiptip|Casa Road|Near Water Refiller|Deep pothole beside the water refilling station|Pothole|IN_PROGRESS|2026-10-08 07:20||Maria Santos|Cogon, Tagbilaran City|09171234567
+Flood|R002|U000002|Batuan|Poblacion Norte|Batuan-Carmen Road|Near Batuan Public Market|Market drainage overflowing after the rain|Ankle deep|IN_PROGRESS|2026-10-09 11:25||Bea Salazar|San Isidro, Batuan|09127785030
+Road Hazard|R003|U000004|Baclayon|Poblacion|Coastal Road|Near Baclayon Church|Deep potholes along the coastal road|Pothole|PENDING|2026-10-10 08:00||Jose Rizal|Poblacion, Baclayon|09281234567
+Flood|R004|U000012|Tagbilaran City|Cogon|M. Torralba Street|Near Cogon Market|Canal overflowing after heavy rain|Knee deep|VERIFIED|2026-10-11 16:40||Christian Angoy|Tiptip, Tagbilaran City|09097720758
+Road Hazard|R005|U000002|Batuan|Rizal|Rizal Street|Near Batuan Plaza|Potholes along the plaza frontage|Pothole|PENDING|2026-10-12 13:50||Bea Salazar|San Isidro, Batuan|09127785030
+Flood|R006|U000004|Baclayon|Laya|Laya Road|Near Laya Bridge|River water covering the road|Knee deep|VERIFIED|2026-10-13 16:15||Jose Rizal|Poblacion, Baclayon|09281234567
+Streetlight|R007|U000001|Tagbilaran City|Dao|Dao Road|Near Dao Barangay Hall|Lamp post not working since last week|Pole 12|PENDING|2026-10-13 19:05||Carlo Maturan|Dao, Tagbilaran City|09999221421
+Other|R008|U000003|Tagbilaran City|Bool|Bool Road|Near Bool Elementary School|Uncollected garbage beside the school gate|Garbage|RESOLVED|2026-10-14 08:15||Maria Santos|Cogon, Tagbilaran City|09171234567
+Streetlight|R009|U000005|Corella|Poblacion|Corella-Bilar Road|Near Corella Plaza|Flickering lamp post beside the plaza|Pole 3|PENDING|2026-10-14 19:30||Ana Reyes|Poblacion, Corella|09391234567
+Other|R010|U000006|Panglao|Tawala|Panglao Island Circumferential Road|Near Alona Beach|Uncollected garbage along the beach road|Garbage|IN_PROGRESS|2026-10-15 08:45||Pedro Penduko|Tawala, Panglao|09451234567
+Road Hazard|R011|U000012|Tagbilaran City|Mansasa|Mansasa Road|Near Mansasa Seaside|Cracked pavement along the seawall|Broken road|REJECTED|2026-10-15 09:30|This road is maintained by the city engineer, not the barangay.|Christian Angoy|Tiptip, Tagbilaran City|09097720758
+Streetlight|R012|U000002|Batuan|Santa Cruz|Santa Cruz Road|Near Santa Cruz Chapel|No light on the whole stretch at night|Pole 7|RESOLVED|2026-10-15 20:05||Bea Salazar|San Isidro, Batuan|09127785030
+Flood|R013|U000007|Maribojoc|Poblacion|Maribojoc-Antequera Road|Near Maribojoc Church|Flooded intersection after the typhoon|Knee deep|RESOLVED|2026-10-16 13:10||Liza Mercado|Poblacion, Maribojoc|09561234567
+Flood|R014|U000001|Tagbilaran City|Taloto|Taloto Road|Near Taloto Bridge|Water rising along the bridge approach|Ankle deep|PENDING|2026-10-16 17:45||Carlo Maturan|Dao, Tagbilaran City|09999221421
+Other|R015|U000002|Batuan|Quezon|Quezon Street|Near Quezon Barangay Hall|Fallen tree branch blocking one lane|Fallen tree|REJECTED|2026-10-17 07:40|The branch was already cleared by the barangay tanod.|Bea Salazar|San Isidro, Batuan|09127785030
+Streetlight|R016|U000007|Maribojoc|Toril|Toril Road|Near Toril Barangay Hall|Broken lamp post leaning on the fence|Pole 8|PENDING|2026-10-17 14:05||Liza Mercado|Poblacion, Maribojoc|09561234567
+Streetlight|R017|U000003|Tagbilaran City|Ubujan|Ubujan Road|Near Ubujan Chapel|Two lamp posts flickering every night|Pole 5 and 6|VERIFIED|2026-10-17 18:20||Maria Santos|Cogon, Tagbilaran City|09171234567
+Road Hazard|R018|U000008|Cortes|Poblacion|Cortes-Nueva Vida Road|Near Cortes Municipal Hall|Uneven road surface near the hall|Pothole|VERIFIED|2026-10-18 07:35||Mark Villanueva|Poblacion, Cortes|09671234567
+Flood|R019|U000009|Ubay|Poblacion|Ubay-Talibon Road|Near Ubay Public Market|Canal overflowing onto the market road|Waist deep|IN_PROGRESS|2026-10-18 09:55||Grace Lim|Poblacion, Ubay|09781234567
+Other|R020|U000012|Tagbilaran City|Poblacion II|CPG Avenue|Near Plaza Rizal|Stray dogs roaming around the plaza|Stray animals|PENDING|2026-10-18 10:10||Christian Angoy|Tiptip, Tagbilaran City|09097720758
+Other|R021|U000010|Carmen|Poblacion Norte|Carmen-Sagbayan Road|Near Carmen Public Market|Stray cattle grazing along the road|Stray animals|PENDING|2026-10-19 07:15||John Paul Bacalso|Poblacion Norte, Carmen|09891234567
+Road Hazard|R022|U000011|Tubigon|Centro|Tubigon Port Road|Near Tubigon Port|Collapsed road shoulder near the port|Broken road|REJECTED|2026-10-19 09:30|The road belongs to the port authority, not the municipality.|Kim Bautista|Centro, Tubigon|09991234567

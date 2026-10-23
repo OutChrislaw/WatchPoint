@@ -7,6 +7,8 @@ import model.StreetlightReport;
 import model.OtherHazardReport;
 import model.Location;
 import model.ReportStatus;
+import model.Resident;
+import model.User;
 import storage.FileManager;
 
 import java.time.LocalDateTime;
@@ -19,18 +21,31 @@ public class ReportManager {
 
     private List<Report> reports;
     private FileManager fileManager;
+    private UserManager userManager;
 
+    /** Every report carries its own reporter details, so no account is needed. */
     public ReportManager(FileManager fileManager) {
+        this(fileManager, null);
+    }
+
+    /** The accounts are only used to fill reports saved before the details were stored. */
+    public ReportManager(FileManager fileManager, UserManager userManager) {
         this.fileManager = fileManager;
+        this.userManager = userManager;
         this.reports = new ArrayList<Report>();
         loadReports();
     }
 
-    public Report submitReport(String reporterId, String hazardType, Location location,
+    public Report submitReport(Resident reporter, String hazardType, Location location,
                                String description, String specificDetail) {
+        if (reporter == null) {
+            return null;
+        }
         if (reportProblem(hazardType, location, description, specificDetail) != null) {
             return null;
         }
+
+        String reporterId = reporter.getUserId();
 
         description = oneLine(description);
         specificDetail = specificDetail.trim();
@@ -55,6 +70,10 @@ public class ReportManager {
             report = new OtherHazardReport(reportId, reporterId, location, description,
                     ReportStatus.PENDING, dateSubmitted, specificDetail);
         }
+
+        report.setReporterName(stored(reporter.getFullName()));
+        report.setReporterAddress(stored(reporter.getAddress()));
+        report.setReporterContact(stored(reporter.getContactNumber()));
 
         reports.add(report);
         saveReports();
@@ -82,6 +101,59 @@ public class ReportManager {
 
     public List<Report> getAllReports() {
         return new ArrayList<Report>(reports);
+    }
+
+    /** How many reports one account filed. */
+    public int countReportsByReporter(String reporterId) {
+        return getReportsByReporter(reporterId).size();
+    }
+
+    /** The reporter's full name saved with the report, or the account when the line is old. */
+    public String reporterName(Report report) {
+        if (report == null) {
+            return "";
+        }
+        if (report.getReporterName().length() > 0) {
+            return report.getReporterName();
+        }
+        Resident account = reporterAccount(report);
+        return account == null ? "" : account.getFullName();
+    }
+
+    /** The reporter's address saved with the report, or the account when the line is old. */
+    public String reporterAddress(Report report) {
+        if (report == null) {
+            return "";
+        }
+        if (report.getReporterAddress().length() > 0) {
+            return report.getReporterAddress();
+        }
+        Resident account = reporterAccount(report);
+        return account == null ? "" : account.getAddress();
+    }
+
+    /** The reporter's contact number saved with the report, or the account when the line is old. */
+    public String reporterContact(Report report) {
+        if (report == null) {
+            return "";
+        }
+        if (report.getReporterContact().length() > 0) {
+            return report.getReporterContact();
+        }
+        Resident account = reporterAccount(report);
+        return account == null ? "" : account.getContactNumber();
+    }
+
+    /** The account behind a report, or null when it was deleted or no accounts are loaded. */
+    private Resident reporterAccount(Report report) {
+        if (userManager == null || report == null) {
+            return null;
+        }
+        User user = userManager.getUserById(report.getReporterId());
+        if (user instanceof Resident) {
+            return (Resident) user;
+        }
+        return null;
     }
 
     /**
@@ -176,6 +248,11 @@ public class ReportManager {
     private static String maxProblem(String text, String caption, int max) {
         return text.length() > max
                 ? "The " + caption + " must be " + max + " characters or fewer." : null;
+    }
+
+    /** Keeps a saved reporter value on one line and free of the field separator. */
+    private static String stored(String value) {
+        return oneLine(value).replace('|', '-');
     }
 
     /**
@@ -584,7 +661,7 @@ public class ReportManager {
     }
 
     private Report parseReport(String line) {
-        String[] parts = line.split("\\|");
+        String[] parts = line.split("\\|", -1);
         if (parts.length < 11) {
             return null;
         }
@@ -615,6 +692,15 @@ public class ReportManager {
                     status, dateSubmitted, specificDetail);
         }
         report.setRemark(remark);
+        if (parts.length > 12) {
+            report.setReporterName(parts[12]);
+        }
+        if (parts.length > 13) {
+            report.setReporterAddress(parts[13]);
+        }
+        if (parts.length > 14) {
+            report.setReporterContact(parts[14]);
+        }
         return report;
     }
 

@@ -9,6 +9,9 @@ public abstract class Report {
     private ReportStatus status;
     private String dateSubmitted;
     private String remark;
+    private String reporterName;
+    private String reporterAddress;
+    private String reporterContact;
 
     protected Report(String reportId, String reporterId, Location location,
                      String description, ReportStatus status, String dateSubmitted) {
@@ -19,6 +22,9 @@ public abstract class Report {
         this.status = status;
         this.dateSubmitted = dateSubmitted;
         this.remark = "";
+        this.reporterName = "";
+        this.reporterAddress = "";
+        this.reporterContact = "";
     }
 
     public String getReportId() {
@@ -73,6 +79,33 @@ public abstract class Report {
         this.remark = remark;
     }
 
+    /** The reporter's full name at the time the report was filed. */
+    public String getReporterName() {
+        return reporterName == null ? "" : reporterName;
+    }
+
+    public void setReporterName(String reporterName) {
+        this.reporterName = reporterName;
+    }
+
+    /** The reporter's address at the time the report was filed. */
+    public String getReporterAddress() {
+        return reporterAddress == null ? "" : reporterAddress;
+    }
+
+    public void setReporterAddress(String reporterAddress) {
+        this.reporterAddress = reporterAddress;
+    }
+
+    /** The reporter's contact number at the time the report was filed. */
+    public String getReporterContact() {
+        return reporterContact == null ? "" : reporterContact;
+    }
+
+    public void setReporterContact(String reporterContact) {
+        this.reporterContact = reporterContact;
+    }
+
     public abstract String getReportType();
 
     public abstract String getSpecificDetail();
@@ -84,6 +117,7 @@ public abstract class Report {
                 + location.getCityMunicipality() + "|" + location.getBarangay() + "|"
                 + location.getStreet() + "|" + location.getSpecificPlace() + "|"
                 + description + "|" + getSpecificDetail() + "|"
-                + status.name() + "|" + dateSubmitted + "|" + getRemark();
+                + status.name() + "|" + dateSubmitted + "|" + getRemark() + "|"
+                + getReporterName() + "|" + getReporterAddress() + "|" + getReporterContact();
     }
 }

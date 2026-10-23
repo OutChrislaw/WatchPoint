@@ -14,7 +14,7 @@ public class WatchPoint {
 
         FileManager fileManager = new FileManager("data");
         UserManager userManager = new UserManager(fileManager);
-        final ReportManager reportManager = new ReportManager(fileManager);
+        final ReportManager reportManager = new ReportManager(fileManager, userManager);
         final LocationManager locationManager = new LocationManager(fileManager);
 
         SwingUtilities.invokeLater(new Runnable() {

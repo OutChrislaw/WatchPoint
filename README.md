@@ -59,8 +59,8 @@ app  ──►  ui  ──►  manager  ──►  model
 | Role | Created by | Sees | Can do |
 |---|---|---|---|
 | Resident | self-registers and can log in right away | own reports and the public reports list | Submit a report, view reports, update or delete own PENDING reports, see why a report was rejected, edit own details, username and password from the Settings button |
-| Area Officer | an Administrator | only its own city/municipality | **Area overview** (counts per status, hazard type and barangay, oldest pending report), move a report through the status workflow inside its area, reject a report with a reason, see the reporter's contact number, change own password from the Settings button |
-| Administrator | an Administrator | the whole province | **Province-wide overview**, all reports, change status, reject with a reason, **reopen a rejected report**, delete invalid reports, see the reporter's contact number, edit any account in a form, filter accounts by type and search by id, username or full name, change own password from the Settings button |
+| Area Officer | an Administrator | only its own city/municipality | **Area overview** (counts per status, hazard type and barangay, oldest pending report), move a report through the status workflow inside its area, reject a report with a reason, see the reporter details saved with each report (full name, address, contact number), change own password from the Settings button |
+| Administrator | an Administrator | the whole province | **Province-wide overview**, all reports, change status, reject with a reason, **reopen a rejected report**, delete invalid reports, see the reporter details saved with each report, see how many reports an account filed, edit any account in a form, filter accounts by type and search by id, username or full name, change own password from the Settings button |
 
 **Creating accounts.** Residents sign up from the login window and can log in straight away.
 Only an administrator creates the other accounts, from the **Create User** form in the Users tab:
@@ -95,7 +95,7 @@ AreaOfficer|AO000001|officer123|Tagbilaran City Officer|2026-10-20 09:17|Tagbila
 `reports.txt` line format:
 
 ```
-type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|description|specificDetail|status|dateSubmitted|remark
+type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|description|specificDetail|status|dateSubmitted|remark|reporterName|reporterAddress|reporterContact
 ```
 
 `dateSubmitted` is stored as `yyyy-MM-dd HH:mm` (date and time).
@@ -103,6 +103,12 @@ type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|descript
 `status` is one of **PENDING**, **VERIFIED**, **IN_PROGRESS**, **RESOLVED** or **REJECTED**.
 `remark` holds the reason written when a report is rejected and is empty for every other status, so
 lines written before this field existed still load (the missing field is read as empty).
+
+The last three fields are the reporter's **full name**, **address** and **contact number** as they
+were when the report was filed. They are copied from the account when the report is submitted and
+are never changed afterwards, so a report still shows who filed it even after that account is
+deleted. Lines written before these fields existed still load: their details are read from the
+account instead, and only an account that no longer exists leaves them empty (shown as `-`).
 
 **Status workflow.** A new report starts as `PENDING`. The **Update Status** button in the Reports tab
 opens a window that lists only the statuses the workflow allows next, so a report cannot skip a step:
@@ -150,7 +156,7 @@ same checks so nothing can slip past the forms.
 | Report | Hazard type from the fixed list; city / municipality and barangay chosen from `locations.txt`; specific place (2-60 characters); specific detail (2-80 characters); description (10-500 characters, line breaks are collapsed into spaces); street is optional and saved as `N/A`; a resident cannot file the same PENDING hazard twice. |
 | Status change | It must follow the workflow table above: no skipping, and a report that is RESOLVED or REJECTED cannot be changed through a normal update. |
 | Rejection reason | 5-200 characters, one line, and the `\|` character is refused. The reason is cleared if the report is reopened or moved on. |
-| Administrator actions | An administrator cannot delete the account they are signed in with or the last remaining administrator, and deleting a resident who filed reports asks for confirmation first. |
+| Administrator actions | An administrator cannot delete the account they are signed in with or the last remaining administrator, and deleting a resident who filed reports asks for confirmation first; the reports keep the reporter details that were saved with them. |
 | Any text | The `\|` character and line breaks are refused, because the data files use `\|` as the separator between fields. |
 
 Rules are only applied to new input. Accounts created before a rule existed keep working, and their

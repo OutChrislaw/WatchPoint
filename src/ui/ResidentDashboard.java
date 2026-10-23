@@ -184,7 +184,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
         for (int i = 0; i < publicReports.size(); i++) {
             Report report = publicReports.get(i);
             publicReportTableModel.addRow(new Object[] { report.getReportId(), report.getReportType(),
-                userManager.getFullNameById(report.getReporterId()), report.getStatus().name(),
+                reportManager.reporterName(report), report.getStatus().name(),
                 report.getDateSubmitted() });
         }
 
@@ -391,7 +391,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
             return;
         }
 
-        Report report = reportManager.submitReport(currentUser.getUserId(), hazardType, location,
+        Report report = reportManager.submitReport(currentUser, hazardType, location,
                 description, specificDetail);
 
         if (report == null) {
@@ -478,7 +478,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
         UITheme.addSection(body, "Report Information", new String[][] {
             { "REPORT ID", report.getReportId() },
             { "REPORT TYPE", report.getReportType() },
-            { "REPORTER", userManager.getFullNameById(report.getReporterId()) },
+            { "REPORTER", reportManager.reporterName(report) },
             { "DATE SUBMITTED", report.getDateSubmitted() }
         });
 

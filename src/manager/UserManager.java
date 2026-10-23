@@ -111,30 +111,6 @@ public class UserManager {
         return false;
     }
 
-    public String getFullNameById(String userId) {
-        User user = getUserById(userId);
-        if (user == null) {
-            return "-";
-        }
-        return user.getFullName();
-    }
-
-    /**
-     * The contact number stored on an account, so an officer or administrator
-     * can follow up on a report. Returns "-" when the account is gone or has no
-     * number.
-     */
-    public String getContactById(String userId) {
-        User user = getUserById(userId);
-        if (!(user instanceof Resident)) {
-            return "-";
-        }
-        String contactNumber = ((Resident) user).getContactNumber();
-        if (contactNumber == null || contactNumber.trim().length() == 0) {
-            return "-";
-        }
-        return contactNumber;
-    }
 
     public Administrator addAdministrator(String fullName, String password) {
         if (firstProblem(fullNameProblem(fullName), passwordProblem(password)) != null) {
