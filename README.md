@@ -42,7 +42,8 @@ WatchPoint/
 ├── data/                       Plain text storage
 │   ├── users.txt               One user or area officer per line
 │   ├── reports.txt             One report per line
-│   └── locations.txt           Bohol cities/municipalities and barangays
+│   ├── locations.txt           Bohol cities/municipalities and barangays
+│   └── ids.txt                 The last id number issued for each prefix
 └── bin/                        Compiled .class files (same package folders)
 ```
 
@@ -136,6 +137,24 @@ change, from the GUI or from anything else, goes through those methods before `r
 cityMunicipality|barangay1|barangay2|...
 ```
 
+`ids.txt` keeps the last id number that was issued, so an id is never handed out twice:
+
+```
+U|12
+AD|2
+AO|2
+R|22
+```
+
+`FileManager.nextNumber(...)` takes the next number for a prefix and writes it back, and
+`reserveNumber(...)` raises the stored number when the existing data already uses a higher one (at
+startup `UserManager` reserves the highest `U` / `AD` / `AO` it finds in `users.txt`, and
+`ReportManager` reserves the highest `R` plus the highest reporter id in `reports.txt`). Deleting the
+account or report that holds the highest id therefore no longer frees that id, so a new account can
+never inherit somebody else's reports. If the file is missing it is created and rebuilt from the data
+files, and when the six-digit numbers run out the create action is refused instead of writing a
+seven-digit id.
+
 **Settings window.** The **Settings** button in the header (every role) opens a window with a menu on the left:
 
 | Item | What it does |
@@ -216,6 +235,7 @@ javac -d "...\bin" -sourcepath "...\src" "...\src\app\WatchPoint.java" && java -
 ```
 
 Run the app from the project root so the `data` folder is found. The `data` folder
-and the text files are created automatically when they are missing. `locations.txt`
+and the text files are created automatically when they are missing (`ids.txt` is rebuilt from the
+existing data). `locations.txt`
 ships with the full list of Bohol cities/municipalities and their barangays.
 

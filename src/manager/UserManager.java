@@ -31,8 +31,9 @@ public class UserManager {
 
 
         loadUsers();
-
-
+        fileManager.reserveNumber("U", highestUserNumber("U"));
+        fileManager.reserveNumber("AD", highestUserNumber("AD"));
+        fileManager.reserveNumber("AO", highestUserNumber("AO"));
     }
 
     public boolean registerResident(String fullName, String username, String password,
@@ -44,7 +45,12 @@ public class UserManager {
             return false;
         }
 
-        Resident resident = new Resident(generateUserId(), username.trim(), password,
+        String userId = generateUserId();
+        if (userId == null) {
+            return false;
+        }
+
+        Resident resident = new Resident(userId, username.trim(), password,
                 fullName.trim(), currentTimestamp(), address, contactNumber);
         users.add(resident);
         saveUsers();
@@ -117,7 +123,12 @@ public class UserManager {
             return null;
         }
 
-        Administrator administrator = new Administrator(generateAdministratorId(), password,
+        String administratorId = generateAdministratorId();
+        if (administratorId == null) {
+            return null;
+        }
+
+        Administrator administrator = new Administrator(administratorId, password,
                 fullName.trim(), currentTimestamp());
         users.add(administrator);
         saveUsers();
@@ -130,7 +141,12 @@ public class UserManager {
             return null;
         }
 
-        AreaOfficer officer = new AreaOfficer(generateAreaOfficerId(), password, fullName.trim(),
+        String officerId = generateAreaOfficerId();
+        if (officerId == null) {
+            return null;
+        }
+
+        AreaOfficer officer = new AreaOfficer(officerId, password, fullName.trim(),
                 currentTimestamp(), area.trim());
         users.add(officer);
         saveUsers();
@@ -540,60 +556,48 @@ public class UserManager {
     }
 
     private String generateUserId() {
-        int highest = 0;
-        for (int i = 0; i < users.size(); i++) {
-            String userId = users.get(i).getUserId();
-            if (userId != null && userId.startsWith("U")) {
-                try {
-                    int number = Integer.parseInt(userId.substring(1));
-                    if (number > highest) {
-                        highest = number;
-                    }
-                } catch (Exception e) {
-                    // ids that are not in the U<number> format are ignored
-                }
-            }
-        }
-        return formatId("U", highest + 1);
+        return idFor("U");
     }
 
     private String generateAreaOfficerId() {
-        int highest = 0;
-        for (int i = 0; i < users.size(); i++) {
-            String userId = users.get(i).getUserId();
-            if (userId != null && userId.startsWith("AO")) {
-                try {
-                    int number = Integer.parseInt(userId.substring(2));
-                    if (number > highest) {
-                        highest = number;
-                    }
-                } catch (Exception e) {
-                    // ids that are not in the AO<number> format are ignored
-                }
-            }
-        }
-
-        return formatId("AO", highest + 1);
+        return idFor("AO");
     }
 
 
     private String generateAdministratorId() {
+        return idFor("AD");
+    }
+
+    /** The next id for the prefix, or null when every six-digit number is used up. */
+    private String idFor(String prefix) {
+        int number = fileManager.nextNumber(prefix);
+        if (number < 0) {
+            return null;
+        }
+        return formatId(prefix, number);
+    }
+
+    /** The highest number used with the prefix, so a deleted id is never handed out again. */
+    private int highestUserNumber(String prefix) {
         int highest = 0;
         for (int i = 0; i < users.size(); i++) {
-            String userId = users.get(i).getUserId();
-            if (userId != null && userId.startsWith("AD")) {
-                try {
-                    int number = Integer.parseInt(userId.substring(2));
-                    if (number > highest) {
-                        highest = number;
-                    }
-                } catch (Exception e) {
-                    // ids that are not in the AD<number> format are ignored
-                }
+            int number = numberOf(users.get(i).getUserId(), prefix);
+            if (number > highest) {
+                highest = number;
             }
         }
+        return highest;
+    }
 
-        return formatId("AD", highest + 1);
+    private static int numberOf(String id, String prefix) {
+        if (id == null || !id.startsWith(prefix)) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(id.substring(prefix.length()));
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
 

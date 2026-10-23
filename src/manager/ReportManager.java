@@ -34,6 +34,8 @@ public class ReportManager {
         this.userManager = userManager;
         this.reports = new ArrayList<Report>();
         loadReports();
+        fileManager.reserveNumber("R", highestReportNumber());
+        fileManager.reserveNumber("U", highestReporterNumber());
     }
 
     public Report submitReport(Resident reporter, String hazardType, Location location,
@@ -54,6 +56,9 @@ public class ReportManager {
                 location.getSpecificPlace().trim());
 
         String reportId = generateReportId();
+        if (reportId == null) {
+            return null;
+        }
         String dateSubmitted = currentTimestamp();
         Report report;
 
@@ -713,6 +718,20 @@ public class ReportManager {
     }
 
     private String generateReportId() {
+        int number = fileManager.nextNumber("R");
+        if (number < 0) {
+            return null;
+        }
+
+        String text = "" + number;
+        while (text.length() < 3) {
+            text = "0" + text;
+        }
+        return "R" + text;
+    }
+
+    /** The highest report number stored, so a deleted id is never handed out again. */
+    private int highestReportNumber() {
         int highest = 0;
         for (int i = 0; i < reports.size(); i++) {
             String reportId = reports.get(i).getReportId();
@@ -727,11 +746,25 @@ public class ReportManager {
                 }
             }
         }
+        return highest;
+    }
 
-        String number = "" + (highest + 1);
-        while (number.length() < 3) {
-            number = "0" + number;
+    /** Reports keep the id of a deleted account, so that number stays reserved as well. */
+    private int highestReporterNumber() {
+        int highest = 0;
+        for (int i = 0; i < reports.size(); i++) {
+            String reporterId = reports.get(i).getReporterId();
+            if (reporterId != null && reporterId.startsWith("U") && reporterId.length() > 1) {
+                try {
+                    int number = Integer.parseInt(reporterId.substring(1));
+                    if (number > highest) {
+                        highest = number;
+                    }
+                } catch (Exception e) {
+                    // ids that are not in the U<number> format are ignored
+                }
+            }
         }
-        return "R" + number;
+        return highest;
     }
 }
