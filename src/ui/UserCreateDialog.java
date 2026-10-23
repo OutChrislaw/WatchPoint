@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 
 import manager.LocationManager;
 import manager.UserManager;
+import validation.UserRules;
 import model.Administrator;
 import model.AreaOfficer;
 
@@ -134,15 +135,15 @@ public class UserCreateDialog {
         String password = new String(passwordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
 
-        String problem = UserManager.fullNameProblem(fullName);
+        String problem = UserRules.fullNameProblem(fullName);
         if (problem == null) {
-            problem = UserManager.passwordProblem(password);
+            problem = UserRules.passwordProblem(password);
         }
-        if (problem == null && !password.equals(confirmPassword)) {
-            problem = "The two passwords do not match.";
+        if (problem == null) {
+            problem = UserRules.passwordConfirmProblem(password, confirmPassword);
         }
         if (problem == null && AREA_OFFICER.equals(type)) {
-            problem = UserManager.areaProblem(UITheme.text(areaBox));
+            problem = UserRules.areaProblem(UITheme.text(areaBox));
         }
         if (problem != null) {
             JOptionPane.showMessageDialog(dialog, problem);

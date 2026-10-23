@@ -23,9 +23,10 @@ WatchPoint/
 │   │   ├── FloodReport.java
 │   │   ├── StreetlightReport.java
 │   │   └── OtherHazardReport.java
+│   ├── validation/             Rules for accounts, reports and locations
 │   ├── storage/                The file layer
 │   │   └── FileManager.java        Reads and writes the data files
-│   ├── manager/                The rules (a GUI class never touches a file)
+│   ├── manager/                Records, reports and the shared id counter
 │   │   ├── UserManager.java        Registration, login, and user records
 │   │   ├── ReportManager.java      Submit, filter, sort, update, and delete reports
 │   │   └── LocationManager.java    Bohol cities/municipalities and their barangays
@@ -50,10 +51,24 @@ WatchPoint/
 Dependencies only point one way — no class reaches back up:
 
 ```
-app  ──►  ui  ──►  manager  ──►  model
-                     │
-                     └──►  storage
+app  ──►  ui  ──►  manager  ──►  validation  ──►  model
+          │            │
+          │            └──►  storage
+          └──►  validation
 ```
+
+**Validation.** Every rule lives in `validation/` as a plain static method that returns the message to
+show, or `null` when the value is acceptable:
+
+| Class | Covers |
+|---|---|
+| `UserRules` | Full name, password and the password confirmation, contact number, the area of an area officer, the username (shape, allowed characters, uniqueness), the login form and the account-deletion rules |
+| `ReportRules` | Hazard type, city / municipality, barangay, street, specific place, specific detail, description, the rejection reason and the status workflow |
+| `LocationRules` | A form needs both a city / municipality and a barangay |
+| `TextRules` | Shared text helpers, including `oneLine(...)` |
+
+The managers call the same methods before writing a file, so a window can never save something the
+rules reject, and a rule can be checked without a manager or a data folder.
 
 **Roles**
 
@@ -127,9 +142,10 @@ the Administrator can reopen a rejected report, and reopening clears the rejecti
 always needs a reason (5-200 characters), which the resident then sees on the report.
 
 The rules are not in the windows: `model/ReportStatus` holds `isFinal()`, `canMoveTo()` and
-`nextStatuses()`, and `manager/ReportManager` holds `statusProblem()` (the message to show),
-`changeStatus()`/`changeStatusInCity()` (validate, apply, save) and `reopenReport()`. Every status
-change, from the GUI or from anything else, goes through those methods before `reports.txt` is written.
+`nextStatuses()`, `validation/ReportRules` holds `statusProblem()` (the message to show), and
+`manager/ReportManager` holds `changeStatus()`/`changeStatusInCity()` (validate, apply, save) and
+`reopenReport()`. Every status change, from the GUI or from anything else, goes through those methods
+before `reports.txt` is written.
 
 `locations.txt` line format (one line per city/municipality):
 

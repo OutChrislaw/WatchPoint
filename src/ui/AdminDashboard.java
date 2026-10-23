@@ -3,6 +3,7 @@ package ui;
 import manager.UserManager;
 import manager.ReportManager;
 import manager.LocationManager;
+import validation.UserRules;
 import model.User;
 import model.Resident;
 import model.Administrator;
@@ -433,16 +434,10 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
     public void deleteUser() {
         User existing = selectedUser();
-        if (existing == null) {
-            showMessage("Please select a user first.");
-            return;
-        }
-        if (existing.getUserId().equals(currentUser.getUserId())) {
-            showMessage("You cannot delete the account you are signed in with.");
-            return;
-        }
-        if (existing instanceof Administrator && userManager.countAdministrators() <= 1) {
-            showMessage("The last Administrator cannot be deleted.");
+        String deleteProblem = UserRules.deletionProblem(existing, currentUser,
+                userManager.countAdministrators());
+        if (deleteProblem != null) {
+            showMessage(deleteProblem);
             return;
         }
 

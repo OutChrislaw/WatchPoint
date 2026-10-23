@@ -7,6 +7,8 @@ import model.AreaOfficer;
 
 
 import storage.FileManager;
+import validation.TextRules;
+import validation.UserRules;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,9 +40,11 @@ public class UserManager {
 
     public boolean registerResident(String fullName, String username, String password,
                                     String address, String contactNumber) {
-        String problem = firstProblem(fullNameProblem(fullName), checkUsername(null, username),
-                passwordProblem(password), contactNumberProblem(contactNumber),
-                isBlank(address) ? "Please choose your city / municipality and barangay." : null);
+        String problem = TextRules.firstProblem(UserRules.fullNameProblem(fullName),
+                checkUsername(null, username), UserRules.passwordProblem(password),
+                UserRules.contactNumberProblem(contactNumber),
+                TextRules.isBlank(address)
+                        ? "Please choose your city / municipality and barangay." : null);
         if (problem != null) {
             return false;
         }
@@ -119,7 +123,8 @@ public class UserManager {
 
 
     public Administrator addAdministrator(String fullName, String password) {
-        if (firstProblem(fullNameProblem(fullName), passwordProblem(password)) != null) {
+        if (TextRules.firstProblem(UserRules.fullNameProblem(fullName),
+                UserRules.passwordProblem(password)) != null) {
             return null;
         }
 
@@ -136,8 +141,8 @@ public class UserManager {
     }
 
     public AreaOfficer addAreaOfficer(String fullName, String password, String area) {
-        if (firstProblem(fullNameProblem(fullName), passwordProblem(password),
-                areaProblem(area)) != null) {
+        if (TextRules.firstProblem(UserRules.fullNameProblem(fullName),
+                UserRules.passwordProblem(password), UserRules.areaProblem(area)) != null) {
             return null;
         }
 
@@ -153,48 +158,9 @@ public class UserManager {
         return officer;
     }
 
+    /** The username rules, checked against every account that is already stored. */
     public String checkUsername(User user, String username) {
-        if (isBlank(username)) {
-            return "Please enter a username.";
-        }
-
-        String name = username.trim();
-        String problem = firstProblem(lengthProblem(name, "username", 3, 40),
-                hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null,
-                name.matches("(?i)(u|ad|ao)\\d{6}")
-                        ? "The username must not look like an account ID." : null);
-        if (problem != null) {
-            return problem;
-        }
-
-        boolean hasLetter = false;
-        for (int i = 0; i < name.length(); i++) {
-            char letter = name.charAt(i);
-            if (isAsciiLetter(letter)) {
-                hasLetter = true;
-            } else if (!isDigit(letter) && "._@+-".indexOf(letter) < 0) {
-                return "Use only letters, numbers, dot, underscore, at sign, plus or dash.";
-            }
-        }
-        if (!hasLetter) {
-            return "The username must contain at least one letter.";
-        }
-
-        for (int i = 0; i < users.size(); i++) {
-            User other = users.get(i);
-            if (user != null && other.getUserId().equals(user.getUserId())) {
-                continue;
-            }
-            if (other.getUserId().equalsIgnoreCase(name)) {
-                return "That username is already used as an account ID.";
-            }
-            if (other instanceof Resident
-                    && ((Resident) other).getUsername().equalsIgnoreCase(name)) {
-                return "That username is already taken.";
-            }
-        }
-
-        return null;
+        return UserRules.usernameProblem(user, username, users);
     }
 
     public String saveDetails(User user, String fullName, String username, String contactNumber,
@@ -204,9 +170,9 @@ public class UserManager {
         }
 
         boolean resident = user instanceof Resident;
-        String problem = firstProblem(fullNameProblem(fullName),
+        String problem = TextRules.firstProblem(UserRules.fullNameProblem(fullName),
                 resident ? checkUsername(user, username) : null,
-                resident ? contactNumberProblem(contactNumber) : null);
+                resident ? UserRules.contactNumberProblem(contactNumber) : null);
         if (problem != null) {
             return problem;
         }
@@ -215,7 +181,7 @@ public class UserManager {
             Resident saved = (Resident) user;
             saved.setUsername(username.trim());
             saved.setContactNumber(contactNumber.trim());
-            if (!isBlank(barangay) && !isBlank(municipality)) {
+            if (!TextRules.isBlank(barangay) && !TextRules.isBlank(municipality)) {
                 saved.setAddress(barangay.trim() + ", " + municipality.trim());
             }
         }
@@ -233,7 +199,7 @@ public class UserManager {
             return "Your current password is not correct.";
         }
 
-        String problem = passwordProblem(newPassword);
+        String problem = UserRules.passwordProblem(newPassword);
         if (problem == null && newPassword.equals(currentPassword)) {
             problem = "The new password must be different from your current password.";
         }
@@ -255,165 +221,32 @@ public class UserManager {
 
         boolean resident = user instanceof Resident;
         boolean officer = user instanceof AreaOfficer;
-        String problem = firstProblem(fullNameProblem(fullName),
-                isBlank(password) ? null : passwordProblem(password),
-                resident ? contactNumberProblem(contactNumber) : null,
-                officer ? areaProblem(area) : null);
+        String problem = TextRules.firstProblem(UserRules.fullNameProblem(fullName),
+                TextRules.isBlank(password) ? null : UserRules.passwordProblem(password),
+                resident ? UserRules.contactNumberProblem(contactNumber) : null,
+                officer ? UserRules.areaProblem(area) : null);
         if (problem != null) {
             return false;
         }
 
         user.setFullName(fullName.trim());
-        if (!isBlank(password)) {
+        if (!TextRules.isBlank(password)) {
             user.setPassword(password);
         }
         if (resident) {
             Resident saved = (Resident) user;
-            if (!isBlank(address)) {
+            if (!TextRules.isBlank(address)) {
                 saved.setAddress(address.trim());
             }
             if (contactNumber != null) {
                 saved.setContactNumber(contactNumber.trim());
             }
         }
-        if (officer && !isBlank(area)) {
+        if (officer && !TextRules.isBlank(area)) {
             ((AreaOfficer) user).setArea(area.trim());
         }
 
         return updateUser(user);
-    }
-
-    /**
-     * The rules for a full name. Returns the problem to show, or null when the
-     * name is acceptable.
-     */
-    public static String fullNameProblem(String fullName) {
-        if (isBlank(fullName)) {
-            return "Please enter the full name.";
-        }
-
-        String name = fullName.trim();
-        String problem = firstProblem(lengthProblem(name, "full name", 2, 60),
-                hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null);
-        if (problem != null) {
-            return problem;
-        }
-
-        boolean hasLetter = false;
-        for (int i = 0; i < name.length(); i++) {
-            char letter = name.charAt(i);
-            if (isAsciiLetter(letter)) {
-                hasLetter = true;
-            } else if (!(letter == ' ' || letter == '.' || letter == '\''
-                    || letter == '-' || letter == ',')) {
-                return "Use only letters, space, dot, apostrophe, dash or comma in the full name.";
-            }
-        }
-        return hasLetter ? null : "The full name must contain letters.";
-    }
-
-    /**
-     * The password rules: 8 to 64 characters, no spaces and no pipe character.
-     */
-    public static String passwordProblem(String password) {
-        if (password == null || password.length() == 0) {
-            return "Please enter a password.";
-        }
-
-        String problem = lengthProblem(password, "password", 8, 64);
-        if (problem != null) {
-            return problem;
-        }
-        if (password.indexOf(' ') >= 0) {
-            return "The password must not contain spaces.";
-        }
-        return hasForbiddenCharacter(password)
-                ? "The password must not contain the | character or line breaks." : null;
-    }
-
-    /**
-     * The contact number rules: exactly 11 digits and it must start with 09.
-     */
-    public static String contactNumberProblem(String contactNumber) {
-        if (isBlank(contactNumber)) {
-            return "Please enter the contact number.";
-        }
-
-        String number = contactNumber.trim();
-        for (int i = 0; i < number.length(); i++) {
-            if (!isDigit(number.charAt(i))) {
-                return "The contact number must contain digits only.";
-            }
-        }
-        if (number.length() != 11) {
-            return "The contact number must be exactly 11 digits.";
-        }
-        return number.startsWith("09") ? null
-                : "The contact number must start with 09, like 09171234567.";
-    }
-
-    /**
-     * The assigned area of an area officer, which is a city/municipality name.
-     */
-    public static String areaProblem(String area) {
-        if (isBlank(area)) {
-            return "Please select the area this officer handles.";
-        }
-
-        String name = area.trim();
-        return firstProblem(maxProblem(name, "area", 60),
-                hasForbiddenCharacter(name) ? FORBIDDEN_TEXT : null);
-    }
-
-    // ------------------------------------------------------------------- helpers
-
-    private static final String FORBIDDEN_TEXT =
-            "The | character and line breaks cannot be used here.";
-
-    /** True when a value is null or only spaces. */
-    private static boolean isBlank(String value) {
-        return value == null || value.trim().length() == 0;
-    }
-
-    /** True when a value holds a pipe or a line break, which the data files cannot store. */
-    private static boolean hasForbiddenCharacter(String value) {
-        return value != null
-                && (value.indexOf('|') >= 0 || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0);
-    }
-
-    /** The first message in the list, or null when every value is null. */
-    private static String firstProblem(String... problems) {
-        for (int i = 0; i < problems.length; i++) {
-            if (problems[i] != null) {
-                return problems[i];
-            }
-        }
-        return null;
-    }
-
-    /** The "at least / at most" rule for a text value, or null. */
-    private static String lengthProblem(String text, String caption, int min, int max) {
-        if (text.length() < min) {
-            return "The " + caption + " must be at least " + min + " characters.";
-        }
-        if (text.length() > max) {
-            return "The " + caption + " must be " + max + " characters or fewer.";
-        }
-        return null;
-    }
-
-    /** The "not more than" rule for a text value, or null. */
-    private static String maxProblem(String text, String caption, int max) {
-        return text.length() > max
-                ? "The " + caption + " must be " + max + " characters or fewer." : null;
-    }
-
-    private static boolean isAsciiLetter(char letter) {
-        return (letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z');
-    }
-
-    private static boolean isDigit(char letter) {
-        return letter >= '0' && letter <= '9';
     }
 
     public int countAdministrators() {

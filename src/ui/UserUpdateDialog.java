@@ -19,6 +19,8 @@ import javax.swing.JTextField;
 
 import manager.LocationManager;
 import manager.UserManager;
+import validation.LocationRules;
+import validation.UserRules;
 import model.AreaOfficer;
 import model.Resident;
 import model.User;
@@ -173,12 +175,12 @@ public class UserUpdateDialog {
         String password = new String(passwordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
 
-        String problem = UserManager.fullNameProblem(fullName);
+        String problem = UserRules.fullNameProblem(fullName);
         if (problem == null && password.length() > 0) {
-            problem = UserManager.passwordProblem(password);
+            problem = UserRules.passwordProblem(password);
         }
-        if (problem == null && password.length() > 0 && !password.equals(confirmPassword)) {
-            problem = "The two passwords do not match.";
+        if (problem == null && password.length() > 0) {
+            problem = UserRules.passwordConfirmProblem(password, confirmPassword);
         }
 
         String address = null;
@@ -188,20 +190,20 @@ public class UserUpdateDialog {
         if (user instanceof Resident) {
             String city = UITheme.text(cityBox);
             String barangay = UITheme.text(barangayBox);
-            if (problem == null && (city.length() == 0 || barangay.length() == 0)) {
-                problem = "Please select a City / Municipality and a Barangay.";
+            if (problem == null) {
+                problem = LocationRules.selectionProblem(city, barangay);
             }
             address = barangay + ", " + city;
             contactNumber = contactField.getText().trim();
             if (problem == null) {
-                problem = UserManager.contactNumberProblem(contactNumber);
+                problem = UserRules.contactNumberProblem(contactNumber);
             }
         }
 
         if (user instanceof AreaOfficer) {
             area = UITheme.text(areaBox);
             if (problem == null) {
-                problem = UserManager.areaProblem(area);
+                problem = UserRules.areaProblem(area);
             }
         }
 

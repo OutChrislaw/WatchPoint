@@ -3,6 +3,8 @@ package ui;
 import manager.UserManager;
 import manager.ReportManager;
 import manager.LocationManager;
+import validation.ReportRules;
+import validation.TextRules;
 import model.Resident;
 import model.Report;
 import model.ReportStatus;
@@ -240,7 +242,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
 
         int row = 0;
 
-        hazardTypeBox = UITheme.options(new String[] { "Road Hazard", "Flood", "Streetlight", "Other" });
+        hazardTypeBox = UITheme.options(ReportRules.HAZARD_TYPES);
         UITheme.addFormRow(form, row, "Hazard Type", hazardTypeBox);
         row = row + 2;
 
@@ -367,10 +369,10 @@ public class ResidentDashboard extends javax.swing.JFrame {
         String hazardType = UITheme.text(hazardTypeBox);
         String cityMunicipality = UITheme.text(cityMunicipalityBox);
         String barangay = UITheme.text(barangayBox);
-        String street = ReportManager.oneLine(streetField.getText());
-        String specificPlace = ReportManager.oneLine(specificPlaceField.getText());
-        String specificDetail = ReportManager.oneLine(specificDetailField.getText());
-        String description = ReportManager.oneLine(descriptionArea.getText());
+        String street = TextRules.oneLine(streetField.getText());
+        String specificPlace = TextRules.oneLine(specificPlaceField.getText());
+        String specificDetail = TextRules.oneLine(specificDetailField.getText());
+        String description = TextRules.oneLine(descriptionArea.getText());
 
         if (street.length() == 0) {
             street = "N/A";
@@ -378,7 +380,7 @@ public class ResidentDashboard extends javax.swing.JFrame {
 
         Location location = new Location(cityMunicipality, barangay, street, specificPlace);
 
-        String problem = ReportManager.reportProblem(hazardType, location, description,
+        String problem = ReportRules.reportProblem(hazardType, location, description,
                 specificDetail);
         if (problem != null) {
             showMessage(problem);

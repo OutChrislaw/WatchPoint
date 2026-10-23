@@ -2,6 +2,8 @@ package ui;
 
 import manager.UserManager;
 import manager.LocationManager;
+import validation.LocationRules;
+import validation.UserRules;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -86,24 +88,24 @@ public class RegistrationFrame extends javax.swing.JFrame {
             barangay = barangayBox.getSelectedItem().toString();
         }
 
-        if (cityMunicipality.length() == 0 || barangay.length() == 0) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Please select a City / Municipality and a Barangay.");
+        String placeProblem = LocationRules.selectionProblem(cityMunicipality, barangay);
+        if (placeProblem != null) {
+            javax.swing.JOptionPane.showMessageDialog(this, placeProblem);
             return;
         }
 
-        String problem = UserManager.fullNameProblem(fullName);
+        String problem = UserRules.fullNameProblem(fullName);
         if (problem == null) {
             problem = userManager.checkUsername(null, username);
         }
         if (problem == null) {
-            problem = UserManager.passwordProblem(password);
-        }
-        if (problem == null && !password.equals(confirmPassword)) {
-            problem = "The two passwords do not match.";
+            problem = UserRules.passwordProblem(password);
         }
         if (problem == null) {
-            problem = UserManager.contactNumberProblem(contactNumber);
+            problem = UserRules.passwordConfirmProblem(password, confirmPassword);
+        }
+        if (problem == null) {
+            problem = UserRules.contactNumberProblem(contactNumber);
         }
         if (problem != null) {
             javax.swing.JOptionPane.showMessageDialog(this, problem);

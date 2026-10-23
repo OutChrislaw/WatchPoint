@@ -3,6 +3,7 @@ package ui;
 import manager.UserManager;
 import manager.ReportManager;
 import manager.LocationManager;
+import validation.UserRules;
 import model.User;
 import model.Resident;
 import model.Administrator;
@@ -57,8 +58,9 @@ public class LoginFrame extends javax.swing.JFrame {
         String loginId = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
 
-        if (loginId.length() == 0 || password.length() == 0) {
-            showMessage("Please enter your username or ID and password.");
+        String formProblem = UserRules.loginProblem(loginId, password);
+        if (formProblem != null) {
+            showMessage(formProblem);
             return;
         }
 

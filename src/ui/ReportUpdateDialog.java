@@ -2,6 +2,8 @@ package ui;
 
 import manager.ReportManager;
 import manager.LocationManager;
+import validation.ReportRules;
+import validation.TextRules;
 import model.Report;
 import model.Location;
 
@@ -160,10 +162,10 @@ public class ReportUpdateDialog {
     private void save() {
         String city = UITheme.text(cityBox);
         String barangay = UITheme.text(barangayBox);
-        String street = ReportManager.oneLine(streetField.getText());
-        String place = ReportManager.oneLine(placeField.getText());
-        String detail = ReportManager.oneLine(detailField.getText());
-        String description = ReportManager.oneLine(descriptionArea.getText());
+        String street = TextRules.oneLine(streetField.getText());
+        String place = TextRules.oneLine(placeField.getText());
+        String detail = TextRules.oneLine(detailField.getText());
+        String description = TextRules.oneLine(descriptionArea.getText());
 
         if (street.length() == 0) {
             street = "N/A";
@@ -171,7 +173,7 @@ public class ReportUpdateDialog {
 
         Location location = new Location(city, barangay, street, place);
 
-        String problem = ReportManager.reportProblem(report.getReportType(), location, description,
+        String problem = ReportRules.reportProblem(report.getReportType(), location, description,
                 detail);
         if (problem != null) {
             JOptionPane.showMessageDialog(dialog, problem);

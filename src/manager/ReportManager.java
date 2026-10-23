@@ -10,6 +10,8 @@ import model.ReportStatus;
 import model.Resident;
 import model.User;
 import storage.FileManager;
+import validation.ReportRules;
+import validation.TextRules;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,13 +45,13 @@ public class ReportManager {
         if (reporter == null) {
             return null;
         }
-        if (reportProblem(hazardType, location, description, specificDetail) != null) {
+        if (ReportRules.reportProblem(hazardType, location, description, specificDetail) != null) {
             return null;
         }
 
         String reporterId = reporter.getUserId();
 
-        description = oneLine(description);
+        description = TextRules.oneLine(description);
         specificDetail = specificDetail.trim();
         location = new Location(location.getCityMunicipality().trim(),
                 location.getBarangay().trim(), location.getStreet().trim(),
@@ -161,103 +163,9 @@ public class ReportManager {
         return null;
     }
 
-    /**
-     * The hazard types the system accepts, matching the report classes.
-     */
-    public static final String[] HAZARD_TYPES = { "Road Hazard", "Flood", "Streetlight", "Other" };
-
-    /**
-     * Collapses every run of spaces, tabs and line breaks into one space, so a
-     * description typed on several lines is still saved as a single line.
-     */
-    public static String oneLine(String text) {
-        if (text == null) {
-            return "";
-        }
-        return text.replaceAll("\\s+", " ").trim();
-    }
-
-    /**
-     * The rules for a new report. Returns the problem to show, or null when the
-     * report is acceptable.
-     */
-    public static String reportProblem(String hazardType, Location location, String description,
-                                       String specificDetail) {
-        if (!isHazardType(hazardType)) {
-            return "Please choose one of the listed hazard types.";
-        }
-        if (location == null) {
-            return "Please select a City / Municipality and a Barangay.";
-        }
-
-        String city = oneLine(location.getCityMunicipality());
-        String barangay = oneLine(location.getBarangay());
-        String street = oneLine(location.getStreet());
-        String place = oneLine(location.getSpecificPlace());
-        String detail = oneLine(specificDetail);
-        String text = oneLine(description);
-
-        return firstProblem(
-                city.length() == 0 ? "Please select a City / Municipality." : null,
-                barangay.length() == 0 ? "Please select a Barangay." : null,
-                pipeProblem(street, place, detail, text),
-                place.length() < 2
-                        ? "Please enter the specific place, like Near Water Refiller." : null,
-                maxProblem(place, "specific place", 60),
-                maxProblem(street, "street", 60),
-                detail.length() < 2
-                        ? "Please enter the specific detail, like the pole number or depth." : null,
-                maxProblem(detail, "specific detail", 80),
-                text.length() < 10 ? "Please describe the hazard in at least 10 characters." : null,
-                maxProblem(text, "description", 500));
-    }
-
-    // ------------------------------------------------------------------- helpers
-
-    /** True when the text is one of the listed hazard types. */
-    private static boolean isHazardType(String hazardType) {
-        for (int i = 0; i < HAZARD_TYPES.length; i++) {
-            if (HAZARD_TYPES[i].equals(hazardType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** True when the text holds the pipe character, which the data file cannot store. */
-    private static boolean hasPipe(String text) {
-        return text != null && text.indexOf('|') >= 0;
-    }
-
-    /** The first message in the list, or null when every value is null. */
-    private static String firstProblem(String... problems) {
-        for (int i = 0; i < problems.length; i++) {
-            if (problems[i] != null) {
-                return problems[i];
-            }
-        }
-        return null;
-    }
-
-    /** The pipe rule for every text of a report, or null. */
-    private static String pipeProblem(String... values) {
-        for (int i = 0; i < values.length; i++) {
-            if (hasPipe(values[i])) {
-                return "The | character cannot be used in a report.";
-            }
-        }
-        return null;
-    }
-
-    /** The "not more than" rule for a text value, or null. */
-    private static String maxProblem(String text, String caption, int max) {
-        return text.length() > max
-                ? "The " + caption + " must be " + max + " characters or fewer." : null;
-    }
-
     /** Keeps a saved reporter value on one line and free of the field separator. */
     private static String stored(String value) {
-        return oneLine(value).replace('|', '-');
+        return TextRules.oneLine(value).replace('|', '-');
     }
 
     /**
@@ -333,51 +241,6 @@ public class ReportManager {
     }
 
     /**
-     * The workflow rule for one status change. Returns the message to show, or
-     * null when the change is allowed.
-     */
-    public static String statusProblem(Report report, ReportStatus target, String reason) {
-        if (report == null) {
-            return "That report is no longer in the records.";
-        }
-        if (target == null) {
-            return "Please choose the new status.";
-        }
-
-        // Report.setStatus(...) is public, so a hand-built report can still carry no status.
-        ReportStatus current = report.getStatus();
-        if (current == null) {
-            return "This report has no status yet.";
-        }
-        if (target == current) {
-            return "Report " + report.getReportId() + " is already " + current.displayName() + ".";
-        }
-        if (current == ReportStatus.REJECTED) {
-            return "A rejected report cannot be changed. Only an administrator can reopen it.";
-        }
-        if (current == ReportStatus.RESOLVED) {
-            return "This report is already RESOLVED and can no longer be changed.";
-        }
-        if (!current.canMoveTo(target)) {
-            return "A " + current.displayName() + " report can only move to "
-                    + nextStatusesText(current) + ".";
-        }
-        return target == ReportStatus.REJECTED ? remarkProblem(reason) : null;
-    }
-
-    private static String nextStatusesText(ReportStatus status) {
-        List<ReportStatus> next = status.nextStatuses();
-        String text = "";
-        for (int i = 0; i < next.size(); i++) {
-            if (i > 0) {
-                text = text + (i == next.size() - 1 ? " or " : ", ");
-            }
-            text = text + next.get(i).displayName();
-        }
-        return text;
-    }
-
-    /**
      * Validates, applies and saves a status change. Returns null on success, or
      * the message explaining why the change was denied.
      */
@@ -395,13 +258,13 @@ public class ReportManager {
             return "This report is not inside your area, so its status cannot be changed.";
         }
 
-        String problem = statusProblem(report, target, reason);
+        String problem = ReportRules.statusProblem(report, target, reason);
         if (problem != null) {
             return problem;
         }
 
         report.setStatus(target);
-        report.setRemark(target == ReportStatus.REJECTED ? oneLine(reason) : "");
+        report.setRemark(target == ReportStatus.REJECTED ? TextRules.oneLine(reason) : "");
         saveReports();
         return null;
     }
@@ -583,18 +446,6 @@ public class ReportManager {
         } catch (Exception error) {
             return -1;
         }
-    }
-
-    /** Rules for the reason written when a report is rejected. */
-    public static String remarkProblem(String remark) {
-        if (remark == null || remark.trim().length() < 5) {
-            return "Please write at least 5 characters to explain why the report is rejected.";
-        }
-
-        String text = oneLine(remark);
-        return firstProblem(
-                maxProblem(text, "reason", 200),
-                hasPipe(text) ? "The | character cannot be used in the reason." : null);
     }
 
     /** Reads a status name, falling back to PENDING for anything unknown. */

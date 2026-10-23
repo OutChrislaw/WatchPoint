@@ -20,6 +20,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import manager.ReportManager;
+import validation.ReportRules;
+import validation.TextRules;
 import model.Report;
 import model.ReportStatus;
 
@@ -262,8 +264,8 @@ public class ReportStatusDialog {
             return;
         }
 
-        String text = ReportManager.oneLine(reasonArea.getText());
-        String problem = ReportManager.statusProblem(report, target, text);
+        String text = TextRules.oneLine(reasonArea.getText());
+        String problem = ReportRules.statusProblem(report, target, text);
         if (problem != null) {
             showError(problem);
             return;
