@@ -1,4 +1,3 @@
 # data/users.txt is tracked on purpose so the seed accounts ship with the project.
-# UML reference documents are kept locally only and are not published to the repository.
+# UMLWatchpoint.md is kept locally only; the table-form reference is published.
 UMLWatchpoint.md
-UMLWatchpoint_Tables.md
