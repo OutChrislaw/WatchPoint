@@ -10,9 +10,13 @@ import java.util.List;
 
 public class FileManager {
 
+    // ------------------------------------------------------------ CONSTANTS AND FIELDS
+
     private static final String ID_FILE = "ids.txt";
 
     private String dataFolder;
+
+    // ------------------------------------------------------------ CONSTRUCTION
 
     public FileManager(String dataFolder) {
         this.dataFolder = dataFolder;
@@ -21,6 +25,8 @@ public class FileManager {
         ensureFileExists("locations.txt");
         ensureFileExists(ID_FILE);
     }
+
+    // ------------------------------------------------------------ READING AND WRITING
 
     public List<String> readLines(String fileName) {
         ensureFileExists(fileName);
@@ -57,6 +63,8 @@ public class FileManager {
             System.out.println("Error writing " + fileName + ": " + e.getMessage());
         }
     }
+
+    // ------------------------------------------------------------ ID NUMBERS
 
     public int nextNumber(String prefix) {
         if (prefix == null || prefix.length() == 0) {
@@ -130,6 +138,8 @@ public class FileManager {
         }
         writeLines(ID_FILE, kept);
     }
+
+    // ------------------------------------------------------------ FILE CREATION
 
     private void ensureFileExists(String fileName) {
         File folder = new File(dataFolder);

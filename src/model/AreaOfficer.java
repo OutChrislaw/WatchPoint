@@ -2,6 +2,8 @@ package model;
 
 public class AreaOfficer extends User {
 
+    // ------------------------------------------------------------ FIELDS AND CONSTRUCTION
+
     private String area;
 
     public AreaOfficer(String userId, String password, String fullName, String dateCreated,
@@ -9,6 +11,8 @@ public class AreaOfficer extends User {
         super(userId, password, fullName, dateCreated);
         this.area = area;
     }
+
+    // ------------------------------------------------------------ GETTERS AND SETTERS
 
     public String getArea() {
         return area;
@@ -19,6 +23,9 @@ public class AreaOfficer extends User {
     }
 
     @Override
+
+    // ------------------------------------------------------------ OVERRIDES
+
     public String getUserType() {
         return "AreaOfficer";
     }

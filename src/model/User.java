@@ -2,10 +2,14 @@ package model;
 
 public abstract class User {
 
+    // ------------------------------------------------------------ FIELDS
+
     private String userId;
     private String password;
     private String fullName;
     private String dateCreated;
+
+    // ------------------------------------------------------------ CONSTRUCTION
 
     protected User(String userId, String password, String fullName, String dateCreated) {
         this.userId = userId;
@@ -13,6 +17,8 @@ public abstract class User {
         this.fullName = fullName;
         this.dateCreated = dateCreated;
     }
+
+    // ------------------------------------------------------------ GETTERS
 
     public String getUserId() {
         return userId;
@@ -26,6 +32,8 @@ public abstract class User {
         return dateCreated;
     }
 
+    // ------------------------------------------------------------ SETTERS
+
     public void setDateCreated(String dateCreated) {
         this.dateCreated = dateCreated;
     }
@@ -38,12 +46,16 @@ public abstract class User {
         this.password = password;
     }
 
+    // ------------------------------------------------------------ PASSWORD CHECK
+
     public boolean verifyPassword(String input) {
         if (input == null) {
             return false;
         }
         return input.equals(password);
     }
+
+    // ------------------------------------------------------------ TYPE AND SERIALISATION
 
     public abstract String getUserType();
 

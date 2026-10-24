@@ -1,5 +1,7 @@
 package model;
 
+    // ------------------------------------------------------------ CONSTRUCTION
+
 public class RoadHazardReport extends Report {
 
     private String roadHazardType;
@@ -12,11 +14,17 @@ public class RoadHazardReport extends Report {
     }
 
     @Override
+
+    // ------------------------------------------------------------ TYPE NAME
+
     public String getReportType() {
         return "Road Hazard";
     }
 
     @Override
+
+    // ------------------------------------------------------------ HAZARD DETAIL
+
     public String getSpecificDetail() {
         return roadHazardType;
     }

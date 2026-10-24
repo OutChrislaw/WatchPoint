@@ -2,6 +2,8 @@ package model;
 
 public abstract class Report {
 
+    // ------------------------------------------------------------ FIELDS
+
     private String reportId;
     private String reporterId;
     private Location location;
@@ -12,6 +14,8 @@ public abstract class Report {
     private String reporterName;
     private String reporterAddress;
     private String reporterContact;
+
+    // ------------------------------------------------------------ CONSTRUCTION
 
     protected Report(String reportId, String reporterId, Location location,
                      String description, ReportStatus status, String dateSubmitted) {
@@ -26,6 +30,8 @@ public abstract class Report {
         this.reporterAddress = "";
         this.reporterContact = "";
     }
+
+    // ------------------------------------------------------------ GETTERS
 
     public String getReportId() {
         return reportId;
@@ -51,6 +57,8 @@ public abstract class Report {
         return dateSubmitted;
     }
 
+    // ------------------------------------------------------------ SETTERS
+
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -63,9 +71,13 @@ public abstract class Report {
         this.status = status;
     }
 
+    // ------------------------------------------------------------ STATUS WORKFLOW
+
     public boolean canChangeStatusTo(ReportStatus target) {
         return status != null && status.canMoveTo(target);
     }
+
+    // ------------------------------------------------------------ REMARK
 
     public String getRemark() {
         if (remark == null) {
@@ -77,6 +89,8 @@ public abstract class Report {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+    // ------------------------------------------------------------ REPORTER DETAILS
 
     public String getReporterName() {
         return reporterName == null ? "" : reporterName;
@@ -102,11 +116,15 @@ public abstract class Report {
         this.reporterContact = reporterContact;
     }
 
+    // ------------------------------------------------------------ ABSTRACT MEMBERS
+
     public abstract String getReportType();
 
     public abstract String getSpecificDetail();
 
     public abstract void setSpecificDetail(String specificDetail);
+
+    // ------------------------------------------------------------ SERIALISATION
 
     public String toFileString() {
         return getReportType() + "|" + reportId + "|" + reporterId + "|"

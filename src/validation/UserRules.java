@@ -8,8 +8,12 @@ import java.util.List;
 
 public class UserRules {
 
+    // ------------------------------------------------------------ CONSTRUCTOR
+
     private UserRules() {
     }
+
+    // ------------------------------------------------------------ FULL NAME
 
     public static String fullNameProblem(String fullName) {
         if (TextRules.isBlank(fullName)) {
@@ -36,6 +40,8 @@ public class UserRules {
         return hasLetter ? null : "The full name must contain letters.";
     }
 
+    // ------------------------------------------------------------ PASSWORD
+
     public static String passwordProblem(String password) {
         if (password == null || password.length() == 0) {
             return "Please enter a password.";
@@ -59,6 +65,8 @@ public class UserRules {
         return null;
     }
 
+    // ------------------------------------------------------------ CONTACT NUMBER
+
     public static String contactNumberProblem(String contactNumber) {
         if (TextRules.isBlank(contactNumber)) {
             return "Please enter the contact number.";
@@ -77,6 +85,8 @@ public class UserRules {
                 : "The contact number must start with 09, like 09171234567.";
     }
 
+    // ------------------------------------------------------------ AREA
+
     public static String areaProblem(String area) {
         if (TextRules.isBlank(area)) {
             return "Please select the area this officer handles.";
@@ -86,6 +96,8 @@ public class UserRules {
         return TextRules.firstProblem(TextRules.maxProblem(name, "area", 60),
                 TextRules.hasForbiddenCharacter(name) ? TextRules.FORBIDDEN_TEXT : null);
     }
+
+    // ------------------------------------------------------------ USERNAME
 
     public static String usernameProblem(User user, String username, List<User> users) {
         if (TextRules.isBlank(username)) {
@@ -132,6 +144,8 @@ public class UserRules {
 
         return null;
     }
+
+    // ------------------------------------------------------------ LOGIN AND DELETION
 
     public static String loginProblem(String loginId, String password) {
         if (TextRules.isBlank(loginId) || password == null || password.length() == 0) {

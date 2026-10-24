@@ -2,9 +2,13 @@ package model;
 
 public class Resident extends User {
 
+    // ------------------------------------------------------------ FIELDS
+
     private String username;
     private String address;
     private String contactNumber;
+
+    // ------------------------------------------------------------ CONSTRUCTION
 
     public Resident(String userId, String username, String password,
                     String fullName, String dateCreated, String address, String contactNumber) {
@@ -13,6 +17,8 @@ public class Resident extends User {
         this.address = address;
         this.contactNumber = contactNumber;
     }
+
+    // ------------------------------------------------------------ GETTERS AND SETTERS
 
     public String getUsername() {
         return username;
@@ -39,6 +45,9 @@ public class Resident extends User {
     }
 
     @Override
+
+    // ------------------------------------------------------------ OVERRIDES
+
     public String getUserType() {
         return "Resident";
     }

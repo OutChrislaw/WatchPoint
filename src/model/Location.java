@@ -2,6 +2,8 @@ package model;
 
 public class Location {
 
+    // ------------------------------------------------------------ FIELDS AND CONSTRUCTION
+
     private String cityMunicipality;
     private String barangay;
     private String street;
@@ -13,6 +15,8 @@ public class Location {
         this.street = street;
         this.specificPlace = specificPlace;
     }
+
+    // ------------------------------------------------------------ GETTERS
 
     public String getCityMunicipality() {
         return cityMunicipality;
@@ -29,6 +33,8 @@ public class Location {
     public String getSpecificPlace() {
         return specificPlace;
     }
+
+    // ------------------------------------------------------------ FULL LOCATION
 
     public String getFullLocation() {
         String text = street + ", " + barangay + ", " + cityMunicipality;

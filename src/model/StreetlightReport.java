@@ -1,5 +1,7 @@
 package model;
 
+    // ------------------------------------------------------------ CONSTRUCTION
+
 public class StreetlightReport extends Report {
 
     private String poleNumber;
@@ -12,11 +14,17 @@ public class StreetlightReport extends Report {
     }
 
     @Override
+
+    // ------------------------------------------------------------ TYPE NAME
+
     public String getReportType() {
         return "Streetlight";
     }
 
     @Override
+
+    // ------------------------------------------------------------ HAZARD DETAIL
+
     public String getSpecificDetail() {
         return poleNumber;
     }

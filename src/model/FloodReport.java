@@ -1,5 +1,7 @@
 package model;
 
+    // ------------------------------------------------------------ CONSTRUCTION
+
 public class FloodReport extends Report {
 
     private String waterLevel;
@@ -12,11 +14,17 @@ public class FloodReport extends Report {
     }
 
     @Override
+
+    // ------------------------------------------------------------ TYPE NAME
+
     public String getReportType() {
         return "Flood";
     }
 
     @Override
+
+    // ------------------------------------------------------------ HAZARD DETAIL
+
     public String getSpecificDetail() {
         return waterLevel;
     }

@@ -8,10 +8,16 @@ import java.util.List;
 
 public class ReportRules {
 
+    // ------------------------------------------------------------ CONSTANTS
+
     public static final String[] HAZARD_TYPES = { "Road Hazard", "Flood", "Streetlight", "Other" };
+
+    // ------------------------------------------------------------ CONSTRUCTOR
 
     private ReportRules() {
     }
+
+    // ------------------------------------------------------------ REPORT FIELDS
 
     public static String reportProblem(String hazardType, Location location, String description,
                                        String specificDetail) {
@@ -44,6 +50,8 @@ public class ReportRules {
                 TextRules.maxProblem(text, "description", 500));
     }
 
+    // ------------------------------------------------------------ REJECTION REASON
+
     public static String remarkProblem(String remark) {
         if (remark == null || remark.trim().length() < 5) {
             return "Please write at least 5 characters to explain why the report is rejected.";
@@ -54,6 +62,8 @@ public class ReportRules {
                 TextRules.maxProblem(text, "reason", 200),
                 TextRules.hasPipe(text) ? "The | character cannot be used in the reason." : null);
     }
+
+    // ------------------------------------------------------------ STATUS WORKFLOW
 
     public static String statusProblem(Report report, ReportStatus target, String reason) {
         if (report == null) {
@@ -82,6 +92,8 @@ public class ReportRules {
         }
         return target == ReportStatus.REJECTED ? remarkProblem(reason) : null;
     }
+
+    // ------------------------------------------------------------ PRIVATE HELPERS
 
     public static boolean isHazardType(String hazardType) {
         for (int i = 0; i < HAZARD_TYPES.length; i++) {

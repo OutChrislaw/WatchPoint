@@ -16,6 +16,8 @@ import java.util.List;
 
 public class UserManager {
 
+    // ------------------------------------------------------------ FIELDS AND CONSTRUCTION
+
     private List<User> users;
 
     private FileManager fileManager;
@@ -29,6 +31,8 @@ public class UserManager {
         fileManager.reserveNumber("AD", highestUserNumber("AD"));
         fileManager.reserveNumber("AO", highestUserNumber("AO"));
     }
+
+    // ------------------------------------------------------------ REGISTRATION
 
     public boolean registerResident(String fullName, String username, String password,
                                     String address, String contactNumber) {
@@ -52,6 +56,8 @@ public class UserManager {
         saveUsers();
         return true;
     }
+
+    // ------------------------------------------------------------ LOGIN AND LOOKUPS
 
     public User login(String loginId, String password) {
         if (loginId == null || password == null) {
@@ -87,6 +93,9 @@ public class UserManager {
     public List<User> getAllUsers() {
         return new ArrayList<User>(users);
     }
+
+    // ------------------------------------------------------------ ACCOUNT RECORDS
+
     public boolean updateUser(User user) {
         if (user == null) {
             return false;
@@ -112,6 +121,8 @@ public class UserManager {
         }
         return false;
     }
+
+    // ------------------------------------------------------------ STAFF ACCOUNTS
 
     public Administrator addAdministrator(String fullName, String password) {
         if (TextRules.firstProblem(UserRules.fullNameProblem(fullName),
@@ -148,6 +159,8 @@ public class UserManager {
         saveUsers();
         return officer;
     }
+
+    // ------------------------------------------------------------ USERNAME AND PROFILE
 
     public String checkUsername(User user, String username) {
         return UserRules.usernameProblem(user, username, users);
@@ -239,6 +252,8 @@ public class UserManager {
         return updateUser(user);
     }
 
+    // ------------------------------------------------------------ COUNTS, ADDRESS AND SEARCH
+
     public int countAdministrators() {
         int total = 0;
         for (int i = 0; i < users.size(); i++) {
@@ -309,6 +324,8 @@ public class UserManager {
         return result;
     }
 
+    // ------------------------------------------------------------ PERSISTENCE
+
     private void loadUsers() {
         List<String> lines = fileManager.readLines("users.txt");
         for (int i = 0; i < lines.size(); i++) {
@@ -369,6 +386,9 @@ public class UserManager {
         }
         return null;
     }
+
+    // ------------------------------------------------------------ ID GENERATION AND TIME
+
     private static String formatId(String prefix, int number) {
         String digits = String.valueOf(number);
         while (digits.length() < 6) {

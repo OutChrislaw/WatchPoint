@@ -8,6 +8,8 @@ import java.util.List;
 
 public class LocationManager {
 
+    // ------------------------------------------------------------ FIELDS AND CONSTRUCTION
+
     private List<String> lines;
     private FileManager fileManager;
 
@@ -15,6 +17,8 @@ public class LocationManager {
         this.fileManager = fileManager;
         this.lines = fileManager.readLines("locations.txt");
     }
+
+    // ------------------------------------------------------------ MUNICIPALITIES
 
     public List<String> getMunicipalities() {
         List<String> result = new ArrayList<String>();
@@ -26,6 +30,8 @@ public class LocationManager {
         }
         return result;
     }
+
+    // ------------------------------------------------------------ BARANGAYS
 
     public List<String> getBarangays(String municipality) {
         List<String> result = new ArrayList<String>();
@@ -61,6 +67,8 @@ public class LocationManager {
         Collections.sort(result);
         return result;
     }
+
+    // ------------------------------------------------------------ HELPERS
 
     private String municipalityOf(String line) {
         int bar = line.indexOf("|");

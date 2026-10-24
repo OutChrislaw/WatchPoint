@@ -2,11 +2,17 @@ package validation;
 
 public class TextRules {
 
+    // ------------------------------------------------------------ CONSTANT
+
     static final String FORBIDDEN_TEXT =
             "The | character and line breaks cannot be used here.";
 
+    // ------------------------------------------------------------ CONSTRUCTOR
+
     private TextRules() {
     }
+
+    // ------------------------------------------------------------ TEXT
 
     public static String oneLine(String text) {
         if (text == null) {
@@ -14,6 +20,8 @@ public class TextRules {
         }
         return text.replaceAll("\\s+", " ").trim();
     }
+
+    // ------------------------------------------------------------ CHARACTER CHECKS
 
     public static boolean isBlank(String value) {
         return value == null || value.trim().length() == 0;
@@ -27,6 +35,8 @@ public class TextRules {
     static boolean hasPipe(String text) {
         return text != null && text.indexOf('|') >= 0;
     }
+
+    // ------------------------------------------------------------ MESSAGE BUILDERS
 
     public static String firstProblem(String... problems) {
         for (int i = 0; i < problems.length; i++) {

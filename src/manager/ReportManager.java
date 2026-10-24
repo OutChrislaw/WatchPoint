@@ -21,6 +21,8 @@ import java.util.List;
 
 public class ReportManager {
 
+    // ------------------------------------------------------------ FIELDS AND CONSTRUCTION
+
     private List<Report> reports;
     private FileManager fileManager;
     private UserManager userManager;
@@ -37,6 +39,8 @@ public class ReportManager {
         fileManager.reserveNumber("R", highestReportNumber());
         fileManager.reserveNumber("U", highestReporterNumber());
     }
+
+    // ------------------------------------------------------------ SUBMITTING
 
     public Report submitReport(Resident reporter, String hazardType, Location location,
                                String description, String specificDetail) {
@@ -85,6 +89,8 @@ public class ReportManager {
         return report;
     }
 
+    // ------------------------------------------------------------ LOOKUPS
+
     public Report getReportById(String reportId) {
         for (int i = 0; i < reports.size(); i++) {
             if (reports.get(i).getReportId().equals(reportId)) {
@@ -111,6 +117,8 @@ public class ReportManager {
     public int countReportsByReporter(String reporterId) {
         return getReportsByReporter(reporterId).size();
     }
+
+    // ------------------------------------------------------------ REPORTER DETAILS
 
     public String reporterName(Report report) {
         if (report == null) {
@@ -159,6 +167,8 @@ public class ReportManager {
     private static String stored(String value) {
         return TextRules.oneLine(value).replace('|', '-');
     }
+
+    // ------------------------------------------------------------ DUPLICATES AND RESIDENT CHANGES
 
     public boolean hasPendingDuplicate(String reporterId, String hazardType, String barangay,
                                        String specificDetail) {
@@ -209,6 +219,8 @@ public class ReportManager {
         saveReports();
         return true;
     }
+
+    // ------------------------------------------------------------ STATUS WORKFLOW
 
     public boolean updateReportStatus(String reportId, ReportStatus status) {
         return updateReportStatus(reportId, status, null);
@@ -280,6 +292,8 @@ public class ReportManager {
         saveReports();
         return true;
     }
+
+    // ------------------------------------------------------------ FILTERING AND COUNTS
 
     public List<Report> getReports(String cityMunicipality, String barangay, String sortMode) {
         List<Report> result = new ArrayList<Report>();
@@ -426,6 +440,8 @@ public class ReportManager {
         return true;
     }
 
+    // ------------------------------------------------------------ DATES AND SORTING
+
     public static int daysWaiting(String dateSubmitted) {
         if (dateSubmitted == null || dateSubmitted.trim().length() < 10) {
             return -1;
@@ -498,6 +514,8 @@ public class ReportManager {
         });
     }
 
+    // ------------------------------------------------------------ PERSISTENCE
+
     private void loadReports() {
         List<String> lines = fileManager.readLines("reports.txt");
         for (int i = 0; i < lines.size(); i++) {
@@ -559,6 +577,8 @@ public class ReportManager {
         }
         return report;
     }
+
+    // ------------------------------------------------------------ ID GENERATION AND TIME
 
     private String currentTimestamp() {
         String now = LocalDateTime.now().toString().replace('T', ' ');

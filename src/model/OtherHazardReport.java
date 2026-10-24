@@ -1,5 +1,7 @@
 package model;
 
+    // ------------------------------------------------------------ CONSTRUCTION
+
 public class OtherHazardReport extends Report {
 
     private String hazardCategory;
@@ -12,11 +14,17 @@ public class OtherHazardReport extends Report {
     }
 
     @Override
+
+    // ------------------------------------------------------------ TYPE NAME
+
     public String getReportType() {
         return "Other";
     }
 
     @Override
+
+    // ------------------------------------------------------------ HAZARD DETAIL
+
     public String getSpecificDetail() {
         return hazardCategory;
     }

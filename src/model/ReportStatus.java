@@ -5,11 +5,15 @@ import java.util.List;
 
 public enum ReportStatus {
 
+    // ------------------------------------------------------------ CONSTANTS
+
     PENDING,
     VERIFIED,
     IN_PROGRESS,
     RESOLVED,
     REJECTED;
+
+    // ------------------------------------------------------------ WORKFLOW
 
     public boolean isFinal() {
         return this == RESOLVED || this == REJECTED;
@@ -41,6 +45,8 @@ public enum ReportStatus {
         }
         return next;
     }
+
+    // ------------------------------------------------------------ DISPLAY NAME
 
     public String displayName() {
         return name().replace('_', ' ');
