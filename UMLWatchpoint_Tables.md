@@ -38,6 +38,8 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | `manager` | `model`, `validation`, `storage`, its own list | Swing |
 | `storage` | the plain-text data files only | model, managers, validation, Swing |
 
+How each class body is divided in the source (the `// ------ ...` banners) is explained in **section 6**.
+
 ---
 
 ## 2. Domain Model (`model`)
@@ -324,6 +326,9 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 ---
 
 ## 3. Managers, Storage and Validation (`manager`, `storage`, `validation`)
+
+The banner names used inside these classes (`// ------ PERSISTENCE`, `// ------ HELPERS`, ...) are
+explained in **section 6**.
 
 ### 3.1 `FileManager` (storage)
 
@@ -622,7 +627,7 @@ no other package can build a rule out of them.
 | `AreaOfficer` | `User` | Inheritance |
 | `RoadHazardReport`, `FloodReport`, `StreetlightReport`, `OtherHazardReport` | `Report` | Inheritance |
 | `Report` | `Location` | Composition |
-| `Report` | `ReportStatus` | Association | Holds one constant; see 4.2 |
+| `Report` | `ReportStatus` | Association — holds one constant, see 4.2 |
 
 ### 4.4 Object-creation map
 
@@ -795,6 +800,93 @@ The last number issued for every id prefix, **read and written by** `FileManager
 (`nextNumber(...)`, `reserveNumber(...)`, `lastNumber(...)`). `UserManager` reserves the highest `U` /
 `AD` / `AO` in `users.txt` and `ReportManager` the highest `R` and reporter id in `reports.txt` when
 they start, so an account or report that is deleted can never hand its id to a new record.
+
+## 6. Source-code Section Banners
+
+### 6.1 What the banners are
+
+The classes carry no inline comments, so the only structure inside a class body is the **banner**: one comment
+line that introduces a group of related members.
+
+```
+    // ------------------------------------------------------------ SETTERS
+```
+
+Measured on the current source:
+
+| Fact | Value |
+| --- | --- |
+| Banners in the 19 classes | **89** |
+| Distinct labels | **55** |
+| Dash rule | exactly **60** dashes in every banner |
+| Spacing | one blank line above and below every banner — no exceptions |
+| Classes without a banner | `LocationRules` only (15 lines: a private constructor and one method) |
+
+They group members by job, not by visibility, and every label is upper case. Sections 2 and 3 already list
+every member in source order, so a banner is simply the name of the block that member sits in:
+
+| Column used in sections 2 and 3 | Banner family in the code |
+| --- | --- |
+| Attribute, Constant | `FIELDS`, `FIELDS AND CONSTRUCTION`, `CONSTANTS`, `CONSTANT`, `CONSTANTS AND FIELDS` |
+| Constructor | `CONSTRUCTION`, `CONSTRUCTOR`, `FIELDS AND CONSTRUCTION` |
+| Method | every other label in 6.2 |
+
+### 6.2 The 55 labels, grouped by job
+
+| Family | Labels | What sits underneath |
+| --- | --- | --- |
+| Fields | `FIELDS`, `CONSTANTS`, `CONSTANT`, `CONSTANTS AND FIELDS` | Instance fields and `static final` values only — nothing executable |
+| Construction | `CONSTRUCTION`, `CONSTRUCTOR`, `FIELDS AND CONSTRUCTION` | The constructor(s). The combined label appears when a class has too few fields to deserve a block of their own (`UserManager`, `ReportManager`, `LocationManager`, `Location`, `AreaOfficer`) |
+| Accessors | `GETTERS`, `SETTERS`, `GETTERS AND SETTERS` | Plain `getX()` / `setX()` pairs; a class that keeps both in one block uses the combined label (`Resident`, `AreaOfficer`) |
+| Identity and overrides | `OVERRIDES`, `USER TYPE`, `TYPE NAME` | `getUserType()` above `User`, `getReportType()` above `Report`, and the `toFileString()` overrides. `OVERRIDES` covers a block with more than one kind (`Resident`, `AreaOfficer`); `USER TYPE` and `TYPE NAME` are single-method blocks (`Administrator`, the four report subclasses) |
+| Serialisation | `SERIALISATION`, `TYPE AND SERIALISATION` | `toFileString()`, the `\|`-joined line saved to `users.txt` or `reports.txt`. `User` combines it with `getUserType()` because the type name is the first field of that line |
+| Domain rules | `PASSWORD CHECK`, `WORKFLOW`, `STATUS WORKFLOW`, `REMARK`, `REPORTER DETAILS`, `HAZARD DETAIL`, `ABSTRACT MEMBERS`, `FULL LOCATION`, `DISPLAY NAME` | Behaviour that belongs to one class rather than to a plain accessor: checking a password, asking whether a status may move, the rejection reason, the reporter snapshot, the single hazard field of each report subclass, the abstract contract of `Report`, the readable address of `Location`, and the display text of `ReportStatus` |
+| Manager queries | `REGISTRATION`, `STAFF ACCOUNTS`, `ACCOUNT RECORDS`, `LOGIN AND LOOKUPS`, `LOOKUPS`, `USERNAME AND PROFILE`, `COUNTS, ADDRESS AND SEARCH`, `SUBMITTING`, `DUPLICATES AND RESIDENT CHANGES`, `FILTERING AND COUNTS`, `DATES AND SORTING`, `MUNICIPALITIES`, `BARANGAYS` | The public API of a manager, split by the question it answers: who may sign in, which accounts exist, what a resident may change, which reports match a filter, how many per barangay or hazard type |
+| Persistence and ids | `PERSISTENCE`, `ID GENERATION AND TIME`, `ID NUMBERS`, `READING AND WRITING`, `FILE CREATION` | `load*` and `save*`, the `ids.txt` arithmetic (`nextNumber`, `reserveNumber`, `lastNumber`), `currentTimestamp()`, and the code that creates a missing file |
+| Validation | `FULL NAME`, `PASSWORD`, `CONTACT NUMBER`, `AREA`, `USERNAME`, `LOGIN AND DELETION`, `REPORT FIELDS`, `REJECTION REASON`, `TEXT`, `CHARACTER CHECKS`, `MESSAGE BUILDERS`, `PRIVATE HELPERS`, `HELPERS` | One block per rule in `UserRules` and `ReportRules`, the shared text helpers in `TextRules`, and the small private helper of a class |
+
+4 + 3 + 3 + 3 + 2 + 9 + 13 + 5 + 13 = **55** labels.
+
+### 6.3 The banner skeleton of every class
+
+Every class that has banners, in the order they appear in the file:
+
+| Class | Count | Banners, in source order |
+| --- | --- | --- |
+| `User` | 6 | `FIELDS` → `CONSTRUCTION` → `GETTERS` → `SETTERS` → `PASSWORD CHECK` → `TYPE AND SERIALISATION` |
+| `Resident` | 4 | `FIELDS` → `CONSTRUCTION` → `GETTERS AND SETTERS` → `OVERRIDES` |
+| `Administrator` | 3 | `CONSTRUCTION` → `USER TYPE` → `SERIALISATION` |
+| `AreaOfficer` | 3 | `FIELDS AND CONSTRUCTION` → `GETTERS AND SETTERS` → `OVERRIDES` |
+| `Location` | 3 | `FIELDS AND CONSTRUCTION` → `GETTERS` → `FULL LOCATION` |
+| `ReportStatus` | 3 | `CONSTANTS` → `WORKFLOW` → `DISPLAY NAME` |
+| `Report` | 9 | `FIELDS` → `CONSTRUCTION` → `GETTERS` → `SETTERS` → `STATUS WORKFLOW` → `REMARK` → `REPORTER DETAILS` → `ABSTRACT MEMBERS` → `SERIALISATION` |
+| `RoadHazardReport` | 3 | `CONSTRUCTION` → `TYPE NAME` → `HAZARD DETAIL` |
+| `FloodReport` | 3 | `CONSTRUCTION` → `TYPE NAME` → `HAZARD DETAIL` |
+| `StreetlightReport` | 3 | `CONSTRUCTION` → `TYPE NAME` → `HAZARD DETAIL` |
+| `OtherHazardReport` | 3 | `CONSTRUCTION` → `TYPE NAME` → `HAZARD DETAIL` |
+| `FileManager` | 5 | `CONSTANTS AND FIELDS` → `CONSTRUCTION` → `READING AND WRITING` → `ID NUMBERS` → `FILE CREATION` |
+| `UserManager` | 9 | `FIELDS AND CONSTRUCTION` → `REGISTRATION` → `LOGIN AND LOOKUPS` → `ACCOUNT RECORDS` → `STAFF ACCOUNTS` → `USERNAME AND PROFILE` → `COUNTS, ADDRESS AND SEARCH` → `PERSISTENCE` → `ID GENERATION AND TIME` |
+| `ReportManager` | 10 | `FIELDS AND CONSTRUCTION` → `SUBMITTING` → `LOOKUPS` → `REPORTER DETAILS` → `DUPLICATES AND RESIDENT CHANGES` → `STATUS WORKFLOW` → `FILTERING AND COUNTS` → `DATES AND SORTING` → `PERSISTENCE` → `ID GENERATION AND TIME` |
+| `LocationManager` | 4 | `FIELDS AND CONSTRUCTION` → `MUNICIPALITIES` → `BARANGAYS` → `HELPERS` |
+| `TextRules` | 5 | `CONSTANT` → `CONSTRUCTOR` → `TEXT` → `CHARACTER CHECKS` → `MESSAGE BUILDERS` |
+| `UserRules` | 7 | `CONSTRUCTOR` → `FULL NAME` → `PASSWORD` → `CONTACT NUMBER` → `AREA` → `USERNAME` → `LOGIN AND DELETION` |
+| `ReportRules` | 6 | `CONSTANTS` → `CONSTRUCTOR` → `REPORT FIELDS` → `REJECTION REASON` → `STATUS WORKFLOW` → `PRIVATE HELPERS` |
+| `LocationRules` | 0 | none — 15 lines: a private constructor and one method |
+| **Total** | **89** | `LocationRules` is the only class without a banner |
+
+### 6.4 Six placements that are not where you would expect
+
+A reader who greps by banner can be surprised by these placements, so they are listed instead of left
+as a trap:
+
+| Class | Banner | Member | Where a reader looks first |
+| --- | --- | --- | --- |
+| `TextRules` | `MESSAGE BUILDERS` | `isAsciiLetter(char)`, `isDigit(char)` | `CHARACTER CHECKS` |
+| `Report` | `REMARK` | `getRemark()`, `setRemark(String)` | `SETTERS` (only the location, description and status setters sit there) |
+| `Report` | `REPORTER DETAILS` | the six reporter accessors | `GETTERS` / `SETTERS` |
+| `ReportManager` | `DUPLICATES AND RESIDENT CHANGES` | `hasPendingDuplicate(...)` | `FILTERING AND COUNTS` |
+| `UserManager` | `USERNAME AND PROFILE` | `checkUsername(...)`, `saveDetails(...)`, `changePassword(...)`, `saveAccountChanges(...)` | `ACCOUNT RECORDS` |
+| `LocationManager` | `HELPERS` | `municipalityOf(String)` | `MUNICIPALITIES` |
 
 ---
 
