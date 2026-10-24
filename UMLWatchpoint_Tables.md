@@ -191,7 +191,7 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 
 | Related class | Relationship | Details |
 | --- | --- | --- |
-| `Report` | Composition | `Report.status` is one of these constants |
+| `Report` | Association | `Report.status` holds one of these constants; an enum value is referenced, not owned (multiplicity `1`) |
 | `Report` | Used by | `toFileString()` writes `name()`; `parseReport(...)` reads it back through `parseStatus(...)` |
 | `ReportManager` | Used by | `ReportRules.statusProblem(...)` enforces the table and builds the refusal message; `changeStatus(...)` applies it, and `countReports(...)` counts reports per status |
 
@@ -241,7 +241,7 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | --- | --- | --- |
 | `RoadHazardReport`, `FloodReport`, `StreetlightReport`, `OtherHazardReport` | Inheritance | The four concrete report types |
 | `Location` | Composition | Every report has exactly one location |
-| `ReportStatus` | Composition | Every report has exactly one status (and `canChangeStatusTo` asks it) |
+| `ReportStatus` | Association | Every report holds exactly one constant; `canChangeStatusTo(...)` asks it, but `Report` never instantiates the enum |
 | `ReportManager` | Managed by | Creates, stores, parses, saves, updates the status and deletes reports |
 | `UserManager` | Uses | Only as a fallback for reports written before the reporter details were stored |
 
@@ -465,7 +465,7 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | `RoadHazardReport`, `FloodReport`, `StreetlightReport`, `OtherHazardReport` | Creates | `submitReport(...)` picks the class from `ReportRules.HAZARD_TYPES`, `parseReport(...)` rebuilds it from the line |
 | `Location` | Creates | `parseReport(...)` and `submitReport(...)` (trimmed copy) |
 | `ReportStatus` | Uses | `parseStatus(...)`, `changeStatus(...)` and `countReports(...)`; the refusal messages come from `ReportRules.statusProblem(...)` |
-| `UserManager` | Uses | Only to fill the reporter details of a line written before they were stored |
+| `UserManager` | Association (`0..1`) | Kept in `ReportManager.userManager`; only used to fill the reporter details of a line written before they were stored. The one-argument constructor leaves it `null` |
 
 ### 3.4 `LocationManager` (manager)
 
@@ -599,7 +599,7 @@ no other package can build a rule out of them.
 | Whole | Part | Kind | Notes |
 | --- | --- | --- | --- |
 | `Report` | `Location` | Composition | One report owns one location; it is recreated when the report is edited |
-| `Report` | `ReportStatus` | Composition | One report owns one status at a time |
+| `Report` | `ReportStatus` | Association (`1`) | A report references one constant at a time; enums are not owned instances, so a filled diamond would overstate it |
 | `UserManager` | `List<User>` | Aggregation | All accounts, in file order |
 | `ReportManager` | `List<Report>` | Aggregation | All reports, in file order |
 | `LocationManager` | `List<String>` | Aggregation | The raw lines of `locations.txt` |
@@ -610,7 +610,7 @@ no other package can build a rule out of them.
 | Class | Depends on | Details |
 | --- | --- | --- |
 | `UserManager` | `FileManager`, `User`, `Resident`, `Administrator`, `AreaOfficer` | Creates the subclasses, asks `User` for its data, saves through `FileManager` |
-| `ReportManager` | `FileManager`, `Report`, the four report subclasses, `Location`, `ReportStatus` | Creates and stores reports, enforces the workflow, saves through `FileManager` |
+| `ReportManager` | `FileManager`, `Report`, the four report subclasses, `Location`, `ReportStatus`, `UserManager` | Creates and stores reports, enforces the workflow, saves through `FileManager`, and reads the reporter details of an old report from `UserManager` when one was supplied |
 | `LocationManager` | `FileManager` | Only reads `locations.txt` |
 | `UserManager` | `UserRules`, `TextRules` | The account gates and the `checkUsername(...)` delegate |
 | `ReportManager` | `ReportRules`, `TextRules` | `submitReport(...)`, `changeStatusInCity(...)` and `stored(...)` |
@@ -621,7 +621,8 @@ no other package can build a rule out of them.
 | `Administrator` | `User` | Inheritance |
 | `AreaOfficer` | `User` | Inheritance |
 | `RoadHazardReport`, `FloodReport`, `StreetlightReport`, `OtherHazardReport` | `Report` | Inheritance |
-| `Report` | `Location`, `ReportStatus` | Composition |
+| `Report` | `Location` | Composition |
+| `Report` | `ReportStatus` | Association | Holds one constant; see 4.2 |
 
 ### 4.4 Object-creation map
 
@@ -665,6 +666,37 @@ Every change goes through `ReportManager.changeStatus(...)` (or `changeStatusInC
 asks `ReportRules.statusProblem(...)`; that rule calls `ReportStatus.canMoveTo(...)` and refuses anything
 the table in section 2.6 does not allow. Only `ReportManager.reopenReport(report, true)` can leave
 `REJECTED`, and nothing can leave `RESOLVED`.
+
+### 4.6 Multiplicities (as they should be drawn)
+
+The left-hand class is the one that **holds the field**, so any diamond sits on its end. A plain field of
+another class is an association, not a dashed dependency.
+
+| Association | Multiplicity | Backed by |
+| --- | --- | --- |
+| `UserManager` — `User` | `1` → `0..*` | `private List<User> users` |
+| `ReportManager` — `Report` | `1` → `0..*` | `private List<Report> reports` |
+| `LocationManager` — location lines | `1` → `0..*` | `private List<String> lines` |
+| `Report` — `Location` | `1` → `1` | `private Location location` (composition, filled diamond at `Report`) |
+| `Report` — `ReportStatus` | `*` → `1` | `private ReportStatus status` (association) |
+| `UserManager` — `FileManager` | `1` → `1` | `private FileManager fileManager` |
+| `ReportManager` — `FileManager` | `1` → `1` | `private FileManager fileManager` |
+| `LocationManager` — `FileManager` | `1` → `1` | `private FileManager fileManager` |
+| `ReportManager` — `UserManager` | `1` → `0..1` | `private UserManager userManager` |
+
+### 4.7 Return-type conventions (for checking a diagram)
+
+Most mistakes a class diagram makes in this project are return types, because the error-handling style is
+"give back the message, or `null` on success".
+
+| Return type | Meaning | Examples |
+| --- | --- | --- |
+| `String` | The message to show, or `null` when the action succeeded | `checkUsername(...)`, `saveDetails(...)`, `changePassword(...)`, `changeStatus(...)`, `changeStatusInCity(...)`, `reopenReport(...)`, every `validation` rule |
+| `boolean` | Succeeded; nothing to say | `registerResident(...)`, `updateUser(...)`, `deleteUser(...)`, `saveAccountChanges(...)`, `hasPendingDuplicate(...)`, `updateReportStatus(...)` |
+| `int` | A count, or `-1` when it cannot be read | `countAdministrators()`, `countReports(...)`, `FileManager.nextNumber(...)`, `ReportManager.daysWaiting(...)` |
+| `List<String[]>` | `{ label, count }` pairs — **not** a `Map` | `countByBarangay(...)`, `countByHazardType(...)` |
+| `Report`, `Administrator`, `AreaOfficer` | The object that was created, or `null` when a rule refused it | `submitReport(...)`, `addAdministrator(...)`, `addAreaOfficer(...)` |
+| `void` | Writes and setters only | `writeLines(...)`, `reserveNumber(...)`, `setStatus(...)` |
 
 ---
 
