@@ -211,7 +211,7 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | Attribute | `private ReportStatus status` | Starts as `PENDING` |
 | Attribute | `private String dateSubmitted` | `yyyy-MM-dd HH:mm` |
 | Attribute | `private String remark` | Rejection reason; empty for every other status |
-| Constructor | `protected Report(String reportId, String reporterId, Location location, String description, ReportStatus status, String dateSubmitted)` | Sets `remark` to `""` |
+| Constructor | `protected Report(String reportId, String reporterId, Location location, String description, ReportStatus status, String dateSubmitted)` | Sets `remark` and the three reporter fields to `""` |
 | Method | `public String getReportId()` | |
 | Method | `public String getReporterId()` | The `userId` of the resident who filed it |
 | Method | `public String getReporterName()` | Saved with the report when it is filed |
@@ -359,14 +359,13 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | --- | --- | --- |
 | Attribute | `private List<User> users` | Every account, loaded once in the constructor |
 | Attribute | `private FileManager fileManager` | Used to read and save `users.txt` |
-| Constructor | `public UserManager(FileManager fileManager)` | Calls `loadUsers()` |
+| Constructor | `public UserManager(FileManager fileManager)` | Calls `loadUsers()`, then reserves the highest `U` / `AD` / `AO` number in `ids.txt` |
 | Method | `public boolean registerResident(String fullName, String username, String password, String address, String contactNumber)` | Validates everything, then creates a `Resident` and saves |
 | Method | `public User login(String loginId, String password)` | Matches the id of any account, or the username of a resident, case-insensitively |
 | Method | `public User getUserById(String userId)` | Linear search |
 | Method | `public List<User> getAllUsers()` | Copy of the list |
 | Method | `public boolean updateUser(User user)` | Replaces the stored object with the same id and saves |
 | Method | `public boolean deleteUser(String userId)` | Removes and saves |
-
 | Method | `public Administrator addAdministrator(String fullName, String password)` | Validates, generates the `AD` id, saves |
 | Method | `public AreaOfficer addAreaOfficer(String fullName, String password, String area)` | Validates, generates the `AO` id, saves |
 | Method | `public String checkUsername(User user, String username)` | Delegates to `UserRules.usernameProblem(user, username, users)` |
@@ -411,7 +410,7 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | Attribute | `private FileManager fileManager` | Used to read and save `reports.txt` |
 | Attribute | `private UserManager userManager` | Fallback for lines written before the reporter details were stored |
 | Constructor | `public ReportManager(FileManager fileManager)` | Hands over to the two-argument constructor |
-| Constructor | `public ReportManager(FileManager fileManager, UserManager userManager)` | Calls `loadReports()` |
+| Constructor | `public ReportManager(FileManager fileManager, UserManager userManager)` | Calls `loadReports()`, then reserves the highest `R` number and the highest reporter id |
 | Method | `public Report submitReport(Resident reporter, String hazardType, Location location, String description, String specificDetail)` | Validates, copies the reporter's name, address and contact into the report, saves it as `PENDING` |
 | Method | `public Report getReportById(String reportId)` | Linear search |
 | Method | `public List<Report> getReportsByReporter(String reporterId)` | A resident's own reports |
@@ -420,6 +419,8 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | Method | `public String reporterName(Report report)` | Saved value, or the account for an old line |
 | Method | `public String reporterAddress(Report report)` | Saved value, or the account for an old line |
 | Method | `public String reporterContact(Report report)` | Saved value, or the account for an old line |
+| Method | `private Resident reporterAccount(Report report)` | The account behind a report, or `null` when it was deleted |
+| Method | `private static String stored(String value)` | One line and no `\|`, for the values copied into a report |
 | Method | `public boolean updateResidentReport(Report report, String residentId)` | Only the owner, and only while `PENDING` |
 | Method | `public boolean deleteResidentReport(String reportId, String residentId)` | Only the owner, and only while `PENDING` |
 | Method | `public boolean deleteInvalidReport(String reportId)` | Administrator deletion of spam |
@@ -433,14 +434,18 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | Method | `public static ReportStatus parseStatus(String text)` | Reads a status name, falls back to `PENDING` |
 | Method | `public List<Report> getReports(String cityMunicipality, String barangay, String sortMode)` | Filtering and sorting for the tables |
 | Method | `public List<Report> getReportsInCity(String cityMunicipality)` | Shortcut for one area |
-| Method | `public int countReports(String cityMunicipality, String barangay, String hazardType, ReportStatus status)` | A `null` filter means "every value"; the 2-argument shortcut keeps only the area and status filters |
-| Method | `public List<String[]> countByBarangay(String cityMunicipality, String barangay, String hazardType)` | `{ barangay, count }`, busiest first; the 1-argument shortcut covers every barangay of one area |
-| Method | `public List<String[]> countByHazardType(String cityMunicipality, String barangay)` | `{ type, count }`, most common first; the 1-argument shortcut covers every type of one area |
-| Method | `public Report oldestPending(String cityMunicipality, String barangay, String hazardType)` | The `PENDING` report that waited longest among the filtered ones; the 1-argument shortcut covers one area |
+| Method | `public int countReports(String cityMunicipality, String barangay, String hazardType, ReportStatus status)` | A `null` filter means "every value" |
+| Method | `public int countReports(String cityMunicipality, ReportStatus status)` | Shortcut for `countReports(city, null, null, status)` |
+| Method | `public List<String[]> countByBarangay(String cityMunicipality, String barangay, String hazardType)` | `{ barangay, count }`, busiest first |
+| Method | `public List<String[]> countByBarangay(String cityMunicipality)` | Shortcut for every barangay of one area |
+| Method | `public List<String[]> countByHazardType(String cityMunicipality, String barangay)` | `{ type, count }`, most common first |
+| Method | `public List<String[]> countByHazardType(String cityMunicipality)` | Shortcut for every type of one area |
+| Method | `public Report oldestPending(String cityMunicipality, String barangay, String hazardType)` | The `PENDING` report that waited longest among the filtered ones |
+| Method | `public Report oldestPending(String cityMunicipality)` | Shortcut for the oldest pending report in one area |
+| Method | `private static boolean matches(Report report, String cityMunicipality, String barangay, String hazardType)` | `true` when the report passes every filter that is not `null` |
 | Method | `public static int daysWaiting(String dateSubmitted)` | Whole days since submission, `-1` when unreadable |
 | Method | `public boolean hasPendingDuplicate(String reporterId, String hazardType, String barangay, String specificDetail)` | Blocks the same pending hazard twice |
-| Method | `private static String nextStatusesText(ReportStatus status)` | `"VERIFIED or REJECTED"` for the refusal messages |
-| Method | `private List<String[]> countBy(String cityMunicipality, boolean byBarangay)` | Shared counting for both breakdowns |
+| Method | `private List<String[]> countBy(String cityMunicipality, String barangay, String hazardType, boolean byBarangay)` | Shared counting for both breakdowns; the filters go through `matches(...)` |
 | Method | `private static void addTotal(List<String> names, List<Integer> totals, String name)` | Increments a name/count pair |
 | Method | `private static void sort(List<Report> list, String sortMode)` | By id, date, status or type |
 | Method | `private void loadReports()` | Reads `reports.txt` through `parseReport(...)` |
@@ -448,6 +453,8 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | Method | `private Report parseReport(String line)` | Rebuilds the subclass, the status and the remark |
 | Method | `private String currentTimestamp()` | `yyyy-MM-dd HH:mm` for `dateSubmitted` |
 | Method | `private String generateReportId()` | `R` + three digits from `ids.txt`, or `null` when the numbers run out |
+| Method | `private int highestReportNumber()` | Reserved at startup so a deleted `R` id is never reused |
+| Method | `private int highestReporterNumber()` | Reserves the `U` numbers that saved reports still point at |
 
 **Relationships**
 
@@ -609,7 +616,7 @@ no other package can build a rule out of them.
 | `ReportManager` | `ReportRules`, `TextRules` | `submitReport(...)`, `changeStatusInCity(...)` and `stored(...)` |
 | `TextRules`, `UserRules`, `ReportRules` | `model` | `User`, `Resident`, `Administrator`, `Location`, `Report`, `ReportStatus` — nothing else |
 | `LocationRules` | — | Inspects two strings only |
-| `FileManager` | `java.io` | Reads and writes the three text files |
+| `FileManager` | `java.io` | Reads and writes the four text files (`users`, `reports`, `locations`, `ids`) |
 | `Resident` | `User` | Inheritance |
 | `Administrator` | `User` | Inheritance |
 | `AreaOfficer` | `User` | Inheritance |
@@ -663,7 +670,7 @@ the table in section 2.6 does not allow. Only `ReportManager.reopenReport(report
 
 ## 5. Data Files (accessed through `FileManager`)
 
-All three files are plain text, one record per line, with `|` as the field separator — which is why the
+All four files are plain text, one record per line, with `|` as the field separator — which is why the
 validators refuse a `|` inside any free-text value.
 
 ### 5.1 `data/users.txt`
@@ -722,11 +729,13 @@ type|reportId|reporterId|cityMunicipality|barangay|street|specificPlace|descript
 | `remark` | The rejection reason; empty for every other status |
 
 ```
-Flood|R004|U000003|Tagbilaran City|Cogon|M. Torralba Street|Near Cogon Market|Water rising after heavy rain|Knee deep|REJECTED|2026-10-16 07:20|Duplicate of R001
+Flood|R004|U000003|Tagbilaran City|Cogon|M. Torralba Street|Near Cogon Market|Water rising after heavy rain|Knee deep|REJECTED|2026-10-16 07:20|Duplicate of R001|Maria Santos|Cogon, Tagbilaran City|09171234567
 ```
 
 A line written before the `remark` field existed still loads, because `parseReport(...)` treats a
-missing last field as empty.
+missing field as empty. The same holds for the three reporter fields: a report saved before they were
+introduced still loads, and `ReportManager.reporterName/Address/Contact(...)` then read the details from
+the account - or return an empty value (shown as `-`) when that account no longer exists.
 
 ### 5.3 `data/locations.txt`
 
