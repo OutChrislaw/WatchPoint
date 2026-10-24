@@ -87,7 +87,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         setTitle("WatchPoint - Administrator: " + currentUser.getFullName());
         subtitleLabel.setText("Signed in as " + currentUser.getFullName() + "  -  Administrator");
 
-        overview = new OverviewPanel(reportManager, null);
+        overview = new OverviewPanel(reportManager, locationManager, null);
         tabs.addTab("Overview", overview);
         tabs.addTab("Reports", buildReportsTab());
         tabs.addTab("Users", buildUsersTab());

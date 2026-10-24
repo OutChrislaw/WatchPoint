@@ -433,10 +433,10 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | Method | `public static ReportStatus parseStatus(String text)` | Reads a status name, falls back to `PENDING` |
 | Method | `public List<Report> getReports(String cityMunicipality, String barangay, String sortMode)` | Filtering and sorting for the tables |
 | Method | `public List<Report> getReportsInCity(String cityMunicipality)` | Shortcut for one area |
-| Method | `public int countReports(String cityMunicipality, ReportStatus status)` | A `null` status counts every report |
-| Method | `public List<String[]> countByBarangay(String cityMunicipality)` | `{ barangay, count }`, busiest first |
-| Method | `public List<String[]> countByHazardType(String cityMunicipality)` | `{ type, count }`, most common first |
-| Method | `public Report oldestPending(String cityMunicipality)` | The `PENDING` report that waited longest |
+| Method | `public int countReports(String cityMunicipality, String barangay, String hazardType, ReportStatus status)` | A `null` filter means "every value"; the 2-argument shortcut keeps only the area and status filters |
+| Method | `public List<String[]> countByBarangay(String cityMunicipality, String barangay, String hazardType)` | `{ barangay, count }`, busiest first; the 1-argument shortcut covers every barangay of one area |
+| Method | `public List<String[]> countByHazardType(String cityMunicipality, String barangay)` | `{ type, count }`, most common first; the 1-argument shortcut covers every type of one area |
+| Method | `public Report oldestPending(String cityMunicipality, String barangay, String hazardType)` | The `PENDING` report that waited longest among the filtered ones; the 1-argument shortcut covers one area |
 | Method | `public static int daysWaiting(String dateSubmitted)` | Whole days since submission, `-1` when unreadable |
 | Method | `public boolean hasPendingDuplicate(String reporterId, String hazardType, String barangay, String specificDetail)` | Blocks the same pending hazard twice |
 | Method | `private static String nextStatusesText(ReportStatus status)` | `"VERIFIED or REJECTED"` for the refusal messages |
@@ -471,6 +471,7 @@ The entry point (`app.WatchPoint`) and every class in the `ui` package (the Swin
 | Constructor | `public LocationManager(FileManager fileManager)` | Loads the file immediately |
 | Method | `public List<String> getMunicipalities()` | The city / municipality names, in file order |
 | Method | `public List<String> getBarangays(String municipality)` | The barangays of one city / municipality |
+| Method | `public List<String> getAllBarangays()` | Every barangay name once, alphabetically, for the province-wide filter |
 | Method | `private String municipalityOf(String line)` | Text before the first `\|` |
 
 **Relationships**

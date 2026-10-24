@@ -3,6 +3,7 @@ package manager;
 import storage.FileManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LocationManager {
@@ -43,6 +44,25 @@ public class LocationManager {
                 return result;
             }
         }
+        return result;
+    }
+
+    /**
+     * Every barangay name once, alphabetically, so the province-wide overview can
+     * offer one barangay filter without listing the same name for every town.
+     */
+    public List<String> getAllBarangays() {
+        List<String> result = new ArrayList<String>();
+        for (int i = 0; i < lines.size(); i++) {
+            String[] parts = lines.get(i).split("\\|");
+            for (int j = 1; j < parts.length; j++) {
+                String name = parts[j].trim();
+                if (name.length() > 0 && !result.contains(name)) {
+                    result.add(name);
+                }
+            }
+        }
+        Collections.sort(result);
         return result;
     }
 

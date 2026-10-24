@@ -85,7 +85,7 @@ public class AreaOfficerDashboard extends javax.swing.JFrame {
         subtitleLabel.setText("Signed in as " + currentOfficer.getFullName()
                 + "  -  Area Officer (" + currentOfficer.getArea() + ")");
 
-        overview = new OverviewPanel(reportManager, currentOfficer.getArea());
+        overview = new OverviewPanel(reportManager, locationManager, currentOfficer.getArea());
         tabs.addTab("Overview", overview);
         tabs.addTab("Reports", buildReportsTab());
         tabs.addChangeListener(e -> {

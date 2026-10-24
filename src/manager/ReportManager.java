@@ -323,15 +323,15 @@ public class ReportManager {
     }
 
     /**
-     * Number of reports in one area (null = the whole province) with the given
-     * status (null = every status).
+     * Number of reports that match every filter. A null filter means "every value",
+     * so (null, null, null, null) counts the whole set.
      */
-    public int countReports(String cityMunicipality, ReportStatus status) {
+    public int countReports(String cityMunicipality, String barangay, String hazardType,
+                            ReportStatus status) {
         int total = 0;
         for (int i = 0; i < reports.size(); i++) {
             Report report = reports.get(i);
-            if (cityMunicipality != null
-                    && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
+            if (!matches(report, cityMunicipality, barangay, hazardType)) {
                 continue;
             }
             if (status != null && report.getStatus() != status) {
@@ -342,24 +342,40 @@ public class ReportManager {
         return total;
     }
 
-    /** Reports per barangay, busiest first, as { barangay, count } pairs. */
+    /** Shortcut for a count that only filters by area and status. */
+    public int countReports(String cityMunicipality, ReportStatus status) {
+        return countReports(cityMunicipality, null, null, status);
+    }
+
+    /** Reports per barangay that match the filters, busiest first. */
+    public List<String[]> countByBarangay(String cityMunicipality, String barangay,
+                                          String hazardType) {
+        return countBy(cityMunicipality, barangay, hazardType, true);
+    }
+
+    /** Shortcut for every barangay in one area. */
     public List<String[]> countByBarangay(String cityMunicipality) {
-        return countBy(cityMunicipality, true);
+        return countBy(cityMunicipality, null, null, true);
     }
 
-    /** Reports per hazard type, most common first, as { type, count } pairs. */
+    /** Reports per hazard type that match the filters, most common first. */
+    public List<String[]> countByHazardType(String cityMunicipality, String barangay) {
+        return countBy(cityMunicipality, barangay, null, false);
+    }
+
+    /** Shortcut for every hazard type in one area. */
     public List<String[]> countByHazardType(String cityMunicipality) {
-        return countBy(cityMunicipality, false);
+        return countBy(cityMunicipality, null, null, false);
     }
 
-    private List<String[]> countBy(String cityMunicipality, boolean byBarangay) {
+    private List<String[]> countBy(String cityMunicipality, String barangay, String hazardType,
+                                   boolean byBarangay) {
         List<String> names = new ArrayList<String>();
         List<Integer> totals = new ArrayList<Integer>();
 
         for (int i = 0; i < reports.size(); i++) {
             Report report = reports.get(i);
-            if (cityMunicipality != null
-                    && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
+            if (!matches(report, cityMunicipality, barangay, hazardType)) {
                 continue;
             }
             if (byBarangay) {
@@ -401,16 +417,15 @@ public class ReportManager {
         totals.add(Integer.valueOf(1));
     }
 
-    /** The PENDING report that has been waiting the longest in one area. */
-    public Report oldestPending(String cityMunicipality) {
+    /** The PENDING report that has been waiting the longest among the filtered ones. */
+    public Report oldestPending(String cityMunicipality, String barangay, String hazardType) {
         Report oldest = null;
         for (int i = 0; i < reports.size(); i++) {
             Report report = reports.get(i);
-            if (cityMunicipality != null
-                    && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
+            if (report.getStatus() != ReportStatus.PENDING) {
                 continue;
             }
-            if (report.getStatus() != ReportStatus.PENDING) {
+            if (!matches(report, cityMunicipality, barangay, hazardType)) {
                 continue;
             }
             if (oldest == null
@@ -419,6 +434,28 @@ public class ReportManager {
             }
         }
         return oldest;
+    }
+
+    /** Shortcut for the oldest pending report in one area. */
+    public Report oldestPending(String cityMunicipality) {
+        return oldestPending(cityMunicipality, null, null);
+    }
+
+    /** True when the report passes every filter that is not null. */
+    private static boolean matches(Report report, String cityMunicipality, String barangay,
+                                   String hazardType) {
+        if (cityMunicipality != null
+                && !report.getLocation().getCityMunicipality().equals(cityMunicipality)) {
+            return false;
+        }
+        if (barangay != null
+                && !report.getLocation().getBarangay().equalsIgnoreCase(barangay)) {
+            return false;
+        }
+        if (hazardType != null && !report.getReportType().equals(hazardType)) {
+            return false;
+        }
+        return true;
     }
 
     /**
