@@ -6,21 +6,11 @@ import model.User;
 
 import java.util.List;
 
-/**
- * UserRules.java
- * Every rule for an account: the fields the person types, the login form and the
- * rules that decide whether an account may be deleted. The managers and the
- * windows both call these methods, so every message lives in one place.
- */
 public class UserRules {
 
     private UserRules() {
     }
 
-    /**
-     * The rules for a full name. Returns the problem to show, or null when the
-     * name is acceptable.
-     */
     public static String fullNameProblem(String fullName) {
         if (TextRules.isBlank(fullName)) {
             return "Please enter the full name.";
@@ -46,7 +36,6 @@ public class UserRules {
         return hasLetter ? null : "The full name must contain letters.";
     }
 
-    /** The password rules: 8 to 64 characters, no spaces and no pipe character. */
     public static String passwordProblem(String password) {
         if (password == null || password.length() == 0) {
             return "Please enter a password.";
@@ -63,7 +52,6 @@ public class UserRules {
                 ? "The password must not contain the | character or line breaks." : null;
     }
 
-    /** The password is typed twice on every form that sets one, so both must match. */
     public static String passwordConfirmProblem(String password, String confirmPassword) {
         if (password == null || confirmPassword == null || !password.equals(confirmPassword)) {
             return "The two passwords do not match.";
@@ -71,7 +59,6 @@ public class UserRules {
         return null;
     }
 
-    /** The contact number rules: exactly 11 digits and it must start with 09. */
     public static String contactNumberProblem(String contactNumber) {
         if (TextRules.isBlank(contactNumber)) {
             return "Please enter the contact number.";
@@ -90,7 +77,6 @@ public class UserRules {
                 : "The contact number must start with 09, like 09171234567.";
     }
 
-    /** The assigned area of an area officer, which is a city/municipality name. */
     public static String areaProblem(String area) {
         if (TextRules.isBlank(area)) {
             return "Please select the area this officer handles.";
@@ -100,11 +86,7 @@ public class UserRules {
         return TextRules.firstProblem(TextRules.maxProblem(name, "area", 60),
                 TextRules.hasForbiddenCharacter(name) ? TextRules.FORBIDDEN_TEXT : null);
     }
-    /**
-     * The username rules: shape, allowed characters, an id-like string and
-     * uniqueness. The account being edited may be null for a new sign-up, and the
-     * account list may be null when only the shape matters.
-     */
+
     public static String usernameProblem(User user, String username, List<User> users) {
         if (TextRules.isBlank(username)) {
             return "Please enter a username.";
@@ -151,7 +133,6 @@ public class UserRules {
         return null;
     }
 
-    /** The login form needs both a username / id and a password. */
     public static String loginProblem(String loginId, String password) {
         if (TextRules.isBlank(loginId) || password == null || password.length() == 0) {
             return "Please enter your username or ID and password.";
@@ -159,10 +140,6 @@ public class UserRules {
         return null;
     }
 
-    /**
-     * An administrator may not delete the account they are signed in with, and the
-     * last remaining administrator cannot be deleted at all.
-     */
     public static String deletionProblem(User target, User signedIn, int administratorCount) {
         if (target == null) {
             return "Please select a user first.";

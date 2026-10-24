@@ -10,7 +10,6 @@ import java.util.List;
 
 public class FileManager {
 
-    /** Keeps the last number issued for every id prefix, so ids are never reused. */
     private static final String ID_FILE = "ids.txt";
 
     private String dataFolder;
@@ -59,10 +58,6 @@ public class FileManager {
         }
     }
 
-    /**
-     * The next number that was never used with this prefix, already reserved in
-     * ids.txt. Returns -1 when all six digits are used up.
-     */
     public int nextNumber(String prefix) {
         if (prefix == null || prefix.length() == 0) {
             return -1;
@@ -77,10 +72,6 @@ public class FileManager {
         return next;
     }
 
-    /**
-     * Raises the stored number for the prefix, so an account or report that was
-     * deleted can never hand its id to somebody else.
-     */
     public void reserveNumber(String prefix, int number) {
         if (prefix == null || prefix.length() == 0 || number <= 0) {
             return;
@@ -91,7 +82,6 @@ public class FileManager {
         writeNumber(prefix, number);
     }
 
-    /** The last number stored for the prefix, or 0 when it was never used. */
     public int lastNumber(String prefix) {
         if (prefix == null || prefix.length() == 0) {
             return 0;
@@ -111,7 +101,7 @@ public class FileManager {
                     highest = number;
                 }
             } catch (Exception e) {
-                // lines that are not prefix|number are ignored
+
             }
         }
         return highest;

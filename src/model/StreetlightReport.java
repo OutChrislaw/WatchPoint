@@ -1,9 +1,5 @@
 package model;
 
-/**
- * StreetlightReport.java
- * A report about a broken or unlit streetlight.
- */
 public class StreetlightReport extends Report {
 
     private String poleNumber;

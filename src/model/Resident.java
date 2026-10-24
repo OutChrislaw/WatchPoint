@@ -1,10 +1,5 @@
 package model;
 
-/**
- * Resident.java
- * A community member who files reports. This is the only account type with a
- * username, because residents sign in with it.
- */
 public class Resident extends User {
 
     private String username;

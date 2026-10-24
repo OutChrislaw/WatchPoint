@@ -47,10 +47,6 @@ public class LocationManager {
         return result;
     }
 
-    /**
-     * Every barangay name once, alphabetically, so the province-wide overview can
-     * offer one barangay filter without listing the same name for every town.
-     */
     public List<String> getAllBarangays() {
         List<String> result = new ArrayList<String>();
         for (int i = 0; i < lines.size(); i++) {

@@ -63,7 +63,6 @@ public abstract class Report {
         this.status = status;
     }
 
-    /** True when the workflow allows this report to move to the given status. */
     public boolean canChangeStatusTo(ReportStatus target) {
         return status != null && status.canMoveTo(target);
     }
@@ -79,7 +78,6 @@ public abstract class Report {
         this.remark = remark;
     }
 
-    /** The reporter's full name at the time the report was filed. */
     public String getReporterName() {
         return reporterName == null ? "" : reporterName;
     }
@@ -88,7 +86,6 @@ public abstract class Report {
         this.reporterName = reporterName;
     }
 
-    /** The reporter's address at the time the report was filed. */
     public String getReporterAddress() {
         return reporterAddress == null ? "" : reporterAddress;
     }
@@ -97,7 +94,6 @@ public abstract class Report {
         this.reporterAddress = reporterAddress;
     }
 
-    /** The reporter's contact number at the time the report was filed. */
     public String getReporterContact() {
         return reporterContact == null ? "" : reporterContact;
     }

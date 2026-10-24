@@ -25,12 +25,10 @@ public class ReportManager {
     private FileManager fileManager;
     private UserManager userManager;
 
-    /** Every report carries its own reporter details, so no account is needed. */
     public ReportManager(FileManager fileManager) {
         this(fileManager, null);
     }
 
-    /** The accounts are only used to fill reports saved before the details were stored. */
     public ReportManager(FileManager fileManager, UserManager userManager) {
         this.fileManager = fileManager;
         this.userManager = userManager;
@@ -110,12 +108,10 @@ public class ReportManager {
         return new ArrayList<Report>(reports);
     }
 
-    /** How many reports one account filed. */
     public int countReportsByReporter(String reporterId) {
         return getReportsByReporter(reporterId).size();
     }
 
-    /** The reporter's full name saved with the report, or the account when the line is old. */
     public String reporterName(Report report) {
         if (report == null) {
             return "";
@@ -127,7 +123,6 @@ public class ReportManager {
         return account == null ? "" : account.getFullName();
     }
 
-    /** The reporter's address saved with the report, or the account when the line is old. */
     public String reporterAddress(Report report) {
         if (report == null) {
             return "";
@@ -139,7 +134,6 @@ public class ReportManager {
         return account == null ? "" : account.getAddress();
     }
 
-    /** The reporter's contact number saved with the report, or the account when the line is old. */
     public String reporterContact(Report report) {
         if (report == null) {
             return "";
@@ -151,7 +145,6 @@ public class ReportManager {
         return account == null ? "" : account.getContactNumber();
     }
 
-    /** The account behind a report, or null when it was deleted or no accounts are loaded. */
     private Resident reporterAccount(Report report) {
         if (userManager == null || report == null) {
             return null;
@@ -163,15 +156,10 @@ public class ReportManager {
         return null;
     }
 
-    /** Keeps a saved reporter value on one line and free of the field separator. */
     private static String stored(String value) {
         return TextRules.oneLine(value).replace('|', '-');
     }
 
-    /**
-     * True when this resident already has a PENDING report with the same hazard
-     * type, barangay and specific detail.
-     */
     public boolean hasPendingDuplicate(String reporterId, String hazardType, String barangay,
                                        String specificDetail) {
         String area = barangay == null ? "" : barangay.trim();
@@ -240,10 +228,6 @@ public class ReportManager {
         return changeStatusInCity(getReportById(reportId), status, remark, cityMunicipality) == null;
     }
 
-    /**
-     * Validates, applies and saves a status change. Returns null on success, or
-     * the message explaining why the change was denied.
-     */
     public String changeStatus(Report report, ReportStatus target, String reason) {
         return changeStatusInCity(report, target, reason, null);
     }
@@ -269,10 +253,6 @@ public class ReportManager {
         return null;
     }
 
-    /**
-     * Reopens a rejected report: it goes back to PENDING and the rejection
-     * reason is cleared. Only an administrator may do this.
-     */
     public String reopenReport(Report report, boolean administrator) {
         if (!administrator) {
             return "Only an administrator can reopen a rejected report.";
@@ -322,10 +302,6 @@ public class ReportManager {
         return getReports(cityMunicipality, null, null);
     }
 
-    /**
-     * Number of reports that match every filter. A null filter means "every value",
-     * so (null, null, null, null) counts the whole set.
-     */
     public int countReports(String cityMunicipality, String barangay, String hazardType,
                             ReportStatus status) {
         int total = 0;
@@ -342,28 +318,23 @@ public class ReportManager {
         return total;
     }
 
-    /** Shortcut for a count that only filters by area and status. */
     public int countReports(String cityMunicipality, ReportStatus status) {
         return countReports(cityMunicipality, null, null, status);
     }
 
-    /** Reports per barangay that match the filters, busiest first. */
     public List<String[]> countByBarangay(String cityMunicipality, String barangay,
                                           String hazardType) {
         return countBy(cityMunicipality, barangay, hazardType, true);
     }
 
-    /** Shortcut for every barangay in one area. */
     public List<String[]> countByBarangay(String cityMunicipality) {
         return countBy(cityMunicipality, null, null, true);
     }
 
-    /** Reports per hazard type that match the filters, most common first. */
     public List<String[]> countByHazardType(String cityMunicipality, String barangay) {
         return countBy(cityMunicipality, barangay, null, false);
     }
 
-    /** Shortcut for every hazard type in one area. */
     public List<String[]> countByHazardType(String cityMunicipality) {
         return countBy(cityMunicipality, null, null, false);
     }
@@ -417,7 +388,6 @@ public class ReportManager {
         totals.add(Integer.valueOf(1));
     }
 
-    /** The PENDING report that has been waiting the longest among the filtered ones. */
     public Report oldestPending(String cityMunicipality, String barangay, String hazardType) {
         Report oldest = null;
         for (int i = 0; i < reports.size(); i++) {
@@ -436,12 +406,10 @@ public class ReportManager {
         return oldest;
     }
 
-    /** Shortcut for the oldest pending report in one area. */
     public Report oldestPending(String cityMunicipality) {
         return oldestPending(cityMunicipality, null, null);
     }
 
-    /** True when the report passes every filter that is not null. */
     private static boolean matches(Report report, String cityMunicipality, String barangay,
                                    String hazardType) {
         if (cityMunicipality != null
@@ -458,10 +426,6 @@ public class ReportManager {
         return true;
     }
 
-    /**
-     * Whole days between the submitted timestamp and now, or -1 when the
-     * timestamp cannot be read.
-     */
     public static int daysWaiting(String dateSubmitted) {
         if (dateSubmitted == null || dateSubmitted.trim().length() < 10) {
             return -1;
@@ -485,7 +449,6 @@ public class ReportManager {
         }
     }
 
-    /** Reads a status name, falling back to PENDING for anything unknown. */
     public static ReportStatus parseStatus(String text) {
         if (text == null) {
             return ReportStatus.PENDING;
@@ -618,7 +581,6 @@ public class ReportManager {
         return "R" + text;
     }
 
-    /** The highest report number stored, so a deleted id is never handed out again. */
     private int highestReportNumber() {
         int highest = 0;
         for (int i = 0; i < reports.size(); i++) {
@@ -630,14 +592,13 @@ public class ReportManager {
                         highest = number;
                     }
                 } catch (Exception e) {
-                    // ids that are not in the R<number> format are ignored
+
                 }
             }
         }
         return highest;
     }
 
-    /** Reports keep the id of a deleted account, so that number stays reserved as well. */
     private int highestReporterNumber() {
         int highest = 0;
         for (int i = 0; i < reports.size(); i++) {
@@ -649,7 +610,7 @@ public class ReportManager {
                         highest = number;
                     }
                 } catch (Exception e) {
-                    // ids that are not in the U<number> format are ignored
+
                 }
             }
         }

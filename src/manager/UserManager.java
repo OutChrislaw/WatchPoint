@@ -5,7 +5,6 @@ import model.Resident;
 import model.Administrator;
 import model.AreaOfficer;
 
-
 import storage.FileManager;
 import validation.TextRules;
 import validation.UserRules;
@@ -15,22 +14,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * UserManager.java
- * Registration, login and account records, plus the resident sign-ups that are
- * still waiting for an Area Officer to accept or reject them.
- */
 public class UserManager {
 
     private List<User> users;
-
 
     private FileManager fileManager;
 
     public UserManager(FileManager fileManager) {
         this.fileManager = fileManager;
         this.users = new ArrayList<User>();
-
 
         loadUsers();
         fileManager.reserveNumber("U", highestUserNumber("U"));
@@ -121,7 +113,6 @@ public class UserManager {
         return false;
     }
 
-
     public Administrator addAdministrator(String fullName, String password) {
         if (TextRules.firstProblem(UserRules.fullNameProblem(fullName),
                 UserRules.passwordProblem(password)) != null) {
@@ -158,7 +149,6 @@ public class UserManager {
         return officer;
     }
 
-    /** The username rules, checked against every account that is already stored. */
     public String checkUsername(User user, String username) {
         return UserRules.usernameProblem(user, username, users);
     }
@@ -319,7 +309,6 @@ public class UserManager {
         return result;
     }
 
-
     private void loadUsers() {
         List<String> lines = fileManager.readLines("users.txt");
         for (int i = 0; i < lines.size(); i++) {
@@ -396,12 +385,10 @@ public class UserManager {
         return idFor("AO");
     }
 
-
     private String generateAdministratorId() {
         return idFor("AD");
     }
 
-    /** The next id for the prefix, or null when every six-digit number is used up. */
     private String idFor(String prefix) {
         int number = fileManager.nextNumber(prefix);
         if (number < 0) {
@@ -410,7 +397,6 @@ public class UserManager {
         return formatId(prefix, number);
     }
 
-    /** The highest number used with the prefix, so a deleted id is never handed out again. */
     private int highestUserNumber(String prefix) {
         int highest = 0;
         for (int i = 0; i < users.size(); i++) {
@@ -432,7 +418,6 @@ public class UserManager {
             return 0;
         }
     }
-
 
     private String currentTimestamp() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

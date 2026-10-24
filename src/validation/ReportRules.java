@@ -6,23 +6,13 @@ import model.ReportStatus;
 
 import java.util.List;
 
-/**
- * ReportRules.java
- * Every rule for filing a report, for rejecting one and for moving it through the
- * workflow. The order of the statuses themselves lives in model.ReportStatus.
- */
 public class ReportRules {
 
-    /** The hazard types the system accepts, matching the report classes. */
     public static final String[] HAZARD_TYPES = { "Road Hazard", "Flood", "Streetlight", "Other" };
 
     private ReportRules() {
     }
 
-    /**
-     * The rules for a new report. Returns the problem to show, or null when the
-     * report is acceptable.
-     */
     public static String reportProblem(String hazardType, Location location, String description,
                                        String specificDetail) {
         if (!isHazardType(hazardType)) {
@@ -54,7 +44,6 @@ public class ReportRules {
                 TextRules.maxProblem(text, "description", 500));
     }
 
-    /** Rules for the reason written when a report is rejected. */
     public static String remarkProblem(String remark) {
         if (remark == null || remark.trim().length() < 5) {
             return "Please write at least 5 characters to explain why the report is rejected.";
@@ -66,10 +55,6 @@ public class ReportRules {
                 TextRules.hasPipe(text) ? "The | character cannot be used in the reason." : null);
     }
 
-    /**
-     * The workflow rule for one status change. Returns the message to show, or
-     * null when the change is allowed.
-     */
     public static String statusProblem(Report report, ReportStatus target, String reason) {
         if (report == null) {
             return "That report is no longer in the records.";
@@ -78,7 +63,6 @@ public class ReportRules {
             return "Please choose the new status.";
         }
 
-        // Report.setStatus(...) is public, so a hand-built report can still carry no status.
         ReportStatus current = report.getStatus();
         if (current == null) {
             return "This report has no status yet.";
@@ -99,7 +83,6 @@ public class ReportRules {
         return target == ReportStatus.REJECTED ? remarkProblem(reason) : null;
     }
 
-    /** True when the text is one of the listed hazard types. */
     public static boolean isHazardType(String hazardType) {
         for (int i = 0; i < HAZARD_TYPES.length; i++) {
             if (HAZARD_TYPES[i].equals(hazardType)) {
@@ -109,7 +92,6 @@ public class ReportRules {
         return false;
     }
 
-    /** The pipe rule for every text of a report, or null. */
     private static String pipeProblem(String... values) {
         for (int i = 0; i < values.length; i++) {
             if (TextRules.hasPipe(values[i])) {
