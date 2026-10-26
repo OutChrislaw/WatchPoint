@@ -1,0 +1,4 @@
+# data/*.txt are tracked on purpose so the seed accounts, reports and locations ship with the project.
+# Design notes (UMLWatchpoint.md and similar) are kept outside the repo; this line stops a local
+# copy from being committed by accident.
+UMLWatchpoint.md

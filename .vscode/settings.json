@@ -1,0 +1,9 @@
+{
+    "code-runner.runInTerminal": false,
+    "code-runner.fileDirectoryAsCwd": false,
+    "code-runner.saveFileBeforeRun": true,
+    "code-runner.clearPreviousOutput": true,
+    "code-runner.executorMap": {
+        "java": "javac -d \"$workspaceRoot\\bin\" -sourcepath \"$workspaceRoot\\src\" \"$workspaceRoot\\src\\app\\WatchPoint.java\" && java -cp \"$workspaceRoot\\bin\" app.WatchPoint"
+    }
+}
